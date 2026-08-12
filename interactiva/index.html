@@ -1,20 +1,731 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zona interactiva | HigroLab</title><style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#dbe3ee;--blue:#1f5f8b;--blue2:#2c78a7;--green:#1f8a4c;--yellow:#ad7a18;--red:#b42318}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}.wrap{max-width:1120px;margin:auto}header{background:linear-gradient(135deg,#163e5f,#2d719d);color:white}.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 18px;gap:18px;flex-wrap:wrap}.brand strong{display:block;font-size:20px}.brand span{font-size:13px;color:#dbeefe}nav{display:flex;gap:8px;flex-wrap:wrap}nav a{color:white;text-decoration:none;padding:9px 12px;border-radius:9px;background:rgba(255,255,255,.08)}nav a:hover,nav a.active{background:rgba(255,255,255,.18)}.hero{padding:46px 18px 52px}.hero h1,.page-title h1{font-size:clamp(32px,5vw,54px);line-height:1.05;margin:0 0 14px}.hero p,.page-title p{max-width:760px;color:#dceefe;font-size:18px;margin:0}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{display:inline-block;text-decoration:none;border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}.btn-primary{background:white;color:#17415f}.btn-secondary{background:rgba(255,255,255,.12);color:white}.btn-blue{background:var(--blue);color:#fff}.btn-soft{background:#eaf3f8;color:#1e5f87}.page-title{padding:28px 18px 36px}main{padding:28px 18px 56px}.section-title{font-size:26px;margin:0 0 8px}.section-sub{margin:0 0 20px;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 20px rgba(15,23,42,.05)}.card h2,.card h3{margin-top:0}.card p{color:var(--muted)}.icon{width:42px;height:42px;border-radius:12px;background:#eaf3f8;color:#1e5f87;display:grid;place-items:center;font-size:20px;margin-bottom:14px}.info-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin-top:28px}.mini-list{display:grid;gap:10px}.mini{padding:12px;border:1px solid var(--line);border-radius:12px;background:#f9fbfd}label{display:block;font-size:14px;font-weight:700;margin:14px 0 6px}input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{padding:14px;background:#f8fafc;border:1px solid var(--line);border-radius:12px}.metric small{color:var(--muted)}.metric strong{display:block;font-size:21px;margin-top:5px}.status{padding:15px;border-radius:12px;margin-top:14px;text-align:center;font-weight:800}.safe{background:#eaf8ef;color:var(--green)}.limit{background:#fff6df;color:var(--yellow)}.danger{background:#fdecec;color:var(--red)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:center}th{background:#eef4f8}.risk-low{background:#eaf8ef}.risk-med{background:#fff6df}.risk-high{background:#fdecec}.video-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.video-card{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 8px 20px rgba(15,23,42,.05)}.thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#244f6a,#4b89af);display:grid;place-items:center;color:white;position:relative}.thumb .play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.9);color:#1f5f8b;display:grid;place-items:center;font-size:28px;padding-left:4px}.badge{position:absolute;left:12px;top:12px;background:rgba(0,0,0,.55);padding:5px 8px;border-radius:999px;font-size:12px}.video-content{padding:16px}.video-content h3{margin:0 0 8px}.video-content p{margin:0 0 14px;color:var(--muted)}.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.75);padding:20px;align-items:center;justify-content:center;z-index:10}.modal.open{display:flex}.modal-card{background:white;border-radius:16px;padding:16px;max-width:860px;width:100%}.video-placeholder{aspect-ratio:16/9;background:#0f172a;color:white;display:grid;place-items:center;border-radius:12px;text-align:center;padding:30px}.modal-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}footer{padding:24px 18px;color:var(--muted);text-align:center}@media(max-width:900px){.grid,.video-grid{grid-template-columns:1fr 1fr}.two-col,.info-grid{grid-template-columns:1fr}}@media(max-width:650px){.grid,.video-grid,.metrics{grid-template-columns:1fr}.hero{padding-top:34px}.page-title h1{font-size:34px}}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zona interactiva | HigroLab</title>
 
-</style></head><body>
-<header><div class="wrap topbar"><div class="brand"><strong>HigroLab</strong><span>Humedad, condensación y vivienda</span></div><nav><a href="/">Inicio</a><a href="/calculadora/">Calculadora</a><a class="active" href="/interactiva/">Zona interactiva</a></nav></div><div class="wrap page-title"><h1>Zona interactiva</h1><p>Galería preparada para incorporar tus videos de YouTube y contenidos educativos.</p></div></header>
-<main class="wrap"><p class="section-sub">Por ahora son seis ejemplos. Después se reemplazan las carátulas y reproductores con tus videos reales.</p><div class="video-grid">
-<article class="video-card"><div class="thumb"><span class="badge">Video 01</span><div class="play">▶</div></div><div class="video-content"><h3>¿Qué es el punto de rocío?</h3><p>Concepto y relación con la temperatura superficial.</p><button class="btn btn-blue open-video" data-title="¿Qué es el punto de rocío?">Ver video</button></div></article>
-<article class="video-card"><div class="thumb"><span class="badge">Video 02</span><div class="play">▶</div></div><div class="video-content"><h3>Condensación superficial</h3><p>Cómo reconocer condiciones que producen humedad sobre muros y ventanas.</p><button class="btn btn-blue open-video" data-title="Condensación superficial">Ver video</button></div></article>
-<article class="video-card"><div class="thumb"><span class="badge">Video 03</span><div class="play">▶</div></div><div class="video-content"><h3>Puentes térmicos</h3><p>Por qué generan superficies frías y cómo influyen en el riesgo.</p><button class="btn btn-blue open-video" data-title="Puentes térmicos">Ver video</button></div></article>
-<article class="video-card"><div class="thumb"><span class="badge">Video 04</span><div class="play">▶</div></div><div class="video-content"><h3>Humedad relativa</h3><p>Cómo cambia con la temperatura y cómo interpretar correctamente el porcentaje.</p><button class="btn btn-blue open-video" data-title="Humedad relativa">Ver video</button></div></article>
-<article class="video-card"><div class="thumb"><span class="badge">Video 05</span><div class="play">▶</div></div><div class="video-content"><h3>Ventilación de la vivienda</h3><p>Estrategias simples para reducir acumulación de humedad interior.</p><button class="btn btn-blue open-video" data-title="Ventilación de la vivienda">Ver video</button></div></article>
-<article class="video-card"><div class="thumb"><span class="badge">Video 06</span><div class="play">▶</div></div><div class="video-content"><h3>Aislación térmica</h3><p>Cómo una mejor envolvente puede elevar las temperaturas interiores de superficie.</p><button class="btn btn-blue open-video" data-title="Aislación térmica">Ver video</button></div></article></div></main>
-<div class="modal" id="modal"><div class="modal-card"><div class="modal-top"><strong id="modalTitle">Video</strong><button class="btn btn-soft" id="close">Cerrar</button></div><div class="video-placeholder"><div><div style="font-size:42px;margin-bottom:12px">▶</div><strong>Espacio preparado para YouTube</strong><p style="opacity:.8">Cuando me pases el enlace, este bloque se reemplaza por el reproductor real.</p></div></div></div></div><script>
-const modal=document.getElementById('modal'),title=document.getElementById('modalTitle');
-document.querySelectorAll('.open-video').forEach(b=>b.addEventListener('click',()=>{title.textContent=b.dataset.title;modal.classList.add('open')}));
-document.getElementById('close').addEventListener('click',()=>modal.classList.remove('open'));
-modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+  <style>
+    :root {
+      --azul:#163e5f;
+      --azul2:#28719d;
+      --fondo:#f4f7fa;
+      --texto:#172033;
+      --gris:#667085;
+      --borde:#dbe3ea;
+      --blanco:#ffffff;
+    }
 
-</script></body></html>
+    * {
+      box-sizing:border-box;
+    }
+
+    body {
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--fondo);
+      color:var(--texto);
+    }
+
+    header {
+      background:linear-gradient(135deg,var(--azul),var(--azul2));
+      color:white;
+    }
+
+    .topbar {
+      max-width:1150px;
+      margin:auto;
+      padding:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .marca strong {
+      display:block;
+      font-size:22px;
+    }
+
+    .marca span {
+      font-size:13px;
+      color:#d9ecf7;
+    }
+
+    nav {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    nav a {
+      color:white;
+      text-decoration:none;
+      padding:10px 13px;
+      border-radius:9px;
+    }
+
+    nav a:hover,
+    nav a.activo {
+      background:rgba(255,255,255,.15);
+    }
+
+    .hero {
+      max-width:1150px;
+      margin:auto;
+      padding:45px 20px 55px;
+    }
+
+    .hero h1 {
+      margin:0 0 12px;
+      font-size:clamp(32px,5vw,50px);
+    }
+
+    .hero p {
+      max-width:720px;
+      margin:0;
+      font-size:18px;
+      line-height:1.6;
+      color:#e1eff7;
+    }
+
+    main {
+      max-width:1150px;
+      margin:auto;
+      padding:35px 20px 60px;
+    }
+
+    .titulo-seccion {
+      margin-bottom:25px;
+    }
+
+    .titulo-seccion h2 {
+      margin:0 0 8px;
+      font-size:28px;
+    }
+
+    .titulo-seccion p {
+      margin:0;
+      color:var(--gris);
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+    }
+
+    .card {
+      background:white;
+      border:1px solid var(--borde);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 8px 25px rgba(15,23,42,.06);
+      transition:.2s;
+    }
+
+    .card:hover {
+      transform:translateY(-3px);
+      box-shadow:0 12px 30px rgba(15,23,42,.10);
+    }
+
+    .miniatura {
+      position:relative;
+      aspect-ratio:16/9;
+      background:linear-gradient(135deg,#244e68,#4c8eb5);
+      overflow:hidden;
+    }
+
+    .miniatura img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .play {
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:65px;
+      height:65px;
+      border-radius:50%;
+      background:rgba(255,255,255,.94);
+      display:grid;
+      place-items:center;
+      color:var(--azul);
+      font-size:28px;
+      padding-left:4px;
+      box-shadow:0 5px 18px rgba(0,0,0,.25);
+    }
+
+    .etiqueta {
+      position:absolute;
+      top:12px;
+      left:12px;
+      background:rgba(0,0,0,.65);
+      color:white;
+      padding:6px 10px;
+      border-radius:20px;
+      font-size:12px;
+    }
+
+    .placeholder {
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:25px;
+      color:white;
+      font-weight:bold;
+    }
+
+    .contenido {
+      padding:18px;
+    }
+
+    .contenido h3 {
+      margin:0 0 9px;
+      font-size:19px;
+    }
+
+    .contenido p {
+      margin:0 0 16px;
+      color:var(--gris);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    button {
+      border:0;
+      border-radius:9px;
+      padding:11px 15px;
+      font-weight:bold;
+      cursor:pointer;
+      background:var(--azul2);
+      color:white;
+    }
+
+    button:hover {
+      opacity:.9;
+    }
+
+    button:disabled {
+      background:#b7c0c8;
+      cursor:not-allowed;
+    }
+
+    .modal {
+      position:fixed;
+      inset:0;
+      background:rgba(5,15,25,.82);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:1000;
+    }
+
+    .modal.abierto {
+      display:flex;
+    }
+
+    .modal-contenido {
+      width:min(950px,100%);
+      background:white;
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 20px 70px rgba(0,0,0,.4);
+    }
+
+    .modal-cabecera {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+      margin-bottom:12px;
+    }
+
+    .modal-cabecera strong {
+      font-size:18px;
+    }
+
+    .cerrar {
+      background:#e8eef3;
+      color:#17344c;
+    }
+
+    .reproductor {
+      position:relative;
+      width:100%;
+      aspect-ratio:16/9;
+      background:#000;
+      border-radius:12px;
+      overflow:hidden;
+    }
+
+    .reproductor iframe {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+
+    .ayuda {
+      margin-top:35px;
+      background:#eaf3f8;
+      border-radius:14px;
+      padding:20px;
+    }
+
+    .ayuda h3 {
+      margin-top:0;
+    }
+
+    .ayuda p {
+      margin-bottom:0;
+      color:#496273;
+      line-height:1.6;
+    }
+
+    footer {
+      text-align:center;
+      padding:25px;
+      color:#667085;
+      font-size:13px;
+    }
+
+    @media(max-width:900px) {
+      .grid {
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:620px) {
+      .grid {
+        grid-template-columns:1fr;
+      }
+
+      .hero {
+        padding-top:30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="topbar">
+
+    <div class="marca">
+      <strong>HigroLab</strong>
+      <span>Humedad, condensación y vivienda</span>
+    </div>
+
+    <nav>
+      <a href="/">Inicio</a>
+      <a href="/calculadora/">Calculadora</a>
+      <a class="activo" href="/interactiva/">Zona interactiva</a>
+    </nav>
+
+  </div>
+
+  <div class="hero">
+
+    <h1>Zona interactiva</h1>
+
+    <p>
+      Aprende de forma visual sobre condensación, humedad,
+      temperatura superficial, ventilación y comportamiento
+      higrotérmico de la vivienda.
+    </p>
+
+  </div>
+
+</header>
+
+
+<main>
+
+  <div class="titulo-seccion">
+
+    <h2>Videos educativos</h2>
+
+    <p>
+      Selecciona un contenido para reproducirlo directamente
+      dentro de HigroLab.
+    </p>
+
+  </div>
+
+
+  <section class="grid">
+
+
+    <!-- VIDEO 1 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <img
+          src="https://img.youtube.com/vi/x_Rjc4mse4c/hqdefault.jpg"
+          alt="¿Por qué se genera condensación?"
+        >
+
+        <span class="etiqueta">
+          Condensación
+        </span>
+
+        <div class="play">
+          ▶
+        </div>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>
+          ¿Por qué se genera condensación?
+        </h3>
+
+        <p>
+          Aprende cómo la humedad del aire, el punto de rocío
+          y las superficies frías pueden provocar condensación
+          dentro de una vivienda.
+        </p>
+
+        <button
+          class="ver-video"
+          data-video="x_Rjc4mse4c"
+          data-titulo="¿Por qué se genera condensación?"
+        >
+          ▶ Ver video
+        </button>
+
+      </div>
+
+    </article>
+
+
+    <!-- VIDEO 2 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <div class="placeholder">
+          Próximamente
+        </div>
+
+        <span class="etiqueta">
+          Punto de rocío
+        </span>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>¿Qué es el punto de rocío?</h3>
+
+        <p>
+          Conceptos fundamentales para comprender cuándo
+          puede comenzar la condensación.
+        </p>
+
+        <button disabled>
+          Próximamente
+        </button>
+
+      </div>
+
+    </article>
+
+
+    <!-- VIDEO 3 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <div class="placeholder">
+          Próximamente
+        </div>
+
+        <span class="etiqueta">
+          Construcción
+        </span>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>Puentes térmicos</h3>
+
+        <p>
+          Aprende por qué algunas zonas de muros, pilares
+          y encuentros pueden presentar temperaturas más bajas.
+        </p>
+
+        <button disabled>
+          Próximamente
+        </button>
+
+      </div>
+
+    </article>
+
+
+    <!-- VIDEO 4 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <div class="placeholder">
+          Próximamente
+        </div>
+
+        <span class="etiqueta">
+          Humedad
+        </span>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>Humedad relativa</h3>
+
+        <p>
+          Comprende qué significa la humedad relativa y cómo
+          cambia cuando cambia la temperatura del aire.
+        </p>
+
+        <button disabled>
+          Próximamente
+        </button>
+
+      </div>
+
+    </article>
+
+
+    <!-- VIDEO 5 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <div class="placeholder">
+          Próximamente
+        </div>
+
+        <span class="etiqueta">
+          Ventilación
+        </span>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>Ventilación de la vivienda</h3>
+
+        <p>
+          Estrategias para disminuir la acumulación de humedad
+          interior mediante una ventilación adecuada.
+        </p>
+
+        <button disabled>
+          Próximamente
+        </button>
+
+      </div>
+
+    </article>
+
+
+    <!-- VIDEO 6 -->
+
+    <article class="card">
+
+      <div class="miniatura">
+
+        <div class="placeholder">
+          Próximamente
+        </div>
+
+        <span class="etiqueta">
+          Aislación
+        </span>
+
+      </div>
+
+      <div class="contenido">
+
+        <h3>Aislación térmica</h3>
+
+        <p>
+          Conoce cómo la aislación puede ayudar a mantener
+          temperaturas superficiales interiores más altas.
+        </p>
+
+        <button disabled>
+          Próximamente
+        </button>
+
+      </div>
+
+    </article>
+
+
+  </section>
+
+
+  <section class="ayuda">
+
+    <h3>¿Cómo se relaciona esto con la calculadora?</h3>
+
+    <p>
+      Puedes utilizar la calculadora de HigroLab para obtener
+      el punto de rocío y evaluar el margen existente entre
+      la temperatura superficial y la temperatura de rocío.
+      Los videos de esta sección complementan esos resultados
+      con explicaciones visuales.
+    </p>
+
+  </section>
+
+</main>
+
+
+<!-- VENTANA DEL VIDEO -->
+
+<div id="modal" class="modal">
+
+  <div class="modal-contenido">
+
+    <div class="modal-cabecera">
+
+      <strong id="tituloVideo">
+        Video
+      </strong>
+
+      <button id="cerrar" class="cerrar">
+        ✕ Cerrar
+      </button>
+
+    </div>
+
+    <div class="reproductor">
+
+      <iframe
+        id="youtubePlayer"
+        src=""
+        title="Reproductor de YouTube"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<footer>
+  HigroLab · Herramientas educativas sobre humedad y condensación
+</footer>
+
+
+<script>
+
+  const modal =
+    document.getElementById("modal");
+
+  const player =
+    document.getElementById("youtubePlayer");
+
+  const titulo =
+    document.getElementById("tituloVideo");
+
+  const cerrar =
+    document.getElementById("cerrar");
+
+
+  document
+    .querySelectorAll(".ver-video")
+    .forEach(boton => {
+
+      boton.addEventListener("click", () => {
+
+        const video =
+          boton.dataset.video;
+
+        const nombre =
+          boton.dataset.titulo;
+
+        titulo.textContent =
+          nombre;
+
+        player.src =
+          "https://www.youtube.com/embed/" +
+          video +
+          "?autoplay=1&rel=0";
+
+        modal.classList.add("abierto");
+
+      });
+
+    });
+
+
+  function cerrarVideo() {
+
+    modal.classList.remove("abierto");
+
+    player.src = "";
+
+  }
+
+
+  cerrar.addEventListener(
+    "click",
+    cerrarVideo
+  );
+
+
+  modal.addEventListener(
+    "click",
+    evento => {
+
+      if (evento.target === modal) {
+        cerrarVideo();
+      }
+
+    }
+  );
+
+
+  document.addEventListener(
+    "keydown",
+    evento => {
+
+      if (evento.key === "Escape") {
+        cerrarVideo();
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
