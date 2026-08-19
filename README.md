@@ -44,3 +44,10 @@ La página `simulador-muro.html` incorpora ahora:
 - Animación automática del slider al espesor mínimo calculado.
 
 El análisis corresponde a condensación superficial mediante un modelo térmico 1D estacionario simplificado. No evalúa condensación intersticial dentro del cerramiento.
+
+
+## V4 — Perfil térmico y controles mejorados
+- El área del muro ahora indica explícitamente **m²** y aclara que solo afecta la pérdida total en W.
+- El margen objetivo de condensación se puede ajustar entre **+0,5 °C y +10 °C** en pasos de 0,5 °C, con slider y entrada numérica.
+- El perfil térmico muestra la **temperatura en cada punto**: aire exterior, superficie exterior, interfaces/capas, superficie interior y aire interior.
+- El gráfico conserva la línea del punto de rocío y las etiquetas se incorporan también al informe PDF al capturar el SVG.
