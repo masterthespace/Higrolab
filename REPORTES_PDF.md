@@ -20,3 +20,6 @@ El usuario debe seleccionar **Guardar como PDF** en el diálogo de impresión de
 ## Privacidad
 
 La exportación se genera localmente en el navegador. No se envían los datos de proyecto, cliente u observaciones a un servidor.
+
+## Corrección V2
+Se normaliza la ruta activa para funcionar tanto con URLs `.html` como con las rutas limpias de Vercel (`cleanUrls: true`). Esta corrección permite que el panel “Exportar simulación HIDROLAB” aparezca en producción.

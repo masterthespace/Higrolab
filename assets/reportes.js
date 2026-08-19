@@ -7,7 +7,11 @@
     'riesgo-moho.html','costo-calefaccion.html','comparador-u.html'
   ]);
 
-  const current = location.pathname.split('/').pop() || 'index.html';
+  // Vercel usa cleanUrls=true, por lo que /calculadora-rocio.html
+  // puede publicarse como /calculadora-rocio. Normalizamos ambas rutas.
+  const cleanPath = location.pathname.replace(/\/+$/, '');
+  const lastSegment = cleanPath.split('/').pop() || 'index';
+  const current = lastSegment.endsWith('.html') ? lastSegment : `${lastSegment}.html`;
   if (!REPORT_PAGES.has(current)) return;
 
   const $ = (s,r=document)=>r.querySelector(s);

@@ -29,3 +29,6 @@ Las herramientas son educativas/técnicas de cálculo simplificado. Los valores 
 ## Informes PDF
 
 Las calculadoras incorporan exportación de informes mediante el diálogo de impresión del navegador. Los informes incluyen marca de agua HIDROLAB y el pie "Calificador CEV Gonzalo C.". Consulta `REPORTES_PDF.md`.
+
+### V2 - Corrección del generador de informes
+El módulo de informes detecta correctamente las rutas limpias de Vercel, por ejemplo `/calculadora-rocio` además de `/calculadora-rocio.html`.
