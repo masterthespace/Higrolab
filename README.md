@@ -25,3 +25,7 @@ Proyecto estático listo para GitHub + Vercel.
 
 ## Alcance técnico
 Las herramientas son educativas/técnicas de cálculo simplificado. Los valores de conductividad térmica predefinidos son orientativos y editables. El comparador U no incorpora límites legales precargados: el usuario debe ingresar el límite vigente que corresponda a su proyecto o normativa.
+
+## Informes PDF
+
+Las calculadoras incorporan exportación de informes mediante el diálogo de impresión del navegador. Los informes incluyen marca de agua HIDROLAB y el pie "Calificador CEV Gonzalo C.". Consulta `REPORTES_PDF.md`.
