@@ -1,22 +1,27 @@
-# HIDROLAB — proyecto completo
+# HIDROLAB · Suite completa
 
-Este ZIP está pensado para reemplazar el contenido actual del repositorio conectado a Vercel.
+Proyecto estático listo para GitHub + Vercel.
 
-## Archivos principales
-- index.html
-- calculadoras.html
-- calculadora-rocio.html
-- calculadora-sin-muro.html
-- zona-interactiva.html
-- styles.css
-- rocio.js
-- vercel.json
+## Páginas
+- `index.html` — inicio
+- `calculadoras.html` — catálogo de herramientas
+- `calculadora-rocio.html` — punto de rocío con temperatura de muro
+- `calculadora-sin-muro.html` — riesgo sin temperatura superficial medida
+- `riesgo-moho.html` — humedad superficial persistente / indicador preventivo
+- `ventilacion-humedad.html` — balance de vapor, caudal y ACH
+- `simulador-muro.html` — capas, R, U, temperatura superficial y mejora con aislación
+- `perdidas-termicas.html` — pérdidas por transmisión + ventilación
+- `comparador-u.html` — comparación configurable con U límite de referencia
+- `confort-termico.html` — PMV/PPD
+- `costo-calefaccion.html` — consumo y costo eléctrico según COP y tarifa
+- `zona-interactiva.html` — galería preparada para videos
 
-## Reemplazo en GitHub
-1. Conserva el repositorio conectado a Vercel.
-2. Elimina del repositorio los archivos anteriores que ya no usarás.
-3. Sube todos los archivos de este ZIP a la raíz del repositorio.
-4. Haz Commit en la rama de producción (normalmente `main`).
-5. Vercel desplegará automáticamente el nuevo commit.
+## Reemplazar el proyecto anterior
+1. Descarga y descomprime el ZIP completo.
+2. En el repositorio GitHub conectado a Vercel, elimina/reemplaza los archivos anteriores.
+3. Sube **el contenido de esta carpeta directamente a la raíz** del repositorio.
+4. Haz Commit en la rama de producción.
+5. Vercel desplegará el commit automáticamente si el repositorio sigue conectado.
 
-`vercel.json` activa URLs limpias, por lo que `calculadoras.html` podrá verse como `/calculadoras`.
+## Alcance técnico
+Las herramientas son educativas/técnicas de cálculo simplificado. Los valores de conductividad térmica predefinidos son orientativos y editables. El comparador U no incorpora límites legales precargados: el usuario debe ingresar el límite vigente que corresponda a su proyecto o normativa.
