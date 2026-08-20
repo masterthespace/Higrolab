@@ -82,3 +82,7 @@ Los módulos que dependen de modelos internos u horarios de la CEV (FAV numéric
 
 ## V6 · Simulador solar
 Se agregó `simulador-solar.html` con visualización 3D simplificada, posición solar por comuna/fecha/hora, sombras y diseñador de aleros. Ver `CAMBIOS_V6.md`.
+
+
+## V6.1 — Simulador solar avanzado
+El módulo `simulador-solar.html` incorpora selector local de 346 comunas, trayectoria solar polar, iluminación de fachadas y sombra proyectada. La ubicación comunal es representativa y puede reemplazarse por latitud/longitud exactas del proyecto.
