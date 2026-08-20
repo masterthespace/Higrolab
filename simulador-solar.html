@@ -1,13 +1,13 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIDROLAB · Solar Studio 3D</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="assets/solar-studio.css"><meta name="referrer" content="strict-origin-when-cross-origin"></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.3.2 · SOLAR STUDIO</div><h1>Simulador Solar Avanzado de Vivienda</h1><p>Editor de planta tipo CAD + modelo WebGL 3D fiel + orientación geográfica + sombras solares.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.3.3 · SOLAR STUDIO</div><h1>Simulador Solar Avanzado de Vivienda</h1><p>Editor de planta tipo CAD + modelo WebGL 3D fiel + orientación geográfica + sombras solares.</p></div></header>
 <main class="studio">
 <section class="studio-topbar"><div class="segmented"><button class="tab active" data-view="plan">PLANTA</button><button class="tab" data-view="model">3D</button><button class="tab" data-view="solar">ANÁLISIS SOLAR</button></div><div class="project-meta"><span id="status-pill">Cargando módulo…</span><button id="reset-project">Nuevo</button></div></section>
 <section class="workspace">
 <aside class="toolrail"><button data-tool="select" class="active" title="Seleccionar">↖<span>Seleccionar</span></button><button data-tool="wall" title="Dibujar perímetro">⌁<span>Perímetro</span></button><button data-tool="measure" title="Medir / calibrar">↔<span>Calibrar</span></button><button data-tool="north" title="Definir norte">N↑<span>Norte</span></button><button id="undo" title="Deshacer">↶<span>Deshacer</span></button><button id="fit" title="Ajustar vista">⌗<span>Ajustar</span></button></aside>
 <div class="viewport-wrap">
 <div id="plan-view" class="viewport active"><canvas id="cad"></canvas><div class="hud top-left"><strong>PLANTA</strong><span id="cad-hint">Carga una imagen y calibra una distancia conocida.</span></div><div class="hud bottom-left"><span>Rueda: zoom · arrastrar botón central/derecho: desplazar · clic: dibujar</span></div></div>
-<div id="model-view" class="viewport"><div id="three-stage"></div><div class="viewcube"><button data-cam="top">TOP</button><div><button data-cam="west">O</button><button data-cam="iso">3D</button><button data-cam="east">E</button></div><button data-cam="north">N</button></div><div class="hud bottom-left"><span>Izquierdo: orbitar · rueda: zoom · derecho: desplazar</span></div></div>
-<div id="solar-view" class="viewport"><div id="three-solar"></div><div class="solar-time"><button id="play">▶</button><input id="time" type="range" min="300" max="1260" step="5" value="720"><strong id="time-out">12:00</strong></div><div class="hud top-left solar-readout"><strong id="sun-title">Sol</strong><span id="sun-data">—</span></div></div>
+<div id="model-view" class="viewport"><div id="three-stage"></div><div class="hud top-left model-hint"><strong>MODELO 3D</strong><span>Haz clic en una fachada o vértice para inspeccionarlo.</span></div><div class="viewcube"><button data-cam="top">TOP</button><div><button data-cam="west">O</button><button data-cam="iso">3D</button><button data-cam="east">E</button></div><button data-cam="north">N</button></div><div class="hud bottom-left"><span>Izquierdo: orbitar · rueda: zoom · derecho: desplazar</span></div></div>
+<div id="solar-view" class="viewport"><div id="three-solar"></div><div class="solar-legend"><span><i class="dot sun"></i> Sol actual</span><span><i class="line path"></i> Trayectoria diaria</span><span><i class="swatch selected"></i> Fachada seleccionada</span></div><div class="solar-time"><button id="play">▶</button><input id="time" type="range" min="300" max="1260" step="5" value="720"><strong id="time-out">12:00</strong></div><div class="hud top-left solar-readout"><strong id="sun-title">Sol</strong><span id="sun-data">—</span></div></div>
 </div>
 <aside class="inspector">
 <div class="panel"><h3>EMPLAZAMIENTO</h3><label>Región<select id="region-select"></select></label><label>Comuna<select id="commune-select"></select></label><label>Coordenadas Google Maps<input id="coords" placeholder="33°35'46.9&quot;S 70°52'32.2&quot;W"></label><div class="grid2"><label>Latitud<input id="lat" type="number" step=".000001" value="-33.596361"></label><label>Longitud<input id="lon" type="number" step=".000001" value="-70.875611"></label></div><div class="grid2"><label>Fecha<input id="date" type="date"></label><label>UTC<select id="tz"><option>-3</option><option selected>-4</option><option>-5</option><option>-6</option></select></label></div></div>
@@ -15,4 +15,38 @@
 <div class="panel"><h3>EDIFICIO</h3><label>Altura de muros [m]<input id="wall-height" type="number" min="1" step=".1" value="2.4"></label><label>Azimut adicional del edificio [°]<input id="building-az" type="number" min="0" max="359" step="1" value="0"></label><label class="switch"><input id="snap90" type="checkbox" checked> Snap ortogonal 90°</label><div class="metrics"><div><span>Área</span><strong id="area-out">—</strong></div><div><span>Perímetro</span><strong id="perim-out">—</strong></div><div><span>Fachadas</span><strong id="faces-out">—</strong></div></div></div>
 <div class="panel" id="selection-panel"><h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div></div>
 </aside>
-</section></main><script src="assets/comunas-chile.js"></script><script type="module" src="assets/solar-studio.js"></script></body></html>
+</section>
+<section class="sun-dashboard" id="sun-dashboard">
+  <div class="sun-dashboard-head">
+    <div>
+      <span class="dash-kicker">ANÁLISIS DIARIO</span>
+      <h2>Horas de asoleamiento por fachada</h2>
+      <p>Exposición de sol directo en el punto medio de cada fachada para la fecha y emplazamiento seleccionados. El cálculo considera orientación, trayectoria solar y autosombra de la propia geometría; no incorpora edificios o árboles externos.</p>
+    </div>
+    <div class="dash-summary">
+      <span id="daylight-out">—</span>
+      <small>duración solar del día</small>
+    </div>
+  </div>
+  <div id="sun-hours-grid" class="sun-hours-grid">
+    <div class="sun-empty">Dibuja y cierra una planta para obtener el análisis diario de cada fachada.</div>
+  </div>
+  <div class="sun-selected" id="sun-selected">
+    <div>
+      <span class="dash-kicker">FACHADA SELECCIONADA</span>
+      <strong id="selected-facade-name">Ninguna</strong>
+      <p id="selected-facade-detail">Haz clic sobre una fachada del modelo 3D o del análisis solar.</p>
+    </div>
+    <div class="selected-metrics">
+      <div><span>Azimut</span><strong id="selected-az">—</strong></div>
+      <div><span>Sol directo</span><strong id="selected-hours">—</strong></div>
+      <div><span>Primer sol</span><strong id="selected-first">—</strong></div>
+      <div><span>Último sol</span><strong id="selected-last">—</strong></div>
+    </div>
+    <div class="selected-timeline">
+      <div class="timeline-scale"><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span></div>
+      <div id="selected-track" class="sun-track large"></div>
+    </div>
+  </div>
+</section>
+</main><script src="assets/comunas-chile.js"></script><script type="module" src="assets/solar-studio.js"></script></body></html>
