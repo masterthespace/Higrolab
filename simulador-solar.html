@@ -9,7 +9,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 </head>
 <body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.2 · Diseño solar interactivo</div><h1>Simulador solar avanzado de vivienda</h1><p>Selecciona una comuna, define el volumen y la orientación, recorre el día y observa con claridad la posición del sol, la trayectoria solar, las fachadas iluminadas y la sombra proyectada.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.2 · Planta real + diseño solar interactivo</div><h1>Simulador solar avanzado de vivienda</h1><p>Carga una captura satelital, calibra el Norte, dibuja la planta real aproximada de la vivienda y extrúyela en 3D para analizar asoleamiento, fachadas iluminadas y sombras según ubicación, fecha y hora.</p></div></header>
 <main class="wrap main solar-main">
 <section class="card solar-intro"><div><p class="kicker">Simulación complementaria</p><h2>Posición solar + trayectoria + sombra + aleros</h2><p>La posición solar se calcula localmente a partir de coordenadas, fecha, hora y huso horario. La selección de comuna funciona sin conexión mediante una base local de 346 comunas; las coordenadas pueden editarse manualmente si necesitas representar un punto más preciso.</p></div><div class="solar-note"><strong>Importante</strong><span>Herramienta de apoyo bioclimático HIDROLAB. No reemplaza por sí sola los procedimientos oficiales FAV/FAR o memorias exigidas por CEV/MINVU.</span></div></section>
 
@@ -18,21 +18,38 @@
 <p class="kicker">01 · Emplazamiento</p><h2>Comuna, fecha y hora</h2>
 <div class="two-cols"><div class="field"><label for="region-select">Región</label><select id="region-select"></select></div><div class="field"><label for="commune-select">Comuna</label><select id="commune-select"></select></div></div>
 <div id="geo-status" class="location-chip" aria-live="polite">Selecciona una comuna.</div>
-<details class="manual-coords"><summary>Coordenadas manuales</summary><div class="two-cols"><div class="field"><label for="lat">Latitud [°]</label><input id="lat" type="number" step="0.0001" value="-33.6064"/></div><div class="field"><label for="lon">Longitud [°]</label><input id="lon" type="number" step="0.0001" value="-70.8767"/></div></div><small>La coordenada comunal es representativa. Para un proyecto real puedes reemplazarla por las coordenadas exactas del terreno.</small></details>
+<details class="manual-coords"><summary>Coordenadas exactas del terreno</summary><div class="field"><label for="coords-paste">Pegar coordenadas de Google Maps</label><input id="coords-paste" type="text" placeholder="Ej.: 33°35&#39;46.9&quot;S 70°52&#39;32.2&quot;W"/><small>Puedes pegar grados/minutos/segundos o coordenadas decimales. HIDROLAB las convierte automáticamente.</small></div><div class="two-cols"><div class="field"><label for="lat">Latitud [°]</label><input id="lat" type="number" step="0.000001" value="-33.6064"/></div><div class="field"><label for="lon">Longitud [°]</label><input id="lon" type="number" step="0.000001" value="-70.8767"/></div></div><small>La coordenada comunal es representativa. Para análisis de una vivienda específica conviene usar el punto exacto del terreno.</small></details>
 <div class="two-cols"><div class="field"><label for="date">Fecha</label><input id="date" type="date"/></div><div class="field"><label for="tz">Huso horario [UTC]</label><select id="tz"><option value="-3">UTC−3</option><option value="-4" selected>UTC−4</option><option value="-5">UTC−5</option><option value="-6">UTC−6</option></select></div></div>
 <div class="preset-row"><button type="button" data-preset="today">Hoy</button><button type="button" data-preset="winter">21 jun</button><button type="button" data-preset="equinox">21 sep</button><button type="button" data-preset="summer">21 dic</button></div>
 <div class="field"><label for="time-range">Hora simulada <strong id="time-label">12:00</strong></label><input id="time-range" type="range" min="240" max="1320" step="5" value="720"/><div class="range-ends"><span>04:00</span><span>22:00</span></div></div>
 <div class="play-row"><button id="play" class="btn btn-dark" type="button">▶ Recorrer el día</button><button id="noon" class="btn" type="button">12:00</button><button id="sunrise-btn" class="btn" type="button">Amanecer</button><button id="sunset-btn" class="btn" type="button">Atardecer</button></div>
 <hr/>
-<p class="kicker">02 · Volumen</p><h2>Dimensiones y orientación</h2>
-<div class="three-cols"><div class="field"><label for="width">Ancho [m]</label><input id="width" type="number" min="1" max="50" step="0.1" value="8"/></div><div class="field"><label for="length">Largo [m]</label><input id="length" type="number" min="1" max="50" step="0.1" value="12"/></div><div class="field"><label for="height">Altura [m]</label><input id="height" type="number" min="1" max="20" step="0.1" value="5.5"/></div></div>
+<p class="kicker">02 · Planta real y Norte</p><h2>Calzar la vivienda con la imagen satelital</h2>
+<p class="plan-help">Carga una captura del terreno, verifica dónde está el Norte y dibuja el perímetro haciendo clic en cada esquina. HIDROLAB calcula el azimut de cada fachada y usa esa planta para crear el volumen 3D.</p>
+<div class="field"><label for="plan-image">Captura satelital / plano [JPG, PNG]</label><input id="plan-image" type="file" accept="image/png,image/jpeg,image/webp"/></div>
+<div class="plan-toolbar">
+  <button id="north-up" type="button">↑ Norte arriba</button>
+  <button id="north-pick" type="button">Definir Norte con 2 clics</button>
+  <button id="scale-pick" type="button">Calibrar escala con 2 clics</button>
+  <button id="draw-plan" type="button" class="is-active">Dibujar vivienda</button>
+  <button id="undo-plan" type="button">Deshacer</button>
+  <button id="close-plan" type="button">Cerrar planta</button>
+  <button id="reset-plan" type="button">Limpiar</button>
+</div>
+<div class="two-cols plan-settings"><div class="field"><label for="north-angle">Norte en la imagen <strong id="north-angle-label">0°</strong></label><input id="north-angle" type="range" min="-180" max="180" step="0.5" value="0"/><small>0° = Norte hacia arriba. Positivo = el Norte gira en sentido horario dentro de la imagen.</small></div><div class="field"><label for="scale-distance">Distancia real entre los 2 puntos [m]</label><div class="inline-control"><input id="scale-distance" type="number" min="0.1" step="0.1" value="10"/><button id="apply-scale" type="button">Aplicar</button></div><small id="scale-status">Escala no calibrada. Se usarán las dimensiones simples como referencia.</small></div></div>
+<div id="plan-editor" class="plan-editor" role="img" aria-label="Editor de planta sobre imagen satelital"></div>
+<div id="plan-status" class="plan-status" aria-live="polite">Carga una imagen o dibuja directamente sobre el fondo. Haz clic en las esquinas de la vivienda.</div>
+<div id="facade-azimuth-list" class="facade-azimuth-list"></div>
+<hr/>
+<p class="kicker">03 · Volumen</p><h2>Altura y modo geométrico</h2>
+<div class="three-cols"><div class="field"><label for="width">Ancho simple [m]</label><input id="width" type="number" min="1" max="50" step="0.1" value="8"/></div><div class="field"><label for="length">Largo simple [m]</label><input id="length" type="number" min="1" max="50" step="0.1" value="12"/></div><div class="field"><label for="height">Altura de muros [m]</label><input id="height" type="number" min="1" max="20" step="0.1" value="5.5"/></div></div><div class="geometry-mode"><label><input id="use-custom-plan" type="checkbox" checked/> Usar planta dibujada cuando esté cerrada</label><span>Si no hay una planta cerrada, se usa el rectángulo simple.</span></div>
 <div class="field"><label for="building-az">Azimut fachada principal <strong id="building-az-label">0° · Norte</strong></label><input id="building-az" type="range" min="0" max="359" step="1" value="0"/><div class="compass-ticks"><span>N</span><span>E</span><span>S</span><span>O</span></div></div>
 <div class="orientation-buttons"><button type="button" data-az="0">Norte</button><button type="button" data-az="90">Oriente</button><button type="button" data-az="180">Sur</button><button type="button" data-az="270">Poniente</button></div>
 </div>
 
 <div class="solar-visual-column">
 <div class="card solar-stage-card">
-<div class="stage-head"><div><p class="kicker">03 · Modelo dinámico</p><h2>Sol, caras iluminadas y sombra</h2></div><div id="sun-status" class="sun-status">Calculando…</div></div>
+<div class="stage-head"><div><p class="kicker">04 · Modelo dinámico</p><h2>Sol, caras iluminadas y sombra</h2></div><div id="sun-status" class="sun-status">Calculando…</div></div>
 <div class="stage-legend"><span><i class="legend-lit"></i>Sol directo</span><span><i class="legend-shade"></i>Sombra propia</span><span><i class="legend-ground"></i>Sombra proyectada</span></div>
 <div class="camera-toolbar" aria-label="Controles de cámara 3D">
   <div class="camera-help"><strong>Vista 3D:</strong> arrastra para orbitar · rueda para zoom · Shift/arrastre o botón derecho para desplazar.</div>
@@ -53,17 +70,17 @@
 </div>
 
 <div class="card sunpath-card">
-<div class="stage-head"><div><p class="kicker">04 · Carta solar del día</p><h2>Trayectoria y posición actual</h2></div><span class="hint">Centro = 90° de elevación · borde = horizonte</span></div>
+<div class="stage-head"><div><p class="kicker">05 · Carta solar del día</p><h2>Trayectoria y posición actual</h2></div><span class="hint">Centro = 90° de elevación · borde = horizonte</span></div>
 <div id="sun-path" class="sun-path" role="img" aria-label="Diagrama polar de trayectoria solar"></div>
 <div class="sunpath-summary"><div><span>Amanecer aprox.</span><strong id="sunrise">—</strong></div><div><span>Mediodía solar aprox.</span><strong id="solar-noon">—</strong></div><div><span>Atardecer aprox.</span><strong id="sunset">—</strong></div></div>
 </div>
 </div>
 </section>
 
-<section class="card timeline-card"><div class="stage-head"><div><p class="kicker">05 · Día completo</p><h2>Exposición solar por fachada y cubierta</h2></div><span class="hint">Factor geométrico de incidencia directa. No equivale a irradiancia climática en W/m².</span></div><div id="daily-timeline" class="daily-timeline"></div></section>
+<section class="card timeline-card"><div class="stage-head"><div><p class="kicker">06 · Día completo</p><h2>Exposición solar por fachada y cubierta</h2></div><span class="hint">Factor geométrico de incidencia directa. No equivale a irradiancia climática en W/m².</span></div><div id="daily-timeline" class="daily-timeline"></div></section>
 
 <section class="solar-grid eave-section">
-<div class="card eave-controls"><p class="kicker">06 · Diseñador de alero</p><h2>¿Cuánto sombrea mi ventana?</h2><p>Selecciona una fachada y ajusta el alero. El cálculo usa la posición solar del instante seleccionado.</p>
+<div class="card eave-controls"><p class="kicker">07 · Diseñador de alero</p><h2>¿Cuánto sombrea mi ventana?</h2><p>Selecciona una fachada y ajusta el alero. El cálculo usa la posición solar del instante seleccionado.</p>
 <div class="field"><label for="eave-face">Fachada</label><select id="eave-face"><option value="front">Principal</option><option value="right">Derecha</option><option value="back">Posterior</option><option value="left">Izquierda</option></select></div>
 <div class="field"><label for="window-h">Altura de ventana [m] <strong id="window-h-label">1,50</strong></label><input id="window-h" type="range" min="0.5" max="3" step="0.05" value="1.5"/></div>
 <div class="field"><label for="eave-depth">Profundidad del alero [m] <strong id="eave-depth-label">0,60</strong></label><input id="eave-depth" type="range" min="0" max="2.5" step="0.05" value="0.6"/></div>
@@ -73,7 +90,7 @@
 <div class="card eave-visual-card"><div class="stage-head"><div><p class="kicker">Visualización instantánea</p><h2>Sección del alero y ventana</h2></div><span id="eave-face-name" class="viz-badge">Principal</span></div><div id="eave-visual" class="eave-visual"></div><div id="eave-message" class="solar-callout" aria-live="polite"></div></div>
 </section>
 
-<section class="card methodology"><p class="kicker">07 · Lectura técnica</p><h2>Cómo interpretar la simulación</h2><div class="method-grid"><div><strong>Fachadas</strong><p>Las caras amarillas reciben sol directo; las azul-gris quedan en sombra propia del volumen.</p></div><div><strong>Sombra proyectada</strong><p>La mancha oscura se proyecta sobre el terreno desde los vértices superiores y cambia con la elevación y azimut solar.</p></div><div><strong>Carta solar</strong><p>Permite ver la trayectoria del sol durante el día y relacionar visualmente azimut, elevación y orientación del edificio.</p></div><div><strong>CEV</strong><p>Para acreditaciones oficiales deben mantenerse los procedimientos FAV/FAR, tablas, normas y memorias exigidas por MINVU.</p></div></div></section>
+<section class="card methodology"><p class="kicker">08 · Lectura técnica</p><h2>Cómo interpretar la simulación</h2><div class="method-grid"><div><strong>Fachadas</strong><p>Las caras amarillas reciben sol directo; las azul-gris quedan en sombra propia del volumen.</p></div><div><strong>Sombra proyectada</strong><p>La mancha oscura se proyecta sobre el terreno desde los vértices superiores y cambia con la elevación y azimut solar.</p></div><div><strong>Carta solar</strong><p>Permite ver la trayectoria del sol durante el día y relacionar visualmente azimut, elevación y orientación del edificio.</p></div><div><strong>CEV</strong><p>Para acreditaciones oficiales deben mantenerse los procedimientos FAV/FAR, tablas, normas y memorias exigidas por MINVU.</p></div></div></section>
 </main>
 <footer class="wrap footer">HIDROLAB · Simulación solar complementaria para diseño bioclimático</footer>
 <script src="assets/comunas-chile.js"></script><script src="assets/simulador-solar.js"></script><script src="assets/reportes.js"></script>

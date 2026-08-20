@@ -90,3 +90,8 @@ El módulo `simulador-solar.html` incorpora selector local de 346 comunas, traye
 ## V6.2 — Cámara orbital 3D
 
 El simulador solar permite ahora orbitar el modelo con el mouse o el tacto sin modificar el azimut físico de la vivienda. Incluye zoom, desplazamiento, vistas cardinales, vista superior y restablecimiento de cámara. El control de orientación del edificio continúa separado de la cámara para preservar los cálculos de incidencia solar y sombra.
+
+
+## Afinación del Simulador Solar V6.2
+
+El módulo `simulador-solar.html` permite cargar una captura satelital, calibrar el Norte, dibujar una planta irregular, obtener el azimut de cada fachada y extruirla a un modelo 3D para el análisis solar. También acepta coordenadas de Google Maps en DMS o grados decimales.
