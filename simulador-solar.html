@@ -9,7 +9,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 </head>
 <body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.2 · Planta real + diseño solar interactivo</div><h1>Simulador solar avanzado de vivienda</h1><p>Carga una captura satelital, calibra el Norte, dibuja la planta real aproximada de la vivienda y extrúyela en 3D para analizar asoleamiento, fachadas iluminadas y sombras según ubicación, fecha y hora.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.2.1 · Planta real calibrada con precisión</div><h1>Simulador solar avanzado de vivienda</h1><p>Carga una captura satelital a tamaño útil, conserva su proporción original, calibra una distancia real sobre la misma imagen y dibuja la vivienda exactamente sobre esa referencia antes de extruirla en 3D.</p></div></header>
 <main class="wrap main solar-main">
 <section class="card solar-intro"><div><p class="kicker">Simulación complementaria</p><h2>Posición solar + trayectoria + sombra + aleros</h2><p>La posición solar se calcula localmente a partir de coordenadas, fecha, hora y huso horario. La selección de comuna funciona sin conexión mediante una base local de 346 comunas; las coordenadas pueden editarse manualmente si necesitas representar un punto más preciso.</p></div><div class="solar-note"><strong>Importante</strong><span>Herramienta de apoyo bioclimático HIDROLAB. No reemplaza por sí sola los procedimientos oficiales FAV/FAR o memorias exigidas por CEV/MINVU.</span></div></section>
 
@@ -25,7 +25,7 @@
 <div class="play-row"><button id="play" class="btn btn-dark" type="button">▶ Recorrer el día</button><button id="noon" class="btn" type="button">12:00</button><button id="sunrise-btn" class="btn" type="button">Amanecer</button><button id="sunset-btn" class="btn" type="button">Atardecer</button></div>
 <hr/>
 <p class="kicker">02 · Planta real y Norte</p><h2>Calzar la vivienda con la imagen satelital</h2>
-<p class="plan-help">Carga una captura del terreno, verifica dónde está el Norte y dibuja el perímetro haciendo clic en cada esquina. HIDROLAB calcula el azimut de cada fachada y usa esa planta para crear el volumen 3D.</p>
+<p class="plan-help">La imagen ya no se deforma: se mantiene su proporción original y todos los clics se guardan en las coordenadas reales de la imagen. Primero define el Norte, luego calibra una distancia conocida y finalmente dibuja el perímetro.</p>
 <div class="field"><label for="plan-image">Captura satelital / plano [JPG, PNG]</label><input id="plan-image" type="file" accept="image/png,image/jpeg,image/webp"/></div>
 <div class="plan-toolbar">
   <button id="north-up" type="button">↑ Norte arriba</button>
@@ -35,9 +35,10 @@
   <button id="undo-plan" type="button">Deshacer</button>
   <button id="close-plan" type="button">Cerrar planta</button>
   <button id="reset-plan" type="button">Limpiar</button>
+  <button id="plan-fit" type="button">Ajustar imagen</button>
 </div>
-<div class="two-cols plan-settings"><div class="field"><label for="north-angle">Norte en la imagen <strong id="north-angle-label">0°</strong></label><input id="north-angle" type="range" min="-180" max="180" step="0.5" value="0"/><small>0° = Norte hacia arriba. Positivo = el Norte gira en sentido horario dentro de la imagen.</small></div><div class="field"><label for="scale-distance">Distancia real entre los 2 puntos [m]</label><div class="inline-control"><input id="scale-distance" type="number" min="0.1" step="0.1" value="10"/><button id="apply-scale" type="button">Aplicar</button></div><small id="scale-status">Escala no calibrada. Se usarán las dimensiones simples como referencia.</small></div></div>
-<div id="plan-editor" class="plan-editor" role="img" aria-label="Editor de planta sobre imagen satelital"></div>
+<div class="two-cols plan-settings"><div class="field"><label for="north-angle">Norte en la imagen <strong id="north-angle-label">0°</strong></label><input id="north-angle" type="range" min="-180" max="180" step="0.5" value="0"/><small>0° = Norte hacia arriba. Positivo = el Norte gira en sentido horario dentro de la imagen.</small></div><div class="field"><label for="scale-distance">Distancia real entre los 2 puntos [m]</label><div class="inline-control"><input id="scale-distance" type="number" min="0.1" step="0.1" value="10"/><button id="apply-scale" type="button">Aplicar</button></div><small id="scale-status">Escala no calibrada. Marca dos extremos sobre la misma imagen y escribe su distancia real.</small></div></div>
+<div class="plan-editor-shell"><div id="plan-editor" class="plan-editor" role="img" aria-label="Editor de planta sobre imagen satelital"></div></div>
 <div id="plan-status" class="plan-status" aria-live="polite">Carga una imagen o dibuja directamente sobre el fondo. Haz clic en las esquinas de la vivienda.</div>
 <div id="facade-azimuth-list" class="facade-azimuth-list"></div>
 <hr/>

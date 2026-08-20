@@ -95,3 +95,6 @@ El simulador solar permite ahora orbitar el modelo con el mouse o el tacto sin m
 ## Afinación del Simulador Solar V6.2
 
 El módulo `simulador-solar.html` permite cargar una captura satelital, calibrar el Norte, dibujar una planta irregular, obtener el azimut de cada fachada y extruirla a un modelo 3D para el análisis solar. También acepta coordenadas de Google Maps en DMS o grados decimales.
+
+## V6.2.1
+El editor satelital conserva el tamaño/proporción real de la imagen y la calibración se calcula en coordenadas originales de la captura.
