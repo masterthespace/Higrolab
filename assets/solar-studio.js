@@ -1,7 +1,54 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
 const $=id=>document.getElementById(id), qsa=s=>[...document.querySelectorAll(s)];
 const S={tool:'select',img:null,imgW:0,imgH:0,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
+
+function createOrbitControls(cam, dom){
+  const ctl={target:new THREE.Vector3(0,1,0),enabled:true};
+  let drag=null;
+  const look=()=>cam.lookAt(ctl.target);
+  dom.style.touchAction='none';
+  dom.addEventListener('contextmenu',e=>e.preventDefault());
+  dom.addEventListener('pointerdown',e=>{
+    if(!ctl.enabled)return;
+    drag={x:e.clientX,y:e.clientY,button:e.button};
+    dom.setPointerCapture?.(e.pointerId);
+  });
+  dom.addEventListener('pointermove',e=>{
+    if(!drag||!ctl.enabled)return;
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    drag.x=e.clientX;drag.y=e.clientY;
+    if(drag.button===0){
+      const off=cam.position.clone().sub(ctl.target);
+      const sph=new THREE.Spherical().setFromVector3(off);
+      sph.theta-=dx*.008;
+      sph.phi=Math.max(.08,Math.min(Math.PI-.08,sph.phi+dy*.008));
+      off.setFromSpherical(sph);
+      cam.position.copy(ctl.target).add(off);
+      look();
+    }else{
+      const dist=cam.position.distanceTo(ctl.target);
+      const k=Math.max(.002,dist*.0015);
+      const forward=new THREE.Vector3();cam.getWorldDirection(forward);
+      const right=new THREE.Vector3().crossVectors(forward,cam.up).normalize();
+      const up=cam.up.clone().normalize();
+      const delta=right.multiplyScalar(-dx*k).add(up.multiplyScalar(dy*k));
+      cam.position.add(delta);ctl.target.add(delta);look();
+    }
+  });
+  const end=e=>{drag=null;try{dom.releasePointerCapture?.(e.pointerId)}catch(_){}};
+  dom.addEventListener('pointerup',end);
+  dom.addEventListener('pointercancel',end);
+  dom.addEventListener('wheel',e=>{
+    if(!ctl.enabled)return;
+    e.preventDefault();
+    const off=cam.position.clone().sub(ctl.target);
+    off.multiplyScalar(Math.exp(e.deltaY*.001));
+    off.setLength(Math.max(1.5,Math.min(250,off.length())));
+    cam.position.copy(ctl.target).add(off);look();
+  },{passive:false});
+  ctl.update=look;look();return ctl;
+}
+
 const canvas=$('cad'),ctx=canvas.getContext('2d'); let scene,camera,renderer,controls,buildingGroup,solarScene,solarCamera,solarRenderer,solarControls,solarBuilding,sunLight,playTimer;
 function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=Math.round(r.width*devicePixelRatio);canvas.height=Math.round(r.height*devicePixelRatio);canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';drawCAD();resize3D()}
 function screenToWorld(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left-S.panX)/S.zoom,y:(e.clientY-r.top-S.panY)/S.zoom}}
@@ -21,7 +68,7 @@ function polygonData(){if(!S.closed||S.pts.length<3)return null;const sc=S.scale
 function areaPerim(){const p=polygonData();if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function updateMetrics(){const m=areaPerim();$('area-out').textContent=m.a?m.a.toFixed(1)+' m²':'—';$('perim-out').textContent=m.l?m.l.toFixed(1)+' m':'—';$('faces-out').textContent=S.closed?S.pts.length:'—';$('status-pill').textContent=S.closed?`Planta cerrada · ${S.pts.length} fachadas`:`${S.pts.length} vértices`}
 function selectVertex(i){const p=S.pts[i];$('selection-panel').innerHTML=`<h3>VÉRTICE V${i+1}</h3><div class="vertex-editor"><label>X [px]<input id="vx" type="number" step=".1" value="${p.x.toFixed(1)}"></label><label>Y [px]<input id="vy" type="number" step=".1" value="${p.y.toFixed(1)}"></label><button id="delv">Eliminar vértice</button></div>`;$('vx').oninput=()=>{S.pts[i].x=+$('vx').value;drawCAD();rebuild3D()};$('vy').oninput=()=>{S.pts[i].y=+$('vy').value;drawCAD();rebuild3D()};$('delv').onclick=()=>{S.pts.splice(i,1);S.closed=S.closed&&S.pts.length>=3;$('selection-panel').innerHTML='<h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div>';updateMetrics();drawCAD();rebuild3D()}}
-function init3D(containerId,solar=false){const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);const cam=new THREE.PerspectiveCamera(42,1,.05,1000);cam.position.set(13,10,16);const ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;c.appendChild(ren.domElement);const ctl=new OrbitControls(cam,ren.domElement);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.target.set(0,1,0);sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0xd8e0e1,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;sc.add(ground);const grid=new THREE.GridHelper(60,60,0xaebdc2,0xcdd7da);grid.position.y=.002;sc.add(grid);const axes=new THREE.Group();const nmat=new THREE.MeshBasicMaterial({color:0xc52d2d});const arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),5,0xc52d2d,1,.5);sc.add(arrow);return{sc,cam,ren,ctl}}
+function init3D(containerId,solar=false){const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);const cam=new THREE.PerspectiveCamera(42,1,.05,1000);cam.position.set(13,10,16);const ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;c.appendChild(ren.domElement);const ctl=createOrbitControls(cam,ren.domElement);ctl.target.set(0,1,0);ctl.update();sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0xd8e0e1,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;sc.add(ground);const grid=new THREE.GridHelper(60,60,0xaebdc2,0xcdd7da);grid.position.y=.002;sc.add(grid);const axes=new THREE.Group();const nmat=new THREE.MeshBasicMaterial({color:0xc52d2d});const arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),5,0xc52d2d,1,.5);sc.add(arrow);return{sc,cam,ren,ctl}}
 function initScenes(){let a=init3D('three-stage');scene=a.sc;camera=a.cam;renderer=a.ren;controls=a.ctl;let b=init3D('three-solar',true);solarScene=b.sc;solarCamera=b.cam;solarRenderer=b.ren;solarControls=b.ctl;sunLight=new THREE.DirectionalLight(0xfff1c1,3.8);sunLight.castShadow=true;sunLight.shadow.mapSize.set(2048,2048);sunLight.shadow.camera.left=-35;sunLight.shadow.camera.right=35;sunLight.shadow.camera.top=35;sunLight.shadow.camera.bottom=-35;sunLight.shadow.bias=-.0004;solarScene.add(sunLight);solarScene.add(sunLight.target);animate()}
 function makeBuilding(){const pts=polygonData();if(!pts)return null;const h=+$('wall-height').value,shape=new THREE.Shape();shape.moveTo(pts[0].x,-pts[0].z);for(let i=1;i<pts.length;i++)shape.lineTo(pts[i].x,-pts[i].z);shape.closePath();const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});geo.rotateX(-Math.PI/2);const mat=new THREE.MeshStandardMaterial({color:0xe7ecec,roughness:.78,metalness:0});const mesh=new THREE.Mesh(geo,mat);mesh.castShadow=true;mesh.receiveShadow=true;mesh.rotation.y=THREE.MathUtils.degToRad(+$('building-az').value||0);const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x344b55}));edges.rotation.y=mesh.rotation.y;const g=new THREE.Group();g.add(mesh,edges);return g}
 function rebuild3D(){[ [scene,'buildingGroup'],[solarScene,'solarBuilding'] ].forEach(([sc,key])=>{const old=key==='buildingGroup'?buildingGroup:solarBuilding;if(old)sc.remove(old);const n=makeBuilding();if(n)sc.add(n);if(key==='buildingGroup')buildingGroup=n;else solarBuilding=n});updateMetrics();updateSolar()}
@@ -33,5 +80,5 @@ function parseCoords(s){if(!s)return null;let m=s.match(/(\d+)°\s*(\d+)'\s*([\d
 function updateSolar(){if(!sunLight)return;const date=new Date($('date').value+'T00:00:00');const mins=+$('time').value;date.setHours(Math.floor(mins/60),mins%60);const sun=solarPosition(date,+$('lat').value,+$('lon').value,+$('tz').value);$('time-out').textContent=`${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;$('sun-data').textContent=sun.alt>0?`Azimut ${sun.az.toFixed(1)}° · Elevación ${sun.alt.toFixed(1)}°`:'Sol bajo el horizonte';const r=40,alt=rad(Math.max(sun.alt,1)),az=rad(sun.az),x=r*Math.cos(alt)*Math.sin(az),y=r*Math.sin(alt),z=-r*Math.cos(alt)*Math.cos(az);sunLight.position.set(x,y,z);sunLight.target.position.set(0,0,0);sunLight.visible=sun.alt>0;if(solarScene){solarScene.background=new THREE.Color(sun.alt>0?0xdfeaf0:0x25343b)}}
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
 function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
-function init(){initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar()}};['lat','lon','date','tz','time'].forEach(id=>$(id).addEventListener('input',updateSolar));['wall-height','building-az'].forEach(id=>$(id).addEventListener('input',rebuild3D));$('reset-project').onclick=()=>{S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam,pos={iso:[13,10,16],top:[0,25,.01],north:[0,6,20],east:[20,6,0],west:[-20,6,0]}[v]||[13,10,16];camera.position.set(...pos);controls.target.set(0,1,0);controls.update()});initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar()}};['lat','lon','date','tz','time'].forEach(id=>$(id).addEventListener('input',updateSolar));['wall-height','building-az'].forEach(id=>$(id).addEventListener('input',rebuild3D));$('reset-project').onclick=()=>{S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam,pos={iso:[13,10,16],top:[0,25,.01],north:[0,6,20],east:[20,6,0],west:[-20,6,0]}[v]||[13,10,16];camera.position.set(...pos);controls.target.set(0,1,0);controls.update()});initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
 init();
