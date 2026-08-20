@@ -51,3 +51,30 @@ El análisis corresponde a condensación superficial mediante un modelo térmico
 - El margen objetivo de condensación se puede ajustar entre **+0,5 °C y +10 °C** en pasos de 0,5 °C, con slider y entrada numérica.
 - El perfil térmico muestra la **temperatura en cada punto**: aire exterior, superficie exterior, interfaces/capas, superficie interior y aire interior.
 - El gráfico conserva la línea del punto de rocío y las etiquetas se incorporan también al informe PDF al capturar el SVG.
+
+
+## V5 CEV — actualización normativa e interactividad
+
+Se agregan módulos independientes para:
+1. Puentes térmicos P01–P05.
+2. Ventanas Uw / P05 / permeabilidad.
+3. FAV 1–3.
+4. Infiltración de aire a 50 Pa.
+5. Ventilación mínima Fmin.
+6. Zonificación térmica A–I.
+7. Puertas y ventanas: U + permeabilidad.
+8. Potencia equivalente de calefacción.
+9. ACS: regla de selección de equipos y estimador de acumulación.
+10. SCOP: relación anual y verificador de metodología horaria.
+11. FAR como módulo adicional.
+
+### Fuentes normativas incorporadas
+- Manual Técnico CEV 2025 (versión 18-08-2025).
+- Modificación Art. 4.1.10 OGUC publicada 27-05-2024.
+- Res. Ex. MINVU 1802 (26-11-2025): condiciones para condensación, NCh1973/NCh853/NCh3117.
+- Tabla y mapas MINVU de Zonificación Térmica Nacional A–I.
+- Herramientas DITEC entregadas por el usuario: cálculo U ventanas v2024.1.0, análisis higrotérmico v2026.07.13 y condensaciones v2026.04.
+
+IMPORTANTE: el PDF NCh1079.Of2008 aportado es una edición anterior. La reglamentación térmica vigente usa la zonificación A–I asociada a NCh1079:2019. HIDROLAB V5 utiliza la tabla/mapas A–I publicados por MINVU, no la zonificación antigua de 7 zonas.
+
+Los módulos que dependen de modelos internos u horarios de la CEV (FAV numérico final, SCOP personalizado, pérdidas de acumulación ACS) se identifican expresamente como pre-chequeo o estimador cuando no corresponde reproducir un motor oficial completo.

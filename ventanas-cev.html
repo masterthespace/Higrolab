@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Ventanas: Uw, P05 y permeabilidad</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="window">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">NCh 3137 / CEV</div><h1>Ventanas: Uw, P05 y permeabilidad</h1><p>Calcula Uw con marco, vidrio y borde, y revisa la clase mínima de permeabilidad al aire según la zona térmica.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">NCh 3137 · apoyo de cálculo</p><h2>Geometría y componentes</h2>
+    <div class="grid-2">
+      <div class="field"><label>Ancho total [m]</label><input id="w-width" type="number" step="0.01" value="1.20"></div>
+      <div class="field"><label>Alto total [m]</label><input id="w-height" type="number" step="0.01" value="1.50"></div>
+      <div class="field"><label>Factor de marco Af/Aw</label><input id="w-ff" type="number" min="0" max="0.8" step="0.01" value="0.20"></div>
+      <div class="field"><label>Uf marco [W/m²K]</label><input id="w-uf" type="number" step="0.01" value="4.60"></div>
+      <div class="field"><label>Ug vidrio [W/m²K]</label><input id="w-ug" type="number" step="0.01" value="3.01"></div>
+      <div class="field"><label>Ψg [W/mK]</label><input id="w-psi" type="number" step="0.001" value="0.08"></div>
+    </div>
+    <div class="field"><label>Perímetro vidrio-marco lg [m]</label><input id="w-lg" type="number" step="0.01" value="6.22"></div>
+    <div class="field"><label>Zona térmica</label><select id="w-zone"></select></div>
+    <div class="field"><label>Clase de permeabilidad ensayada a 100 Pa</label><select id="w-airclass"><option value="0">Sin dato</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+  </div>
+  <div>
+    <div class="window-visual"><div class="window-frame" id="window-frame"><div class="window-glass"></div></div></div>
+    <div class="results-3">
+      <div class="metric-card"><span>Área Aw</span><strong id="w-aw">—</strong></div>
+      <div class="metric-card"><span>Uw estimada</span><strong id="w-uw">—</strong></div>
+      <div class="metric-card"><span>Permeabilidad OGUC</span><strong id="w-perm">—</strong></div>
+    </div>
+    <div class="callout">Uw se evalúa mediante la relación de áreas de vidrio/marco y el término lineal del borde. Para acreditación formal, usa memoria/ensayo conforme NCh 3137 o solución oficial.</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

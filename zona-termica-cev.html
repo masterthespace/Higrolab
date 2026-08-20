@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Zona térmica nacional A–I</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="zone">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">MINVU · Reglamentación térmica vigente</div><h1>Zona térmica nacional A–I</h1><p>Busca una comuna y revisa sus posibles zonas térmicas oficiales, condiciones de borde y exigencias U/Rt residenciales de la OGUC.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">Zonificación térmica nacional A–I</p><h2>Busca tu comuna</h2>
+    <div class="field"><label>Comuna</label><input id="zt-search" list="zt-list" placeholder="Ej.: Peñaflor"><datalist id="zt-list"></datalist></div>
+    <div id="zt-options" class="cev-zone-options"></div>
+    <p class="note">Algunas comunas cambian de zona por altitud o meridiano. HIDROLAB muestra todas las condiciones oficiales de la tabla MINVU para que selecciones la que corresponde al emplazamiento.</p>
+  </div>
+  <div>
+    <div class="zone-letter" id="zt-letter">?</div>
+    <div class="results-3"><div class="metric-card"><span>Región</span><strong id="zt-region">—</strong></div><div class="metric-card"><span>Provincia</span><strong id="zt-prov">—</strong></div><div class="metric-card"><span>Condición límite</span><strong id="zt-limit">—</strong></div></div>
+    <div class="oguc-table-wrap"><h3>Exigencias residenciales OGUC para la zona seleccionada</h3><table class="data-table"><thead><tr><th>Elemento</th><th>U máx [W/m²K]</th><th>Rt mín [m²K/W]</th></tr></thead><tbody id="zt-oguc"></tbody></table></div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

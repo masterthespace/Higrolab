@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · SCOP de bomba de calor</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="scop">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">Manual CEV · Anexo B</div><h1>SCOP de bomba de calor</h1><p>Calcula la relación estacional anual demanda/consumo y verifica los requisitos metodológicos para una memoria personalizada.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">Bombas de calor · rendimiento estacional</p><h2>SCOP anual y consistencia</h2>
+    <div class="field"><label>Demanda anual de calefacción [kWh]</label><input id="sc-demand" type="number" step="1" value="6000"></div>
+    <div class="field"><label>Consumo eléctrico anual calefacción [kWh]</label><input id="sc-cons" type="number" step="1" value="1800"></div>
+    <div class="field"><label>COP nominal declarado</label><input id="sc-cop" type="number" step="0.1" value="4.0"></div>
+    <div class="form-check"><input class="form-check-input" id="sc-hourly" type="checkbox"><label class="form-check-label" for="sc-hourly">El cálculo proviene de un modelo horario de 8760 h con clima y uso local</label></div>
+  </div>
+  <div>
+    <div class="scop-ring"><span id="sc-ring">—</span></div>
+    <div class="results-3"><div class="metric-card"><span>SCOP = demanda / consumo</span><strong id="sc-scop">—</strong></div><div class="metric-card"><span>Diferencia vs COP nominal</span><strong id="sc-diff">—</strong></div><div class="metric-card"><span>Aptitud memoria personalizada</span><strong id="sc-status">—</strong></div></div>
+    <div class="callout">El Manual CEV exige que un SCOP personalizado se base en cálculo horario anual, variables locales y modelos del edificio y bomba de calor. Esta página verifica la razón anual y ese requisito metodológico, no genera por sí sola un SCOP oficial.</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

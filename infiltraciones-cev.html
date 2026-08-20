@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Infiltración de aire a 50 Pa</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="infiltration">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">OGUC · NCh 3295</div><h1>Infiltración de aire a 50 Pa</h1><p>Compara un resultado de ensayo blower-door con la clase máxima de infiltración por provincia y determina el tamaño mínimo de muestra del lote.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">OGUC art. 4.1.10 · NCh 3295</p><h2>Clase de infiltración a 50 Pa</h2>
+    <div class="field"><label>Provincia</label><select id="inf-prov"></select></div>
+    <div class="field"><label>Resultado blower door [ACH50]</label><input id="inf-ach" type="number" step="0.1" value="5.0"></div>
+    <div class="field"><label>Tamaño del lote [viviendas]</label><input id="inf-lot" type="number" min="1" step="1" value="30"></div>
+  </div>
+  <div>
+    <div class="gauge"><div id="inf-gauge" class="gauge-fill"></div><span id="inf-gauge-text">—</span></div>
+    <div class="results-3"><div class="metric-card"><span>Máximo OGUC</span><strong id="inf-max">—</strong></div><div class="metric-card"><span>Resultado</span><strong id="inf-result">—</strong></div><div class="metric-card"><span>Muestra Tabla 8</span><strong id="inf-sample">—</strong></div></div>
+    <div class="callout" id="inf-note">—</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

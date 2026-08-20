@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · FAR · Obstrucciones remotas</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="far">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">CEV · Radiación solar</div><h1>FAR · Obstrucciones remotas</h1><p>Explora divisiones, distancias A/B/D y ángulos de obstrucción para entender el Factor de Accesibilidad Remota.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">CEV · Factor de Accesibilidad Remota</p><h2>Obstrucción por división</h2>
+    <div class="field"><label>División (1–5)</label><input id="far-div" type="range" min="1" max="5" step="1" value="3"><b id="far-div-out">3</b></div>
+    <div class="grid-2">
+      <div class="field"><label>A · diferencia de altura [m]</label><input id="far-a" type="number" step="0.1" value="6"></div>
+      <div class="field"><label>B · distancia al obstáculo [m]</label><input id="far-b" type="number" step="0.1" value="12"></div>
+      <div class="field"><label>D · ancho del obstáculo [m]</label><input id="far-d" type="number" step="0.1" value="8"></div>
+      <div class="field"><label>Azimut fachada [°]</label><input id="far-az" type="number" min="-180" max="180" step="1" value="0"></div>
+    </div>
+  </div>
+  <div>
+    <div class="far-visual" id="far-visual"><div class="far-house">H</div><div class="far-obstacle" id="far-obstacle"></div></div>
+    <div class="results-3"><div class="metric-card"><span>Ángulo vertical</span><strong id="far-angle">—</strong></div><div class="metric-card"><span>B/D</span><strong id="far-bd">—</strong></div><div class="metric-card"><span>B/A</span><strong id="far-ba">—</strong></div></div>
+    <div class="callout" id="far-status">—</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Puentes térmicos CEV P01–P05</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="bridges">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">CEV · Envolvente y continuidad térmica</div><h1>Puentes térmicos CEV P01–P05</h1><p>Identifica puentes térmicos geométricos, cuantifica longitudes y revisa criterios de mitigación P04 y configuración P05.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">CEV · Puentes térmicos</p><h2>Selecciona el encuentro</h2>
+    <div class="segmented cev-bridge-buttons">
+      <button type="button" data-bridge="P01">P01</button><button type="button" data-bridge="P02">P02</button>
+      <button type="button" data-bridge="P03">P03</button><button type="button" data-bridge="P04">P04</button><button type="button" data-bridge="P05">P05</button>
+    </div>
+    <div class="field"><label>Longitud del puente [m]</label><input id="pt-length" type="number" min="0" step="0.1" value="4.0"></div>
+    <div id="p04-controls" class="cev-subpanel">
+      <h3>Mitigación P04</h3>
+      <label>Espesor de aislación [mm] <b id="p04-e-out">20</b></label><input id="p04-e" type="range" min="0" max="80" step="5" value="20">
+      <label>Ancho de aislación [mm] <b id="p04-w-out">300</b></label><input id="p04-w" type="range" min="0" max="900" step="50" value="300">
+      <div class="form-check"><input class="form-check-input" id="p04-both" type="checkbox"><label class="form-check-label" for="p04-both">Aislación en cara superior e inferior</label></div>
+    </div>
+    <div id="p05-controls" class="cev-subpanel">
+      <h3>Configuración P05</h3>
+      <div class="field"><label>Posición de la ventana</label><select id="p05-pos"><option>Interior</option><option selected>Centrada</option><option>Exterior</option></select></div>
+      <div class="form-check"><input class="form-check-input" id="p05-return" type="checkbox"><label class="form-check-label" for="p05-return">Retorno de aislación en el vano</label></div>
+    </div>
+  </div>
+  <div>
+    <div class="cev-diagram" id="bridge-diagram" aria-label="Esquema interactivo del puente térmico"></div>
+    <div class="results-3">
+      <div class="metric-card"><span>Tipo CEV</span><strong id="pt-type">P01</strong></div>
+      <div class="metric-card"><span>Longitud declarada</span><strong id="pt-lout">4,0 m</strong></div>
+      <div class="metric-card"><span>Estado / criterio</span><strong id="pt-status">—</strong></div>
+    </div>
+    <div class="callout" id="pt-explain">—</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

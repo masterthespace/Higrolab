@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Ventilación mínima Fmin</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="ventmin">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">Manual CEV · Anexo D</div><h1>Ventilación mínima Fmin</h1><p>Calcula las renovaciones por hora mínimas higiénicas usando área, ocupación y volumen, y compara el caudal instalado.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">Manual CEV 2025 · Anexo D</p><h2>Flujo mínimo higiénico Fmin</h2>
+    <div class="grid-2">
+      <div class="field"><label>Área útil AV [m²]</label><input id="vm-area" type="number" step="0.1" value="70"></div>
+      <div class="field"><label>Dormitorios</label><input id="vm-bed" type="number" min="0" step="1" value="3"></div>
+      <div class="field"><label>Altura útil media [m]</label><input id="vm-height" type="number" step="0.01" value="2.40"></div>
+      <div class="field"><label>Caudal instalado [m³/h]</label><input id="vm-flow" type="number" step="1" value="90"></div>
+    </div>
+    <label>Caudal instalado <b id="vm-flow-out">90 m³/h</b></label><input id="vm-flow-range" type="range" min="0" max="300" step="1" value="90">
+  </div>
+  <div>
+    <div class="air-house"><div class="air-arrow" id="air-arrow">→→→</div><div class="house-box">VIVIENDA</div></div>
+    <div class="results-3"><div class="metric-card"><span>NP = dormitorios + 1</span><strong id="vm-np">—</strong></div><div class="metric-card"><span>Fmin</span><strong id="vm-fmin">—</strong></div><div class="metric-card"><span>Caudal mínimo</span><strong id="vm-qmin">—</strong></div></div>
+    <div class="callout" id="vm-status">—</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>

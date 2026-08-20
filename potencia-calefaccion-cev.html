@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>HIDROLAB · Potencia equivalente de calefacción</title><link href="styles.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head>
+<body data-cev-tool="heatpower">
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+<nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+<div class="wrap hero"><div class="eyebrow">Manual CEV · Sistemas activos</div><h1>Potencia equivalente de calefacción</h1><p>Aplica la Ecuación 6 para sistemas centralizados y revisa la regla de cobertura mínima del 65%.</p></div></header>
+<main class="wrap main">
+<section class="card cev-layout">
+  <div>
+    <p class="kicker">Manual CEV 2025 · Ecuación 6</p><h2>Potencia equivalente de calefacción</h2>
+    <div class="field"><label>Área vivienda objeto Av [m²]</label><input id="hp-av" type="number" step="0.1" value="70"></div>
+    <div class="field"><label>Potencia total sistema Pt [kW]</label><input id="hp-pt" type="number" step="0.1" value="100"></div>
+    <div class="field"><label>Área total servida At [m²]</label><input id="hp-at" type="number" step="0.1" value="1000"></div>
+    <div class="field"><label>Potencia referencial vivienda [kW] (opcional)</label><input id="hp-pref" type="number" step="0.1" value="8"></div>
+  </div>
+  <div>
+    <div class="cev-formula">Pv = Av · Pt / At</div>
+    <div class="results-3"><div class="metric-card"><span>Pv equivalente</span><strong id="hp-pv">—</strong></div><div class="metric-card"><span>Cobertura vs referencia</span><strong id="hp-cov">—</strong></div><div class="metric-card"><span>Regla 65%</span><strong id="hp-status">—</strong></div></div>
+    <div class="callout">Si la suma de potencias disponibles es inferior al 65% de la potencia referencial, el Manual CEV indica asumir que la vivienda no dispone de sistema de calefacción.</div>
+  </div>
+</section>
+</main>
+<footer class="wrap footer">HIDROLAB · Herramienta técnica de apoyo · Verifica siempre la documentación oficial vigente</footer>
+<script src="assets/cev-tools.js" defer></script><script src="assets/reportes.js" defer></script></body></html>
