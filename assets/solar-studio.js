@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
 const $=id=>document.getElementById(id), qsa=s=>[...document.querySelectorAll(s)];
 const S={tool:'select',img:null,imgW:0,imgH:0,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
 const canvas=$('cad'),ctx=canvas.getContext('2d'); let scene,camera,renderer,controls,buildingGroup,solarScene,solarCamera,solarRenderer,solarControls,solarBuilding,sunLight,playTimer;
