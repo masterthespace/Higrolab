@@ -86,3 +86,7 @@ Se agregó `simulador-solar.html` con visualización 3D simplificada, posición 
 
 ## V6.1 — Simulador solar avanzado
 El módulo `simulador-solar.html` incorpora selector local de 346 comunas, trayectoria solar polar, iluminación de fachadas y sombra proyectada. La ubicación comunal es representativa y puede reemplazarse por latitud/longitud exactas del proyecto.
+
+## V6.2 — Cámara orbital 3D
+
+El simulador solar permite ahora orbitar el modelo con el mouse o el tacto sin modificar el azimut físico de la vivienda. Incluye zoom, desplazamiento, vistas cardinales, vista superior y restablecimiento de cámara. El control de orientación del edificio continúa separado de la cámara para preservar los cálculos de incidencia solar y sombra.

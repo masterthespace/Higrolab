@@ -9,7 +9,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 </head>
 <body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.1 · Diseño solar interactivo</div><h1>Simulador solar avanzado de vivienda</h1><p>Selecciona una comuna, define el volumen y la orientación, recorre el día y observa con claridad la posición del sol, la trayectoria solar, las fachadas iluminadas y la sombra proyectada.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6.2 · Diseño solar interactivo</div><h1>Simulador solar avanzado de vivienda</h1><p>Selecciona una comuna, define el volumen y la orientación, recorre el día y observa con claridad la posición del sol, la trayectoria solar, las fachadas iluminadas y la sombra proyectada.</p></div></header>
 <main class="wrap main solar-main">
 <section class="card solar-intro"><div><p class="kicker">Simulación complementaria</p><h2>Posición solar + trayectoria + sombra + aleros</h2><p>La posición solar se calcula localmente a partir de coordenadas, fecha, hora y huso horario. La selección de comuna funciona sin conexión mediante una base local de 346 comunas; las coordenadas pueden editarse manualmente si necesitas representar un punto más preciso.</p></div><div class="solar-note"><strong>Importante</strong><span>Herramienta de apoyo bioclimático HIDROLAB. No reemplaza por sí sola los procedimientos oficiales FAV/FAR o memorias exigidas por CEV/MINVU.</span></div></section>
 
@@ -34,7 +34,20 @@
 <div class="card solar-stage-card">
 <div class="stage-head"><div><p class="kicker">03 · Modelo dinámico</p><h2>Sol, caras iluminadas y sombra</h2></div><div id="sun-status" class="sun-status">Calculando…</div></div>
 <div class="stage-legend"><span><i class="legend-lit"></i>Sol directo</span><span><i class="legend-shade"></i>Sombra propia</span><span><i class="legend-ground"></i>Sombra proyectada</span></div>
-<div id="solar-stage" class="solar-stage" role="img" aria-label="Modelo tridimensional simplificado de una vivienda con posición del sol y sombra proyectada"></div>
+<div class="camera-toolbar" aria-label="Controles de cámara 3D">
+  <div class="camera-help"><strong>Vista 3D:</strong> arrastra para orbitar · rueda para zoom · Shift/arrastre o botón derecho para desplazar.</div>
+  <div class="camera-buttons">
+    <button type="button" data-camera="perspective">Perspectiva</button>
+    <button type="button" data-camera="north">Norte</button>
+    <button type="button" data-camera="east">Oriente</button>
+    <button type="button" data-camera="south">Sur</button>
+    <button type="button" data-camera="west">Poniente</button>
+    <button type="button" data-camera="top">Superior</button>
+    <button id="camera-reset" type="button">Restablecer</button>
+  </div>
+  <div class="camera-readout"><span>Cámara</span><strong id="camera-readout">Az 315° · elev. 28° · 100%</strong></div>
+</div>
+<div id="solar-stage" tabindex="0" class="solar-stage" role="img" aria-label="Modelo tridimensional simplificado de una vivienda con posición del sol y sombra proyectada"></div>
 <div class="metric-grid solar-metrics"><div class="metric-card"><div class="metric-label">Azimut solar</div><div id="sun-az" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Elevación solar</div><div id="sun-alt" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Longitud sombra</div><div id="shadow-length" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Dirección sombra</div><div id="shadow-direction" class="viz-stat-value">—</div></div></div>
 <div class="facade-grid" id="facade-grid"></div>
 </div>

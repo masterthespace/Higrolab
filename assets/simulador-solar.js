@@ -7,6 +7,10 @@ const rad=d=>d*Math.PI/180, deg=r=>r*180/Math.PI;
 const fmt=(v,d=1)=>Number.isFinite(v)?v.toFixed(d).replace('.',','):'—';
 const faceNames={front:'Principal',right:'Derecha',back:'Posterior',left:'Izquierda',roof:'Cubierta'};
 let playTimer=null,lastSunTimes={rise:null,noon:null,set:null};
+let currentSun=null;
+const camera={yaw:315,pitch:28,zoom:1,panX:0,panY:0};
+const pointers=new Map();
+let dragMode=null,lastPointer=null,lastPinch=null;
 const COMMUNES=Array.isArray(window.HIDROLAB_COMMUNES)?window.HIDROLAB_COMMUNES:[];
 
 function dayOfYear(date){const start=new Date(date.getFullYear(),0,0);return Math.floor((date-start)/86400000)}
@@ -36,9 +40,19 @@ function modelGeometry(){
  return {W,L,H,az,bottom:base.map(([x,y])=>({x,y,z:0})),top:base.map(([x,y])=>({x,y,z:H}))};
 }
 function projectFactory(g,shadowPts=[]){
- const all=[...g.bottom,...g.top,...shadowPts];let maxR=1;all.forEach(p=>maxR=Math.max(maxR,Math.abs(p.x),Math.abs(p.y),Math.abs(p.z)*.7));
- const scale=clamp(260/(maxR*2.3),10,27),cx=360,cy=390;
- return p=>[cx+(p.x-p.y)*scale,cy+(p.x+p.y)*scale*.43-p.z*scale*1.48];
+ const all=[...g.bottom,...g.top,...shadowPts];let maxR=1;all.forEach(p=>maxR=Math.max(maxR,Math.abs(p.x),Math.abs(p.y),Math.abs(p.z)));
+ const baseScale=clamp(235/(maxR*1.45),8,30),scale=baseScale*camera.zoom,cx=360+camera.panX,cy=315+camera.panY;
+ const yaw=rad(camera.yaw),pitch=rad(camera.pitch),cyaw=Math.cos(yaw),syaw=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+ function view(p){
+   const x1=p.x*cyaw-p.y*syaw;
+   const y1=p.x*syaw+p.y*cyaw;
+   const y2=y1*cp-p.z*sp;
+   const z2=y1*sp+p.z*cp;
+   return {x:x1,y:y2,z:z2};
+ }
+ const project=p=>{const v=view(p);return [cx+v.x*scale,cy-v.z*scale]};
+ project.depth=p=>view(p).y;
+ return project;
 }
 function svgPoint(P,p){const q=P(p);return q[0].toFixed(1)+','+q[1].toFixed(1)}
 function initCommunes(){
@@ -57,7 +71,7 @@ function renderStage(sun){
  const P=projectFactory(g,shadow),faceAz=faceAzimuths(g.az);
  const inc={front:faceIncidence(sun,faceAz.front),right:faceIncidence(sun,faceAz.right),back:faceIncidence(sun,faceAz.back),left:faceIncidence(sun,faceAz.left),roof:sun.alt>0?Math.sin(rad(sun.alt)):0};
  const faces=[['front',[g.bottom[0],g.bottom[1],g.top[1],g.top[0]],inc.front],['right',[g.bottom[1],g.bottom[2],g.top[2],g.top[1]],inc.right],['back',[g.bottom[2],g.bottom[3],g.top[3],g.top[2]],inc.back],['left',[g.bottom[3],g.bottom[0],g.top[0],g.top[3]],inc.left]];
- faces.sort((a,b)=>a[1].reduce((s,p)=>s+p.x+p.y,0)-b[1].reduce((s,p)=>s+p.x+p.y,0));
+ faces.sort((a,b)=>a[1].reduce((t,p)=>t+P.depth(p),0)-b[1].reduce((t,p)=>t+P.depth(p),0));
  const grid=[];for(let i=-22;i<=22;i+=2){let a=P({x:i,y:-22,z:0}),b=P({x:i,y:22,z:0});grid.push(`<line class="ground-grid" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`);a=P({x:-22,y:i,z:0});b=P({x:22,y:i,z:0});grid.push(`<line class="ground-grid" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`)}
  const compass={N:{x:0,y:15,z:0},E:{x:15,y:0,z:0},S:{x:0,y:-15,z:0},O:{x:-15,y:0,z:0}};
  const sunRadius=14+Math.max(0,sun.alt)*.08,dist=16,sp3={x:dist*Math.sin(sAz)*Math.cos(rad(Math.max(0,sun.alt))),y:dist*Math.cos(sAz)*Math.cos(rad(Math.max(0,sun.alt))),z:9+dist*Math.sin(rad(Math.max(0,sun.alt)))};const sp=P(sp3),center=P({x:0,y:0,z:g.H*.55});
@@ -67,7 +81,8 @@ function renderStage(sun){
  let shLines='';if(sun.alt>0){g.top.forEach((p,i)=>{const a=P(p),b=P(shadow[i]);shLines+=`<line class="shadow-line" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`})}
  const shadowPoly=sun.alt>0?`<polygon class="shadow-shape" points="${shadow.map(p=>svgPoint(P,p)).join(' ')}"/>`:'';
  const compassSvg=Object.entries(compass).map(([k,p])=>{const q=P(p);return `<circle cx="${q[0]}" cy="${q[1]}" r="11" fill="#fff" stroke="#9fb4bc"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" class="compass-label">${k}</text>`}).join('');
- $('solar-stage').innerHTML=`<svg viewBox="0 0 720 560"><defs><filter id="sunGlow"><feGaussianBlur stdDeviation="7"/></filter></defs><rect width="720" height="560" fill="#f8fbfc"/>${grid.join('')}${shadowPoly}${shLines}${faceSvg}<polygon points="${g.top.map(p=>svgPoint(P,p)).join(' ')}" fill="${roofFill}" class="building-edge"/>${rays}${sun.alt>0?`<circle cx="${sp[0]}" cy="${sp[1]}" r="${sunRadius+10}" fill="rgba(246,190,44,.18)" filter="url(#sunGlow)"/><circle cx="${sp[0]}" cy="${sp[1]}" r="${sunRadius}" fill="#ffc928" stroke="#a97700" stroke-width="2.5"/><text x="${sp[0]}" y="${sp[1]+4}" text-anchor="middle" class="sun-label">SOL</text>`:''}${compassSvg}</svg>`;
+ $('solar-stage').innerHTML=`<svg viewBox="0 0 720 560"><defs><filter id="sunGlow"><feGaussianBlur stdDeviation="7"/></filter></defs><rect width="720" height="560" fill="#f8fbfc"/>${grid.join('')}${shadowPoly}${shLines}${faceSvg}<polygon points="${g.top.map(p=>svgPoint(P,p)).join(' ')}" fill="${roofFill}" class="building-edge"/>${rays}${sun.alt>0?`<circle cx="${sp[0]}" cy="${sp[1]}" r="${sunRadius+10}" fill="rgba(246,190,44,.18)" filter="url(#sunGlow)"/><circle cx="${sp[0]}" cy="${sp[1]}" r="${sunRadius}" fill="#ffc928" stroke="#a97700" stroke-width="2.5"/><text x="${sp[0]}" y="${sp[1]+4}" text-anchor="middle" class="sun-label">SOL</text>`:''}${compassSvg}<text x="18" y="536" class="view-hint">Arrastra para girar la cámara · rueda para zoom</text></svg>`;
+ updateCameraReadout();
  const shLen=sun.alt>0?g.H/Math.tan(rad(sun.alt)):NaN,shDir=(sun.az+180)%360;
  $('shadow-length').textContent=sun.alt>0?fmt(shLen,1)+' m':'—';$('shadow-direction').textContent=sun.alt>0?`${Math.round(shDir)}° · ${dirName(shDir)}`:'—';
  return {inc,faceAz};
@@ -94,8 +109,30 @@ function renderEave(sun,faceAz){
  $('eave-visual').innerHTML=`<svg viewBox="0 0 620 390"><rect width="620" height="390" fill="#fbfcfc"/><rect x="${wallX-6}" y="45" width="12" height="305" fill="#647b85"/><rect x="${wallX-6}" y="${topY}" width="12" height="${wh*scale}" fill="#72c2df"/><line x1="${wallX}" y1="${eaveY}" x2="${eaveX2}" y2="${eaveY}" stroke="#344b55" stroke-width="12"/><rect x="${wallX-6}" y="${Math.max(topY,shY)}" width="12" height="${Math.max(0,baseY-Math.max(topY,shY))}" fill="#27343b" opacity=".68"/>${sunlit?`<line x1="${rayStartX}" y1="${rayStartY}" x2="${eaveX2}" y2="${eaveY}" stroke="#dfa200" stroke-width="2.4" stroke-dasharray="7 5"/><line x1="${eaveX2}" y1="${eaveY}" x2="${wallX}" y2="${shY}" stroke="#dfa200" stroke-width="2.4" stroke-dasharray="7 5"/><circle cx="${rayStartX}" cy="${rayStartY}" r="18" fill="#ffc928" stroke="#a97700" stroke-width="2"/>`:''}<text x="${wallX-18}" y="${topY+wh*scale/2}" text-anchor="end" class="face-label">Ventana ${fmt(wh,2)} m</text><text x="${(wallX+eaveX2)/2}" y="${eaveY-12}" text-anchor="middle" class="face-label">Alero ${fmt(depth,2)} m</text><text x="410" y="350" class="face-label">${sunlit?`Sombreado estimado: ${Math.round(shade*100)}%`:'Fachada sin sol directo'}</text></svg>`;
  $('eave-message').textContent=!sunlit?'En este instante el sol está detrás de esta fachada; el alero no controla radiación directa sobre la ventana.':shade>=.95?'El alero cubre prácticamente toda la altura de la ventana en este instante.':shade>.5?'El alero sombrea más de la mitad de la ventana en este instante.':shade>0?'El alero genera sombreado parcial sobre la ventana.':'La sombra del alero todavía no alcanza la ventana con esta geometría y posición solar.'
 }
+function updateCameraReadout(){
+ const el=$('camera-readout');if(el)el.textContent=`Az ${Math.round(((camera.yaw%360)+360)%360)}° · elev. ${Math.round(camera.pitch)}° · ${Math.round(camera.zoom*100)}%`;
+}
+function renderCameraOnly(){if(currentSun)renderStage(currentSun)}
+function setCamera(yaw,pitch,zoom=1,panX=0,panY=0){camera.yaw=((yaw%360)+360)%360;camera.pitch=clamp(pitch,5,88);camera.zoom=clamp(zoom,.55,2.8);camera.panX=panX;camera.panY=panY;renderCameraOnly()}
+function setCameraPreset(name){
+ const presets={perspective:[315,28,1],north:[180,22,1],east:[270,22,1],south:[0,22,1],west:[90,22,1],top:[315,86,.9]};
+ const v=presets[name]||presets.perspective;setCamera(v[0],v[1],v[2],0,0);qa('[data-camera]').forEach(b=>b.classList.toggle('is-active',b.dataset.camera===name));
+}
+function pointerPos(e){const r=$('solar-stage').getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
+function setupCameraControls(){
+ const stage=$('solar-stage');
+ stage.addEventListener('contextmenu',e=>e.preventDefault());
+ stage.addEventListener('pointerdown',e=>{stage.setPointerCapture(e.pointerId);pointers.set(e.pointerId,pointerPos(e));stage.classList.add('is-dragging');if(pointers.size===1){lastPointer=pointerPos(e);dragMode=(e.button===2||e.shiftKey)?'pan':'orbit';lastPinch=null}else if(pointers.size===2){const ps=[...pointers.values()];lastPinch={dist:Math.hypot(ps[0].x-ps[1].x,ps[0].y-ps[1].y),cx:(ps[0].x+ps[1].x)/2,cy:(ps[0].y+ps[1].y)/2};dragMode='pinch'}});
+ stage.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const pos=pointerPos(e);pointers.set(e.pointerId,pos);if(pointers.size===1&&lastPointer){const dx=pos.x-lastPointer.x,dy=pos.y-lastPointer.y;if(dragMode==='pan'){camera.panX+=dx;camera.panY+=dy}else{camera.yaw=(camera.yaw-dx*.45+360)%360;camera.pitch=clamp(camera.pitch+dy*.32,5,88)}lastPointer=pos;renderCameraOnly()}else if(pointers.size===2){const ps=[...pointers.values()],dist=Math.hypot(ps[0].x-ps[1].x,ps[0].y-ps[1].y),cx=(ps[0].x+ps[1].x)/2,cy=(ps[0].y+ps[1].y)/2;if(lastPinch){camera.zoom=clamp(camera.zoom*(dist/Math.max(1,lastPinch.dist)),.55,2.8);camera.panX+=cx-lastPinch.cx;camera.panY+=cy-lastPinch.cy;renderCameraOnly()}lastPinch={dist,cx,cy}}});
+ const end=e=>{pointers.delete(e.pointerId);if(!pointers.size){stage.classList.remove('is-dragging');dragMode=null;lastPointer=null;lastPinch=null}else if(pointers.size===1){lastPointer=[...pointers.values()][0];dragMode='orbit';lastPinch=null}};
+ stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
+ stage.addEventListener('wheel',e=>{e.preventDefault();camera.zoom=clamp(camera.zoom*Math.exp(-e.deltaY*.0012),.55,2.8);renderCameraOnly()},{passive:false});
+ qa('[data-camera]').forEach(b=>b.addEventListener('click',()=>setCameraPreset(b.dataset.camera)));$('camera-reset').addEventListener('click',()=>setCameraPreset('perspective'));
+ stage.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){camera.yaw=(camera.yaw+5)%360}else if(e.key==='ArrowRight'){camera.yaw=(camera.yaw+355)%360}else if(e.key==='ArrowUp'){camera.pitch=clamp(camera.pitch-4,5,88)}else if(e.key==='ArrowDown'){camera.pitch=clamp(camera.pitch+4,5,88)}else return;e.preventDefault();renderCameraOnly()});
+ updateCameraReadout();
+}
 function update(){
- const mins=+$('time-range').value;$('time-label').textContent=hhmm(mins);const buildAz=+$('building-az').value;$('building-az-label').textContent=`${buildAz}° · ${dirName(buildAz)}`;const lat=+$('lat').value,lon=+$('lon').value,tz=+$('tz').value,date=localDate(),sun=solarPosition(date,lat,lon,tz);$('sun-az').textContent=fmt(sun.az,1)+'°';$('sun-alt').textContent=fmt(sun.alt,1)+'°';
+ const mins=+$('time-range').value;$('time-label').textContent=hhmm(mins);const buildAz=+$('building-az').value;$('building-az-label').textContent=`${buildAz}° · ${dirName(buildAz)}`;const lat=+$('lat').value,lon=+$('lon').value,tz=+$('tz').value,date=localDate(),sun=solarPosition(date,lat,lon,tz);currentSun=sun;$('sun-az').textContent=fmt(sun.az,1)+'°';$('sun-alt').textContent=fmt(sun.alt,1)+'°';
  lastSunTimes=sunTimes(date,lat,lon,tz);$('sunrise').textContent=lastSunTimes.rise===null?'Sin salida':hhmm(lastSunTimes.rise);$('solar-noon').textContent=lastSunTimes.noon===null?'—':hhmm(lastSunTimes.noon);$('sunset').textContent=lastSunTimes.set===null?'Sin puesta':hhmm(lastSunTimes.set);const stat=$('sun-status');stat.textContent=sun.alt>0?`☀ ${fmt(sun.alt,1)}° · ${Math.round(sun.az)}° ${dirName(sun.az)}`:'Noche · sol bajo horizonte';stat.className='sun-status '+(sun.alt>0?'day':'night');const data=renderStage(sun);renderFacades(sun,data);renderSunPath(date,lat,lon,tz,sun);renderTimeline(date,lat,lon,tz,buildAz);renderEave(sun,data.faceAz)
 }
 function setPreset(type){const now=new Date();let y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();if(type==='winter'){m=6;d=21}else if(type==='equinox'){m=9;d=21}else if(type==='summer'){m=12;d=21}$('date').value=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;update()}
@@ -106,7 +143,7 @@ function init(){
  $('region-select').addEventListener('change',()=>populateCommuneSelect());$('commune-select').addEventListener('change',applyCommune);
  ['lat','lon','date','tz','time-range','width','length','height','building-az','window-h','eave-depth','eave-gap','eave-face'].forEach(id=>$(id).addEventListener('input',update));
  $('play').addEventListener('click',togglePlay);$('noon').addEventListener('click',()=>{$('time-range').value=720;update()});$('sunrise-btn').addEventListener('click',()=>jumpTo('rise'));$('sunset-btn').addEventListener('click',()=>jumpTo('set'));
- qa('[data-preset]').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));qa('[data-az]').forEach(b=>b.addEventListener('click',()=>{$('building-az').value=b.dataset.az;update()}));update()
+ qa('[data-preset]').forEach(b=>b.addEventListener('click',()=>setPreset(b.dataset.preset)));qa('[data-az]').forEach(b=>b.addEventListener('click',()=>{$('building-az').value=b.dataset.az;update()}));setupCameraControls();update()
 }
 init();
 })();
