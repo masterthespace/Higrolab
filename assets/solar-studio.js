@@ -68,7 +68,7 @@ function polygonData(){if(!S.closed||S.pts.length<3)return null;const sc=S.scale
 function areaPerim(){const p=polygonData();if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function updateMetrics(){const m=areaPerim();$('area-out').textContent=m.a?m.a.toFixed(1)+' m²':'—';$('perim-out').textContent=m.l?m.l.toFixed(1)+' m':'—';$('faces-out').textContent=S.closed?S.pts.length:'—';$('status-pill').textContent=S.closed?`Planta cerrada · ${S.pts.length} fachadas`:`${S.pts.length} vértices`}
 function selectVertex(i){const p=S.pts[i];$('selection-panel').innerHTML=`<h3>VÉRTICE V${i+1}</h3><div class="vertex-editor"><label>X [px]<input id="vx" type="number" step=".1" value="${p.x.toFixed(1)}"></label><label>Y [px]<input id="vy" type="number" step=".1" value="${p.y.toFixed(1)}"></label><button id="delv">Eliminar vértice</button></div>`;$('vx').oninput=()=>{S.pts[i].x=+$('vx').value;drawCAD();rebuild3D()};$('vy').oninput=()=>{S.pts[i].y=+$('vy').value;drawCAD();rebuild3D()};$('delv').onclick=()=>{S.pts.splice(i,1);S.closed=S.closed&&S.pts.length>=3;$('selection-panel').innerHTML='<h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div>';updateMetrics();drawCAD();rebuild3D()}}
-function init3D(containerId,solar=false){const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);const cam=new THREE.PerspectiveCamera(42,1,.05,1000);cam.position.set(13,10,16);const ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;c.appendChild(ren.domElement);const ctl=createOrbitControls(cam,ren.domElement);ctl.target.set(0,1,0);ctl.update();sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0xd8e0e1,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;sc.add(ground);const grid=new THREE.GridHelper(60,60,0xaebdc2,0xcdd7da);grid.position.y=.002;sc.add(grid);const axes=new THREE.Group();const nmat=new THREE.MeshBasicMaterial({color:0xc52d2d});const arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),5,0xc52d2d,1,.5);sc.add(arrow);return{sc,cam,ren,ctl}}
+function init3D(containerId,solar=false){const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);const cam=new THREE.PerspectiveCamera(42,1,.05,1000);cam.position.set(13,10,16);const ren=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;c.appendChild(ren.domElement);const ctl=createOrbitControls(cam,ren.domElement);ctl.target.set(0,1,0);ctl.update();sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0xd8e0e1,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;sc.add(ground);const grid=new THREE.GridHelper(60,60,0xaebdc2,0xcdd7da);grid.position.y=.002;sc.add(grid);const axes=new THREE.Group();const nmat=new THREE.MeshBasicMaterial({color:0xc52d2d});const arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),5,0xc52d2d,1,.5);sc.add(arrow);return{sc,cam,ren,ctl}}
 function initScenes(){
   let a=init3D('three-stage');scene=a.sc;camera=a.cam;renderer=a.ren;controls=a.ctl;
   let b=init3D('three-solar',true);solarScene=b.sc;solarCamera=b.cam;solarRenderer=b.ren;solarControls=b.ctl;
@@ -236,4 +236,72 @@ function updateSolar(){
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
 function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
 function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height','building-az'].forEach(id=>$(id).addEventListener('input',rebuild3D));$('reset-project').onclick=()=>{S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam,pos={iso:[13,10,16],top:[0,25,.01],north:[0,6,20],east:[20,6,0],west:[-20,6,0]}[v]||[13,10,16];camera.position.set(...pos);controls.target.set(0,1,0);controls.update()});initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
+
+function communeLabel(){
+  const reg=$('region-select'),com=$('commune-select');
+  const r=reg?.options?.[reg.selectedIndex]?.textContent?.trim()||'';
+  const c=com?.options?.[com.selectedIndex]?.textContent?.trim()||'';
+  return [c,r].filter(Boolean).join(', ')
+}
+function safeCanvasDataURL(canvas){
+  try{return canvas?.toDataURL?.('image/png')||''}catch(_){return''}
+}
+function solarReportPayload(){
+  updateSolar();updateDailySunDashboard();
+  renderer?.render(scene,camera);solarRenderer?.render(solarScene,solarCamera);drawCAD();
+
+  const p=polygonData()||[], faces=facadeDescriptors(), recs=lastSunResults||computeDailySunHours();
+  const mins=+$('time').value, solarNow=solarPosition(
+    currentDateAtMinutes(mins), +$('lat').value, +$('lon').value, +$('tz').value
+  );
+  const areaText=$('area-out')?.textContent||'—', perimText=$('perim-out')?.textContent||'—';
+  const location=communeLabel();
+
+  return {
+    version:'V6.3.4',
+    analyzedDate:$('date').value,
+    analyzedDateLabel:(()=>{try{return new Date($('date').value+'T12:00:00').toLocaleDateString('es-CL',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}catch(_){return $('date').value}})(),
+    location,
+    latitude:+$('lat').value,
+    longitude:+$('lon').value,
+    timezone:+$('tz').value,
+    selectedTime:formatClock(mins),
+    solarAzimuth:solarNow.az,
+    solarElevation:solarNow.alt,
+    daylightMinutes:daylightMinutes(),
+    wallHeight:+$('wall-height').value,
+    additionalAzimuth:+$('building-az').value,
+    northAngle:S.northAngle||0,
+    calibrated:!!S.scale,
+    scale:S.scale||null,
+    areaText,
+    perimeterText:perimText,
+    facadeCount:faces.length,
+    vertices:p.map((v,i)=>({id:`V${i+1}`,x:v.x,z:v.z})),
+    facades:recs.map(r=>({
+      id:`F${r.index+1}`,
+      orientation:r.orientation,
+      azimuth:r.az,
+      length:r.len,
+      sunMinutes:r.minutes,
+      sunHours:r.minutes/60,
+      first:r.first,
+      last:r.last,
+      segments:r.segments
+    })),
+    snapshots:{
+      plan:safeCanvasDataURL(canvas),
+      model:safeCanvasDataURL(renderer?.domElement),
+      solar:safeCanvasDataURL(solarRenderer?.domElement)
+    },
+    methodology:{
+      stepMinutes:5,
+      point:'Punto medio de cada fachada',
+      selfShadow:true,
+      externalObstacles:false
+    }
+  }
+}
+window.HIDROLAB_SOLAR_REPORT=solarReportPayload;
+
 init();
