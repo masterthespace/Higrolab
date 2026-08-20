@@ -7,7 +7,7 @@
     'riesgo-moho.html','costo-calefaccion.html','comparador-u.html',
     'puentes-termicos-cev.html','ventanas-cev.html','fav-cev.html','infiltraciones-cev.html',
     'ventilacion-minima-cev.html','zona-termica-cev.html','puertas-ventanas-cev.html',
-    'potencia-calefaccion-cev.html','acs-cev.html','scop-cev.html','far-cev.html'
+    'potencia-calefaccion-cev.html','acs-cev.html','scop-cev.html','far-cev.html','simulador-solar.html'
   ]);
 
   // Vercel usa cleanUrls=true, por lo que /calculadora-rocio.html

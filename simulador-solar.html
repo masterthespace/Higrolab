@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HIDROLAB · Simulador solar 3D</title>
+<link href="styles.css" rel="stylesheet"/>
+<link href="assets/simulador-solar.css" rel="stylesheet"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+</head>
+<body>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">V6 · Diseño solar interactivo</div><h1>Simulador solar 3D de vivienda</h1><p>Configura un volumen simple, selecciona una comuna de Chile, gira la vivienda y recorre el día para ver qué fachadas reciben sol, cómo se proyecta la sombra y cuánto puede sombrear un alero.</p></div></header>
+<main class="wrap main solar-main">
+<section class="card solar-intro"><div><p class="kicker">Simulación complementaria</p><h2>Geometría solar + orientación + aleros</h2><p>La posición solar se calcula localmente a partir de latitud, longitud, fecha, hora y huso horario. La comuna se consulta en el servicio cartográfico de la Biblioteca del Congreso Nacional; si la conexión no está disponible, puedes ingresar coordenadas manualmente.</p></div><div class="solar-note"><strong>Importante</strong><span>Esta herramienta es un apoyo de diseño bioclimático HIDROLAB. No reemplaza por sí sola los procedimientos oficiales FAV/FAR de la CEV.</span></div></section>
+
+<section class="solar-grid">
+<div class="card solar-controls">
+<p class="kicker">01 · Emplazamiento</p><h2>Ubicación y tiempo</h2>
+<div class="field"><label for="commune-search">Comuna de Chile</label><div class="search-row"><input id="commune-search" autocomplete="off" placeholder="Ej.: Peñaflor, Temuco, Puerto Montt"/><button id="load-communes" class="btn btn-dark" type="button">Buscar comunas</button></div><div id="commune-results" class="commune-results" aria-live="polite"></div><small id="geo-status">Puedes buscar una comuna o usar coordenadas manuales.</small></div>
+<div class="two-cols"><div class="field"><label for="lat">Latitud [°]</label><input id="lat" type="number" step="0.0001" value="-33.6064"/></div><div class="field"><label for="lon">Longitud [°]</label><input id="lon" type="number" step="0.0001" value="-70.8767"/></div></div>
+<div class="two-cols"><div class="field"><label for="date">Fecha</label><input id="date" type="date"/></div><div class="field"><label for="tz">Huso horario [UTC]</label><select id="tz"><option value="-3">UTC−3</option><option value="-4" selected>UTC−4</option><option value="-5">UTC−5</option><option value="-6">UTC−6</option></select></div></div>
+<div class="preset-row"><button type="button" data-preset="today">Hoy</button><button type="button" data-preset="winter">21 jun</button><button type="button" data-preset="equinox">21 sep</button><button type="button" data-preset="summer">21 dic</button></div>
+<div class="field"><label for="time-range">Hora solar simulada <strong id="time-label">12:00</strong></label><input id="time-range" type="range" min="300" max="1260" step="5" value="720"/><div class="range-ends"><span>05:00</span><span>21:00</span></div></div>
+<div class="play-row"><button id="play" class="btn btn-dark" type="button">▶ Recorrer el día</button><button id="noon" class="btn" type="button">Ir al mediodía</button></div>
+<hr/>
+<p class="kicker">02 · Volumen</p><h2>Dimensiones y orientación</h2>
+<div class="three-cols"><div class="field"><label for="width">Ancho [m]</label><input id="width" type="number" min="1" max="50" step="0.1" value="8"/></div><div class="field"><label for="length">Largo [m]</label><input id="length" type="number" min="1" max="50" step="0.1" value="12"/></div><div class="field"><label for="height">Altura [m]</label><input id="height" type="number" min="1" max="20" step="0.1" value="5.5"/></div></div>
+<div class="field"><label for="building-az">Azimut fachada principal <strong id="building-az-label">0° · Norte</strong></label><input id="building-az" type="range" min="0" max="359" step="1" value="0"/><div class="compass-ticks"><span>N</span><span>E</span><span>S</span><span>O</span></div></div>
+<div class="orientation-buttons"><button type="button" data-az="0">Norte</button><button type="button" data-az="90">Oriente</button><button type="button" data-az="180">Sur</button><button type="button" data-az="270">Poniente</button></div>
+</div>
+
+<div class="card solar-stage-card">
+<div class="stage-head"><div><p class="kicker">03 · Modelo dinámico</p><h2>Sombra y exposición por fachada</h2></div><div id="sun-status" class="sun-status">Calculando…</div></div>
+<div id="solar-stage" class="solar-stage" role="img" aria-label="Modelo tridimensional simplificado de una vivienda con posición del sol y sombra proyectada"></div>
+<div class="metric-grid solar-metrics"><div class="metric-card"><div class="metric-label">Azimut solar</div><div id="sun-az" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Altura solar</div><div id="sun-alt" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Amanecer aprox.</div><div id="sunrise" class="viz-stat-value">—</div></div><div class="metric-card"><div class="metric-label">Atardecer aprox.</div><div id="sunset" class="viz-stat-value">—</div></div></div>
+<div class="facade-grid" id="facade-grid"></div>
+</div>
+</section>
+
+<section class="card timeline-card"><div class="stage-head"><div><p class="kicker">04 · Día completo</p><h2>Exposición solar de fachadas y cubierta</h2></div><span class="hint">La intensidad representa solo geometría de incidencia directa, no radiación climática real.</span></div><div id="daily-timeline" class="daily-timeline"></div></section>
+
+<section class="solar-grid eave-section">
+<div class="card eave-controls"><p class="kicker">05 · Diseñador de alero</p><h2>¿Cuánto sombrea mi ventana?</h2><p>Selecciona una fachada y ajusta el alero. El cálculo usa la geometría solar del instante seleccionado.</p>
+<div class="field"><label for="eave-face">Fachada</label><select id="eave-face"><option value="front">Principal</option><option value="right">Derecha</option><option value="back">Posterior</option><option value="left">Izquierda</option></select></div>
+<div class="field"><label for="window-h">Altura de ventana [m] <strong id="window-h-label">1,50</strong></label><input id="window-h" type="range" min="0.5" max="3" step="0.05" value="1.5"/></div>
+<div class="field"><label for="eave-depth">Profundidad del alero [m] <strong id="eave-depth-label">0,60</strong></label><input id="eave-depth" type="range" min="0" max="2.5" step="0.05" value="0.6"/></div>
+<div class="field"><label for="eave-gap">Separación alero–ventana [m] <strong id="eave-gap-label">0,20</strong></label><input id="eave-gap" type="range" min="0" max="1.5" step="0.05" value="0.2"/></div>
+<div class="eave-results"><div><span>Ángulo de perfil</span><strong id="profile-angle">—</strong></div><div><span>Sombra vertical</span><strong id="shadow-drop">—</strong></div><div><span>Ventana sombreada</span><strong id="shade-pct">—</strong></div></div>
+</div>
+<div class="card eave-visual-card"><div class="stage-head"><div><p class="kicker">Visualización instantánea</p><h2>Sección del alero y ventana</h2></div><span id="eave-face-name" class="viz-badge">Principal</span></div><div id="eave-visual" class="eave-visual"></div><div id="eave-message" class="solar-callout" aria-live="polite"></div></div>
+</section>
+
+<section class="card methodology"><p class="kicker">06 · Lectura técnica</p><h2>Cómo interpretar la simulación</h2><div class="method-grid"><div><strong>Caras soleadas</strong><p>Una fachada recibe sol directo cuando el vector solar incide por delante de su plano. El porcentaje mostrado es un factor geométrico relativo de incidencia.</p></div><div><strong>Sombra del volumen</strong><p>La sombra se proyecta geométricamente desde los vértices superiores del volumen hacia el plano horizontal del terreno.</p></div><div><strong>Alero</strong><p>Para un alero horizontal se estima el ángulo de perfil solar y la caída vertical de sombra sobre la fachada. No considera obstrucciones laterales ni reflexión.</p></div><div><strong>CEV</strong><p>Para acreditaciones oficiales deben mantenerse los procedimientos FAV/FAR, tablas, normas y memorias de cálculo exigidas por MINVU.</p></div></div></section>
+</main>
+<footer class="wrap footer">HIDROLAB · Simulación solar complementaria para diseño bioclimático</footer>
+<script src="assets/simulador-solar.js"></script><script src="assets/reportes.js"></script>
+</body></html>

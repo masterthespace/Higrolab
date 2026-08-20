@@ -78,3 +78,7 @@ Se agregan módulos independientes para:
 IMPORTANTE: el PDF NCh1079.Of2008 aportado es una edición anterior. La reglamentación térmica vigente usa la zonificación A–I asociada a NCh1079:2019. HIDROLAB V5 utiliza la tabla/mapas A–I publicados por MINVU, no la zonificación antigua de 7 zonas.
 
 Los módulos que dependen de modelos internos u horarios de la CEV (FAV numérico final, SCOP personalizado, pérdidas de acumulación ACS) se identifican expresamente como pre-chequeo o estimador cuando no corresponde reproducir un motor oficial completo.
+
+
+## V6 · Simulador solar
+Se agregó `simulador-solar.html` con visualización 3D simplificada, posición solar por comuna/fecha/hora, sombras y diseñador de aleros. Ver `CAMBIOS_V6.md`.
