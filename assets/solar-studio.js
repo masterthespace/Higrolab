@@ -80,6 +80,20 @@ function initScenes(){
   bindPicking(renderer,camera,()=>buildingGroup);
   bindPicking(solarRenderer,solarCamera,()=>solarBuilding);
   animate()
+
+  if(S.closed && S.pts.length>=3){
+    ctx.save();
+    ctx.font='900 11px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    for(let i=0;i<S.pts.length;i++){
+      const a=S.pts[i],b=S.pts[(i+1)%S.pts.length];
+      const x=(a.x+b.x)/2,y=(a.y+b.y)/2,label=`F${i+1}`;
+      const w=ctx.measureText(label).width+10;
+      ctx.fillStyle='rgba(11,63,82,.92)';ctx.fillRect(x-w/2,y-10,w,20);
+      ctx.fillStyle='#fff';ctx.fillText(label,x,y);
+    }
+    ctx.restore();
+  }
+
 }
 function polygonSignedArea(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z}return a/2}
 function orientationName(az){const names=['N','NE','E','SE','S','SO','O','NO'];return names[Math.round(((az%360)+360)%360/45)%8]}
@@ -129,7 +143,45 @@ function rebuild3D(){
     const old=key==='buildingGroup'?buildingGroup:solarBuilding;if(old)sc.remove(old);
     const n=makeBuilding();if(n)sc.add(n);if(key==='buildingGroup')buildingGroup=n;else solarBuilding=n
   });
-  refresh3DSelection();updateMetrics();updateSolar();updateSunPath();updateDailySunDashboard()
+  refresh3DSelection();updateMetrics();updateSolar();updateSunPath();updateDailySunDashboard();updateAllFacadeLabels()
+}
+
+
+function ensureFacadeLabel(layerId,index,f){
+  const layer=$(layerId); if(!layer)return null;
+  let el=layer.querySelector(`[data-facelabel="${index}"]`);
+  if(!el){
+    el=document.createElement('div');
+    el.className='facade-label-3d';
+    el.dataset.facelabel=index;
+    layer.appendChild(el);
+  }
+  el.innerHTML=`F${index+1}<small>${f.orientation} · ${f.az.toFixed(0)}°</small>`;
+  el.classList.toggle('active',SEL.type==='facade'&&SEL.index===index);
+  return el;
+}
+function updateFacadeLabelsFor(renderer,camera,group,layerId){
+  const layer=$(layerId); if(!layer)return;
+  if(!group || !S.closed){layer.innerHTML='';return}
+  const fs=facadeDescriptors(), rect=renderer.domElement.getBoundingClientRect();
+  group.updateMatrixWorld(true); camera.updateMatrixWorld(true);
+  fs.forEach(f=>{
+    const el=ensureFacadeLabel(layerId,f.index,f);
+    const p=f.center.clone().add(f.nLocal.clone().multiplyScalar(.06)).applyMatrix4(group.matrixWorld);
+    const projected=p.clone().project(camera);
+    const visible=projected.z>-1 && projected.z<1;
+    const x=(projected.x*.5+.5)*rect.width, y=(-projected.y*.5+.5)*rect.height;
+    el.style.left=`${x}px`; el.style.top=`${y}px`;
+    el.classList.toggle('hidden',!visible||x<-20||y<-20||x>rect.width+20||y>rect.height+20);
+    el.classList.toggle('active',SEL.type==='facade'&&SEL.index===f.index);
+  });
+  [...layer.querySelectorAll('[data-facelabel]')].forEach(el=>{
+    if(+el.dataset.facelabel>=fs.length)el.remove()
+  })
+}
+function updateAllFacadeLabels(){
+  if(renderer&&camera)updateFacadeLabelsFor(renderer,camera,buildingGroup,'labels-3d');
+  if(solarRenderer&&solarCamera)updateFacadeLabelsFor(solarRenderer,solarCamera,solarBuilding,'labels-solar');
 }
 
 function bindPicking(ren,cam,getGroup){
@@ -144,7 +196,7 @@ function bindPicking(ren,cam,getGroup){
     select3DObject(hit.object.userData.type,hit.object.userData.index)
   })
 }
-function select3DObject(type,index){SEL.type=type;SEL.index=index;refresh3DSelection();renderSelectionInspector();updateSelectedSunPanel()}
+function select3DObject(type,index){SEL.type=type;SEL.index=index;refresh3DSelection();renderSelectionInspector();updateSelectedSunPanel();updateAllFacadeLabels()}
 function refresh3DSelection(){
   [buildingGroup,solarBuilding].forEach(g=>{
     if(!g?.userData)return;
@@ -165,7 +217,7 @@ function renderSelectionInspector(){
 }
 
 function resize3D(){[['three-stage',camera,renderer],['three-solar',solarCamera,solarRenderer]].forEach(([id,cam,ren])=>{if(!ren)return;const r=$(id).getBoundingClientRect();if(r.width&&r.height){ren.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}})}
-function animate(){requestAnimationFrame(animate);controls?.update();solarControls?.update();renderer?.render(scene,camera);solarRenderer?.render(solarScene,solarCamera)}
+function animate(){updateAllFacadeLabels();requestAnimationFrame(animate);controls?.update();solarControls?.update();renderer?.render(scene,camera);solarRenderer?.render(solarScene,solarCamera)}
 function rad(x){return x*Math.PI/180}function deg(x){return x*180/Math.PI}function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
 function solarPosition(date,lat,lon,tz){const start=new Date(date.getFullYear(),0,0),doy=Math.floor((date-start)/86400000),mins=date.getHours()*60+date.getMinutes(),g=2*Math.PI/365*(doy-1+(mins/60-12)/24),eq=229.18*(.000075+.001868*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g)),dec=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+.000907*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g),tst=(mins+eq+4*lon-60*tz)%1440,ha=rad(tst/4-180),phi=rad(lat),cosz=Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(ha),zen=Math.acos(clamp(cosz,-1,1)),alt=90-deg(zen),az=(deg(Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(phi)-Math.tan(dec)*Math.cos(phi)))+180+360)%360;return{alt,az}}
 function parseCoords(s){if(!s)return null;let m=s.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([NS]).*?(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([EWO])/i);if(m){let la=+m[1]+ +m[2]/60+ +m[3]/3600,lo=+m[5]+ +m[6]/60+ +m[7]/3600;if(m[4].toUpperCase()==='S')la=-la;if(/[WO]/i.test(m[8]))lo=-lo;return[la,lo]}m=s.match(/(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/);return m?[+m[1],+m[2]]:null}
@@ -246,6 +298,21 @@ function communeLabel(){
 function safeCanvasDataURL(canvas){
   try{return canvas?.toDataURL?.('image/png')||''}catch(_){return''}
 }
+
+function facadeIdentificationSVG(){
+  const fs=facadeDescriptors(),p=polygonData(); if(!fs.length||!p?.length)return'';
+  const minX=Math.min(...p.map(v=>v.x)),maxX=Math.max(...p.map(v=>v.x)),minZ=Math.min(...p.map(v=>v.z)),maxZ=Math.max(...p.map(v=>v.z));
+  const W=760,H=480,pad=60,sx=(W-2*pad)/Math.max(.1,maxX-minX),sy=(H-2*pad)/Math.max(.1,maxZ-minZ),sc=Math.min(sx,sy);
+  const xy=v=>({x:pad+(v.x-minX)*sc,y:H-pad-(v.z-minZ)*sc});
+  const path=p.map((v,i)=>`${i?'L':'M'} ${xy(v).x.toFixed(1)} ${xy(v).y.toFixed(1)}`).join(' ')+' Z';
+  const labs=fs.map(f=>{
+    const a=xy(f.a),b=xy(f.b),x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+    return `<g><circle cx="${x}" cy="${y}" r="18" fill="#0b3f52"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="white">F${f.index+1}</text><text x="${x}" y="${y+34}" text-anchor="middle" font-family="Arial" font-size="10" fill="#3c5964">${f.orientation} · ${f.az.toFixed(0)}°</text></g>`
+  }).join('');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="#f5f8f8"/><path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>${labs}<g transform="translate(${W-70},75)"><line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/><polygon points="0,-38 -8,-22 8,-22" fill="#cf4b43"/><text x="0" y="55" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text></g></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)
+}
+
 function solarReportPayload(){
   updateSolar();updateDailySunDashboard();
   renderer?.render(scene,camera);solarRenderer?.render(solarScene,solarCamera);drawCAD();
@@ -290,6 +357,7 @@ function solarReportPayload(){
       segments:r.segments
     })),
     snapshots:{
+      facadeMap:facadeIdentificationSVG(),
       plan:safeCanvasDataURL(canvas),
       model:safeCanvasDataURL(renderer?.domElement),
       solar:safeCanvasDataURL(solarRenderer?.domElement)

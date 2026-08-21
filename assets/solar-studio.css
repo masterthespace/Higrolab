@@ -24,3 +24,11 @@
 .facade-inspector .facade-title{font-size:15px;color:#173039;margin-bottom:7px}.facade-inspector .facade-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.facade-inspector .facade-grid div{background:#f3f7f7;border-radius:7px;padding:7px}.facade-inspector span{font-size:9px;color:#74848a;display:block}.facade-inspector strong{font-size:12px;color:#173039}.facade-state{margin-top:8px;padding:8px;border-radius:7px;font-size:11px;font-weight:800}.facade-state.on{background:#fff4ce;color:#745700}.facade-state.off{background:#eef3f4;color:#53666d}
 .vertex3d-info{font-size:11px;line-height:1.55}.vertex3d-info strong{color:#173039}
 @media(max-width:900px){.sun-dashboard-head{display:block}.dash-summary{text-align:left;margin-top:12px}.sun-selected{grid-template-columns:1fr}.selected-metrics{grid-template-columns:1fr 1fr}.solar-legend{display:none}}
+
+/* V6.3.5 — identificación visual de fachadas */
+.facade-label-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.facade-label-3d{position:absolute;transform:translate(-50%,-50%);background:#0b3f52e8;color:#fff;border:1px solid #ffffff55;border-radius:6px;padding:3px 6px;font-size:9px;font-weight:900;letter-spacing:.03em;box-shadow:0 2px 8px #0003;white-space:nowrap;transition:opacity .12s,transform .12s}
+.facade-label-3d small{display:block;font-size:7px;font-weight:700;opacity:.82;letter-spacing:0}
+.facade-label-3d.active{background:#86b817;color:#142400;transform:translate(-50%,-50%) scale(1.08);border-color:#dff5a6}
+.facade-label-3d.hidden{opacity:0}
+@media(max-width:720px){.facade-label-3d{font-size:8px;padding:2px 5px}.facade-label-3d small{display:none}}

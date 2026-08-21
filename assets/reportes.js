@@ -224,6 +224,7 @@
         table.append(tr);
       });
       sec.append(table);
+      sec.append(el(doc,'p','section-note','La identificación F1, F2, F3… corresponde al esquema incluido más adelante. Cada etiqueta está ubicada sobre el tramo de muro al que pertenece.'));
 
       const timeline=el(doc,'div','solar-pdf-timelines');
       data.facades.forEach(f=>{
@@ -244,8 +245,9 @@
 
     const snaps=data.snapshots||{};
     if(snaps.plan||snaps.model||snaps.solar){
-      const sec=addSection(doc,root,'Visualizaciones del modelo');
+      const sec=addSection(doc,root,'Visualizaciones e identificación de fachadas');
       const figs=el(doc,'div','report-figures');
+      addImageFigure(doc,figs,'Esquema de identificación de fachadas F1, F2, F3…',snaps.facadeMap);
       addImageFigure(doc,figs,'Planta y orientación',snaps.plan);
       addImageFigure(doc,figs,'Modelo 3D de la vivienda',snaps.model);
       addImageFigure(doc,figs,`Análisis solar · ${data.selectedTime}`,snaps.solar);
