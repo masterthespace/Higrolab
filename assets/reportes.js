@@ -224,7 +224,25 @@
         table.append(tr);
       });
       sec.append(table);
-      sec.append(el(doc,'p','section-note','La identificación F1, F2, F3… corresponde al esquema incluido más adelante. Cada etiqueta está ubicada sobre el tramo de muro al que pertenece.'));
+      if(data.cover){
+        const csec=addSection(doc,root,'Cubierta superior C1');
+        const ct=el(doc,'table','kv'),ctb=el(doc,'tbody');
+        [
+          ['Identificación','C1 · Cubierta'],
+          ['Tipo de superficie','Horizontal superior'],
+          ['Sol directo durante el día',fmtHours(data.cover.sunMinutes)],
+          ['Primer sol',fmtClock(data.cover.first)],
+          ['Último sol',fmtClock(data.cover.last)],
+          ['Porcentaje del día solar',data.daylightMinutes>0?`${fmtNum(data.cover.sunMinutes/data.daylightMinutes*100,0)} %`:'—'],
+          ['Captación geométrica relativa',`${fmtNum(data.cover.geomEquivalentHours,1)} h-eq`]
+        ].forEach(r=>addRow(doc,ctb,r[0],r[1]));
+        ct.append(ctb);csec.append(ct);
+        csec.append(el(doc,'p','section-note','La captación geométrica relativa integra el factor sin(elevación solar) durante las horas con sol. Sirve para comparar geometría y fecha, pero no representa irradiancia ni energía solar real en kWh/m².'));
+        const trk=el(doc,'div','solar-pdf-timelines'),row=el(doc,'div','solar-pdf-row'),lab=el(doc,'div','solar-pdf-label',`C1 · Cubierta · ${fmtHours(data.cover.sunMinutes)}`),track=el(doc,'div','solar-pdf-track');
+        (data.cover.segments||[]).forEach(seg=>{const bar=el(doc,'span','solar-pdf-seg');bar.style.left=`${seg[0]/1440*100}%`;bar.style.width=`${(seg[1]-seg[0])/1440*100}%`;track.append(bar)});
+        row.append(lab,track);trk.append(row);csec.append(trk);
+      }
+      sec.append(el(doc,'p','section-note','La identificación F1, F2, F3… corresponde al esquema incluido más adelante. La cubierta superior se identifica como C1.'));
 
       const timeline=el(doc,'div','solar-pdf-timelines');
       data.facades.forEach(f=>{
@@ -260,7 +278,7 @@
       `Intervalo temporal del cálculo diario: ${data.methodology?.stepMinutes||5} minutos.`,
       `Punto de evaluación: ${data.methodology?.point||'punto medio de cada fachada'}.`,
       'Se considera orientación geográfica, trayectoria solar para la fecha y coordenadas ingresadas y autosombra de la propia geometría de la vivienda.',
-      'Las horas informadas representan exposición geométrica a sol directo; no corresponden a irradiancia o energía solar en W/m² o kWh/m².',
+      'Las horas informadas representan exposición geométrica a sol directo. Para la cubierta C1 se añade una captación geométrica relativa basada en la altura solar; ninguno de estos indicadores corresponde por sí solo a irradiancia o energía solar en W/m² o kWh/m².',
       'Esta versión no incorpora todavía sombras de edificios vecinos, árboles, topografía u otros obstáculos externos.'
     ].forEach(x=>{const li=el(doc,'li','',x);ul.append(li)});
     meth.append(ul);

@@ -49,7 +49,7 @@ function createOrbitControls(cam, dom){
   ctl.update=look;look();return ctl;
 }
 
-const canvas=$('cad'),ctx=canvas.getContext('2d'); let scene,camera,renderer,controls,buildingGroup,solarScene,solarCamera,solarRenderer,solarControls,solarBuilding,sunLight,playTimer,sunOrb,sunPathLine; const SEL={type:null,index:null};
+let autoFit3D=true;const canvas=$('cad'),ctx=canvas.getContext('2d'); let scene,camera,renderer,controls,buildingGroup,solarScene,solarCamera,solarRenderer,solarControls,solarBuilding,sunLight,playTimer,sunOrb,sunPathLine; const SEL={type:null,index:null};
 function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();canvas.width=Math.round(r.width*devicePixelRatio);canvas.height=Math.round(r.height*devicePixelRatio);canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';drawCAD();resize3D()}
 function screenToWorld(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left-S.panX)/S.zoom,y:(e.clientY-r.top-S.panY)/S.zoom}}
 function worldToScreen(p){return{x:p.x*S.zoom+S.panX,y:p.y*S.zoom+S.panY}}
@@ -61,14 +61,105 @@ function drawLine(a,b,c,w){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.
 function drawDimensions(){if(!S.scale)return;ctx.font=`${12/S.zoom}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';for(let i=0;i<S.pts.length-(S.closed?0:1);i++){const a=S.pts[i],b=S.pts[(i+1)%S.pts.length],m={x:(a.x+b.x)/2,y:(a.y+b.y)/2},len=Math.hypot(b.x-a.x,b.y-a.y)*S.scale;ctx.fillStyle='#10262d';ctx.fillRect(m.x-28/S.zoom,m.y-10/S.zoom,56/S.zoom,20/S.zoom);ctx.fillStyle='#fff';ctx.fillText(len.toFixed(2)+' m',m.x,m.y)}}
 function drawNorth(){const r=canvas.getBoundingClientRect(),x=55,y=70,ang=(S.northAngle-90)*Math.PI/180;ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.strokeStyle='#d93232';ctx.fillStyle='#d93232';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(24,0);ctx.stroke();ctx.beginPath();ctx.moveTo(24,0);ctx.lineTo(13,-7);ctx.lineTo(13,7);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#d93232';ctx.font='bold 13px system-ui';ctx.fillText('N',48,104)}
 function nearestVertex(p){let best=-1,dist=14/S.zoom;S.pts.forEach((v,i)=>{const d=Math.hypot(v.x-p.x,v.y-p.y);if(d<dist){dist=d;best=i}});return best}
-canvas.addEventListener('pointerdown',e=>{if(e.button===1||e.button===2){S.drag={pan:true,x:e.clientX,y:e.clientY,px:S.panX,py:S.panY};canvas.setPointerCapture(e.pointerId);return}let p=screenToWorld(e);if(S.tool==='wall'){if(S.closed){S.pts=[];S.closed=false}p=snapPoint(p);if(S.pts.length>2&&Math.hypot(p.x-S.pts[0].x,p.y-S.pts[0].y)<14/S.zoom){S.closed=true}else S.pts.push(p);updateMetrics();drawCAD();rebuild3D();return}if(S.tool==='measure'){S.calPts.push(p);if(S.calPts.length>2)S.calPts=[p];if(S.calPts.length===2)applyCalibration();drawCAD();return}if(S.tool==='north'){S.northPts.push(p);if(S.northPts.length>2)S.northPts=[p];if(S.northPts.length===2){const a=S.northPts[0],b=S.northPts[1];S.northAngle=(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;rebuild3D()}drawCAD();return}const i=nearestVertex(p);if(i>=0){S.drag={vertex:i};canvas.setPointerCapture(e.pointerId);selectVertex(i)}});
-canvas.addEventListener('dblclick',e=>{if(S.tool==='wall'&&S.pts.length>=3){S.closed=true;updateMetrics();drawCAD();rebuild3D()}});canvas.addEventListener('pointermove',e=>{if(S.drag?.pan){S.panX=S.drag.px+e.clientX-S.drag.x;S.panY=S.drag.py+e.clientY-S.drag.y;drawCAD();return}const p=screenToWorld(e);if(S.drag?.vertex!=null){S.pts[S.drag.vertex]=p;updateMetrics();drawCAD();rebuild3D();return}S.hover=nearestVertex(p);drawCAD()});canvas.addEventListener('pointerup',()=>S.drag=null);canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,before={x:(mx-S.panX)/S.zoom,y:(my-S.panY)/S.zoom},z=Math.exp(-e.deltaY*.001);S.zoom=Math.max(.08,Math.min(12,S.zoom*z));S.panX=mx-before.x*S.zoom;S.panY=my-before.y*S.zoom;drawCAD()},{passive:false});
-function applyCalibration(){if(S.calPts.length!==2)return;const px=Math.hypot(S.calPts[1].x-S.calPts[0].x,S.calPts[1].y-S.calPts[0].y),m=+$('cal-distance').value;if(px>0&&m>0){S.scale=m/px;$('scale-info').textContent=`1 px = ${S.scale.toFixed(5)} m · referencia ${m.toFixed(2)} m`;updateMetrics();rebuild3D()}}
+canvas.addEventListener('pointerdown',e=>{if(e.button===1||e.button===2){S.drag={pan:true,x:e.clientX,y:e.clientY,px:S.panX,py:S.panY};canvas.setPointerCapture(e.pointerId);return}let p=screenToWorld(e);if(S.tool==='wall'){if(S.closed){S.pts=[];S.closed=false}p=snapPoint(p);if(S.pts.length>2&&Math.hypot(p.x-S.pts[0].x,p.y-S.pts[0].y)<14/S.zoom){S.closed=true}else S.pts.push(p);autoFit3D=true;updateMetrics();drawCAD();rebuild3D();return}if(S.tool==='measure'){S.calPts.push(p);if(S.calPts.length>2)S.calPts=[p];if(S.calPts.length===2)applyCalibration();drawCAD();return}if(S.tool==='north'){S.northPts.push(p);if(S.northPts.length>2)S.northPts=[p];if(S.northPts.length===2){const a=S.northPts[0],b=S.northPts[1];S.northAngle=(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;rebuild3D()}drawCAD();return}const i=nearestVertex(p);if(i>=0){S.drag={vertex:i};canvas.setPointerCapture(e.pointerId);selectVertex(i)}});
+canvas.addEventListener('dblclick',e=>{if(S.tool==='wall'&&S.pts.length>=3){S.closed=true;autoFit3D=true;updateMetrics();drawCAD();rebuild3D()}});canvas.addEventListener('pointermove',e=>{if(S.drag?.pan){S.panX=S.drag.px+e.clientX-S.drag.x;S.panY=S.drag.py+e.clientY-S.drag.y;drawCAD();return}const p=screenToWorld(e);if(S.drag?.vertex!=null){S.pts[S.drag.vertex]=p;autoFit3D=true;updateMetrics();drawCAD();rebuild3D();return}S.hover=nearestVertex(p);drawCAD()});canvas.addEventListener('pointerup',()=>S.drag=null);canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,before={x:(mx-S.panX)/S.zoom,y:(my-S.panY)/S.zoom},z=Math.exp(-e.deltaY*.001);S.zoom=Math.max(.08,Math.min(12,S.zoom*z));S.panX=mx-before.x*S.zoom;S.panY=my-before.y*S.zoom;drawCAD()},{passive:false});
+function applyCalibration(){if(S.calPts.length!==2)return;const px=Math.hypot(S.calPts[1].x-S.calPts[0].x,S.calPts[1].y-S.calPts[0].y),m=+$('cal-distance').value;if(px>0&&m>0){S.scale=m/px;autoFit3D=true;$('scale-info').textContent=`1 px = ${S.scale.toFixed(5)} m · referencia ${m.toFixed(2)} m`;updateMetrics();rebuild3D()}}
 function polygonData(){if(!S.closed||S.pts.length<3)return null;const sc=S.scale||(.02),cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length,cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;return S.pts.map(p=>({x:(p.x-cx)*sc,z:(p.y-cy)*sc}))}
 function areaPerim(){const p=polygonData();if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function updateMetrics(){const m=areaPerim();$('area-out').textContent=m.a?m.a.toFixed(1)+' m²':'—';$('perim-out').textContent=m.l?m.l.toFixed(1)+' m':'—';$('faces-out').textContent=S.closed?S.pts.length:'—';$('status-pill').textContent=S.closed?`Planta cerrada · ${S.pts.length} fachadas`:`${S.pts.length} vértices`}
 function selectVertex(i){const p=S.pts[i];$('selection-panel').innerHTML=`<h3>VÉRTICE V${i+1}</h3><div class="vertex-editor"><label>X [px]<input id="vx" type="number" step=".1" value="${p.x.toFixed(1)}"></label><label>Y [px]<input id="vy" type="number" step=".1" value="${p.y.toFixed(1)}"></label><button id="delv">Eliminar vértice</button></div>`;$('vx').oninput=()=>{S.pts[i].x=+$('vx').value;drawCAD();rebuild3D()};$('vy').oninput=()=>{S.pts[i].y=+$('vy').value;drawCAD();rebuild3D()};$('delv').onclick=()=>{S.pts.splice(i,1);S.closed=S.closed&&S.pts.length>=3;$('selection-panel').innerHTML='<h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div>';updateMetrics();drawCAD();rebuild3D()}}
-function init3D(containerId,solar=false){const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);const cam=new THREE.PerspectiveCamera(42,1,.05,1000);cam.position.set(13,10,16);const ren=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;c.appendChild(ren.domElement);const ctl=createOrbitControls(cam,ren.domElement);ctl.target.set(0,1,0);ctl.update();sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshStandardMaterial({color:0xd8e0e1,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;sc.add(ground);const grid=new THREE.GridHelper(60,60,0xaebdc2,0xcdd7da);grid.position.y=.002;sc.add(grid);const axes=new THREE.Group();const nmat=new THREE.MeshBasicMaterial({color:0xc52d2d});const arrow=new THREE.ArrowHelper(new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),5,0xc52d2d,1,.5);sc.add(arrow);return{sc,cam,ren,ctl}}
+
+function modelBounds(group){
+  if(!group)return null;
+  group.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(group.userData?.body||group);
+  const size=new THREE.Vector3(),center=new THREE.Vector3();
+  box.getSize(size);box.getCenter(center);
+  return{box,size,center,maxPlan:Math.max(size.x,size.z),height:size.y}
+}
+function niceGridSize(maxPlan){
+  const need=Math.max(12,maxPlan*1.8);
+  return Math.ceil(need/10)*10;
+}
+function rebuildMetricGrid(sc,group){
+  const b=modelBounds(group); if(!b)return;
+  const gridSize=niceGridSize(b.maxPlan);
+  if(sc.userData.metricGrid)sc.remove(sc.userData.metricGrid);
+  if(sc.userData.ground)sc.remove(sc.userData.ground);
+  if(sc.userData.northArrow)sc.remove(sc.userData.northArrow);
+
+  // 1 division = 1 metre
+  const divisions=Math.max(10,Math.round(gridSize));
+  const grid=new THREE.GridHelper(gridSize,divisions,0x83979e,0xcbd6d9);
+  grid.position.y=.002;grid.material.transparent=true;grid.material.opacity=.72;
+  sc.add(grid);sc.userData.metricGrid=grid;
+
+  const groundSize=gridSize*1.35;
+  const ground=new THREE.Mesh(
+    new THREE.PlaneGeometry(groundSize,groundSize),
+    new THREE.MeshStandardMaterial({color:0xdde4e5,roughness:1})
+  );
+  ground.rotation.x=-Math.PI/2;ground.position.y=-.006;ground.receiveShadow=true;
+  sc.add(ground);sc.userData.ground=ground;
+
+  const arrowLen=Math.max(3,Math.min(8,gridSize*.16));
+  const arrow=new THREE.ArrowHelper(
+    new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),
+    arrowLen,0xc52d2d,Math.max(.5,arrowLen*.18),Math.max(.25,arrowLen*.09)
+  );
+  sc.add(arrow);sc.userData.northArrow=arrow;
+  sc.userData.gridSize=gridSize;
+}
+function fitCameraToModel(cam,ctl,group,view='iso'){
+  const b=modelBounds(group); if(!b)return;
+  const target=new THREE.Vector3(b.center.x,Math.max(.35,b.height*.46),b.center.z);
+  ctl.target.copy(target);
+
+  // Perspective distance from real bounding sphere and camera FOV.
+  const radius=Math.max(1,new THREE.Vector3(b.size.x,b.size.y*1.15,b.size.z).length()*.52);
+  const fov=THREE.MathUtils.degToRad(cam.fov);
+  const distance=Math.max(5,(radius/Math.sin(fov/2))*1.12);
+
+  const dirs={
+    iso:new THREE.Vector3(1,.72,1.22),
+    top:new THREE.Vector3(0,1.65,.001),
+    north:new THREE.Vector3(0,.35,1),
+    east:new THREE.Vector3(1,.35,0),
+    west:new THREE.Vector3(-1,.35,0)
+  };
+  const dir=(dirs[view]||dirs.iso).normalize();
+  cam.position.copy(target).add(dir.multiplyScalar(distance));
+  cam.near=Math.max(.02,distance/400);cam.far=Math.max(500,distance*25);cam.updateProjectionMatrix();
+  ctl.update();
+}
+function updateScaleHUD(){
+  const p=polygonData(),b=buildingGroup?modelBounds(buildingGroup):null;
+  if(!p||!b)return;
+  const h=+$('wall-height').value||0;
+  const text=`Cuadrícula: 1 m · altura: ${h.toFixed(2).replace('.',',')} m · planta máx.: ${b.maxPlan.toFixed(1).replace('.',',')} m`;
+  if($('scale-3d-hud'))$('scale-3d-hud').textContent=text;
+  if($('scale-solar-hud'))$('scale-solar-hud').textContent=text;
+}
+function addHumanScaleReference(sc){
+  if(sc.userData.humanRef)sc.remove(sc.userData.humanRef);
+  const g=new THREE.Group();
+  const mat=new THREE.MeshBasicMaterial({color:0x6f858d,transparent:true,opacity:.82});
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,1.15,12),mat);body.position.y=.72;
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.13,14,10),mat);head.position.y=1.43;
+  g.add(body,head);const bb=sc===scene?modelBounds(buildingGroup):modelBounds(solarBuilding);const d=bb?Math.max(1.2,bb.maxPlan*.10):1.2;g.position.set(bb?bb.center.x-bb.size.x*.55-d:-1.2,0,bb?bb.center.z+bb.size.z*.35:1.2);g.userData.realHeight=1.56;
+  sc.add(g);sc.userData.humanRef=g;
+}
+
+function init3D(containerId,solar=false){
+  const c=$(containerId),sc=new THREE.Scene();sc.background=new THREE.Color(0xe9eef0);
+  const cam=new THREE.PerspectiveCamera(42,1,.02,1000);cam.position.set(13,10,16);
+  const ren=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+  ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputColorSpace=THREE.SRGBColorSpace;
+  c.appendChild(ren.domElement);
+  const ctl=createOrbitControls(cam,ren.domElement);ctl.target.set(0,1,0);ctl.update();
+  sc.add(new THREE.HemisphereLight(0xffffff,0x6d7b80,1.7));
+  return{sc,cam,ren,ctl}
+}
 function initScenes(){
   let a=init3D('three-stage');scene=a.sc;camera=a.cam;renderer=a.ren;controls=a.ctl;
   let b=init3D('three-solar',true);solarScene=b.sc;solarCamera=b.cam;solarRenderer=b.ren;solarControls=b.ctl;
@@ -92,6 +183,13 @@ function initScenes(){
       ctx.fillStyle='#fff';ctx.fillText(label,x,y);
     }
     ctx.restore();
+  }
+
+
+  if(S.closed && S.pts.length>=3){
+    const cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length,cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;
+    ctx.save();ctx.font='900 12px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+    const lab='C1';const w=ctx.measureText(lab).width+12;ctx.fillStyle='rgba(240,181,35,.95)';ctx.fillRect(cx-w/2,cy-10,w,20);ctx.fillStyle='#173039';ctx.fillText(lab,cx,cy);ctx.restore();
   }
 
 }
@@ -125,6 +223,14 @@ function makeBuilding(){
   const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x344b55}));
   const g=new THREE.Group();g.rotation.y=totalRotationRad();g.add(body,edges);
   g.userData.body=body;g.userData.pickables=[];g.userData.facades=[];g.userData.vertices=[];
+  g.userData.cover=null;
+  const rg=roofGeometry();
+  if(rg){
+    const rm=new THREE.MeshBasicMaterial({color:0x86b817,transparent:true,opacity:.035,side:THREE.DoubleSide,depthWrite:false});
+    const roof=new THREE.Mesh(rg,rm);roof.userData={type:'cover',index:0};
+    g.add(roof);g.userData.cover=roof;g.userData.pickables.push(roof);
+  }
+
   const fd=facadeDescriptors();
   fd.forEach(f=>{
     const fm=new THREE.MeshBasicMaterial({color:0x86b817,transparent:true,opacity:.025,side:THREE.DoubleSide,depthWrite:false});
@@ -141,8 +247,15 @@ function makeBuilding(){
 function rebuild3D(){
   [[scene,'buildingGroup'],[solarScene,'solarBuilding']].forEach(([sc,key])=>{
     const old=key==='buildingGroup'?buildingGroup:solarBuilding;if(old)sc.remove(old);
-    const n=makeBuilding();if(n)sc.add(n);if(key==='buildingGroup')buildingGroup=n;else solarBuilding=n
+    const n=makeBuilding();if(n)sc.add(n);if(key==='buildingGroup')buildingGroup=n;else solarBuilding=n;
+    if(n){rebuildMetricGrid(sc,n);addHumanScaleReference(sc)}
   });
+  if(buildingGroup && autoFit3D){
+    fitCameraToModel(camera,controls,buildingGroup,'iso');
+    fitCameraToModel(solarCamera,solarControls,solarBuilding,'iso');
+    autoFit3D=false;
+  }
+  updateScaleHUD();
   refresh3DSelection();updateMetrics();updateSolar();updateSunPath();updateDailySunDashboard();updateAllFacadeLabels()
 }
 
@@ -179,9 +292,20 @@ function updateFacadeLabelsFor(renderer,camera,group,layerId){
     if(+el.dataset.facelabel>=fs.length)el.remove()
   })
 }
+
+function updateCoverLabelFor(renderer,camera,group,layerId){
+  const layer=$(layerId);if(!layer||!group?.userData?.cover||!S.closed)return;
+  let el=layer.querySelector('[data-coverlabel]');
+  if(!el){el=document.createElement('div');el.className='facade-label-3d';el.dataset.coverlabel='1';layer.appendChild(el)}
+  el.innerHTML='C1<small>Cubierta</small>';el.classList.toggle('active',SEL.type==='cover');
+  const r=roofDescriptor(),p=r.center.clone().applyMatrix4(group.matrixWorld),pr=p.clone().project(camera),rect=renderer.domElement.getBoundingClientRect();
+  const x=(pr.x*.5+.5)*rect.width,y=(-pr.y*.5+.5)*rect.height;el.style.left=`${x}px`;el.style.top=`${y}px`;
+  el.classList.toggle('hidden',pr.z<-1||pr.z>1||x<-20||y<-20||x>rect.width+20||y>rect.height+20)
+}
+
 function updateAllFacadeLabels(){
-  if(renderer&&camera)updateFacadeLabelsFor(renderer,camera,buildingGroup,'labels-3d');
-  if(solarRenderer&&solarCamera)updateFacadeLabelsFor(solarRenderer,solarCamera,solarBuilding,'labels-solar');
+  if(renderer&&camera){updateFacadeLabelsFor(renderer,camera,buildingGroup,'labels-3d');updateCoverLabelFor(renderer,camera,buildingGroup,'labels-3d')};
+  if(solarRenderer&&solarCamera){updateFacadeLabelsFor(solarRenderer,solarCamera,solarBuilding,'labels-solar');updateCoverLabelFor(solarRenderer,solarCamera,solarBuilding,'labels-solar')};
 }
 
 function bindPicking(ren,cam,getGroup){
@@ -201,10 +325,15 @@ function refresh3DSelection(){
   [buildingGroup,solarBuilding].forEach(g=>{
     if(!g?.userData)return;
     (g.userData.facades||[]).forEach((m,i)=>{const on=SEL.type==='facade'&&SEL.index===i;m.material.opacity=on?.34:.025;m.material.color.set(on?0x86b817:0x86b817)});
-    (g.userData.vertices||[]).forEach((m,i)=>{const on=SEL.type==='vertex'&&SEL.index===i;m.material.opacity=on?1:.55;m.material.color.set(on?0xf0a500:0x334d58);m.scale.setScalar(on?1.45:1)})
+    (g.userData.vertices||[]).forEach((m,i)=>{const on=SEL.type==='vertex'&&SEL.index===i;m.material.opacity=on?1:.55;m.material.color.set(on?0xf0a500:0x334d58);m.scale.setScalar(on?1.45:1)});
+    if(g.userData.cover){const on=SEL.type==='cover';g.userData.cover.material.opacity=on?.32:.035;g.userData.cover.material.color.set(on?0xf0b523:0x86b817)}
   })
 }
 function renderSelectionInspector(){
+  if(SEL.type==='cover'){
+    const r=lastRoofResult||computeRoofDaily(),mins=+$('time').value,sun=solarPosition(currentDateAtMinutes(mins),+$('lat').value,+$('lon').value,+$('tz').value);
+    $('selection-panel').innerHTML=`<h3>CUBIERTA C1</h3><div class="facade-inspector"><div class="facade-title">Superficie horizontal superior</div><div class="facade-grid"><div><span>Sol diario</span><strong>${formatHours(r.minutes)}</strong></div><div><span>Día solar</span><strong>${daylightMinutes()?Math.round(r.minutes/daylightMinutes()*100):0}%</strong></div><div><span>Captación geométrica</span><strong>${r.geomEquivalentHours.toFixed(1).replace('.',',')} h-eq</strong></div><div><span>Estado actual</span><strong>${sun.alt>0?'SOL DIRECTO':'SIN SOL'}</strong></div></div><div class="coverage-note">h-eq geométricas = integración de sin(elevación solar) durante el día. No representa kWh/m².</div></div>`;return
+  }
   if(SEL.type==='vertex'){
     const p=polygonData()?.[SEL.index];if(!p)return;
     $('selection-panel').innerHTML=`<h3>VÉRTICE V${SEL.index+1}</h3><div class="vertex3d-info"><strong>Coordenadas locales</strong><br>X: ${p.x.toFixed(2)} m<br>Y: ${p.z.toFixed(2)} m<br><br>Para mover este vértice con precisión, vuelve a <b>PLANTA</b> y arrástralo sobre la referencia.</div>`;return
@@ -221,7 +350,41 @@ function animate(){updateAllFacadeLabels();requestAnimationFrame(animate);contro
 function rad(x){return x*Math.PI/180}function deg(x){return x*180/Math.PI}function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
 function solarPosition(date,lat,lon,tz){const start=new Date(date.getFullYear(),0,0),doy=Math.floor((date-start)/86400000),mins=date.getHours()*60+date.getMinutes(),g=2*Math.PI/365*(doy-1+(mins/60-12)/24),eq=229.18*(.000075+.001868*Math.cos(g)-.032077*Math.sin(g)-.014615*Math.cos(2*g)-.040849*Math.sin(2*g)),dec=.006918-.399912*Math.cos(g)+.070257*Math.sin(g)-.006758*Math.cos(2*g)+.000907*Math.sin(2*g)-.002697*Math.cos(3*g)+.00148*Math.sin(3*g),tst=(mins+eq+4*lon-60*tz)%1440,ha=rad(tst/4-180),phi=rad(lat),cosz=Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(ha),zen=Math.acos(clamp(cosz,-1,1)),alt=90-deg(zen),az=(deg(Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(phi)-Math.tan(dec)*Math.cos(phi)))+180+360)%360;return{alt,az}}
 function parseCoords(s){if(!s)return null;let m=s.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([NS]).*?(\d+)°\s*(\d+)'\s*([\d.]+)"?\s*([EWO])/i);if(m){let la=+m[1]+ +m[2]/60+ +m[3]/3600,lo=+m[5]+ +m[6]/60+ +m[7]/3600;if(m[4].toUpperCase()==='S')la=-la;if(/[WO]/i.test(m[8]))lo=-lo;return[la,lo]}m=s.match(/(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/);return m?[+m[1],+m[2]]:null}
-let lastSunResults=null;
+let lastSunResults=null,lastRoofResult=null;
+
+function roofDescriptor(){
+  const p=polygonData(); if(!p||p.length<3)return null;
+  const h=+$('wall-height').value||2.4;
+  let cx=0,cz=0; p.forEach(v=>{cx+=v.x;cz+=v.z});cx/=p.length;cz/=p.length;
+  return{
+    id:'C1', type:'cover', index:0, orientation:'Horizontal', az:0,
+    center:new THREE.Vector3(cx,h+.03,cz),
+    normal:new THREE.Vector3(0,1,0)
+  }
+}
+function roofGeometry(){
+  const p=polygonData(); if(!p||p.length<3)return null;
+  const shape=new THREE.Shape();shape.moveTo(p[0].x,-p[0].z);
+  for(let i=1;i<p.length;i++)shape.lineTo(p[i].x,-p[i].z);shape.closePath();
+  const g=new THREE.ShapeGeometry(shape);g.rotateX(-Math.PI/2);g.translate(0,(+$('wall-height').value||2.4)+.018,0);return g
+}
+function roofSunStateAt(sun){
+  return sun.alt>0;
+}
+function computeRoofDaily(){
+  const step=5,base=$('date').value,lat=+$('lat').value,lon=+$('lon').value,tz=+$('tz').value;
+  let minutes=0,first=null,last=null,flags=[],geom=0;
+  for(let m=0;m<1440;m+=step){
+    const d=new Date(base+'T00:00:00');d.setHours(Math.floor(m/60),m%60);
+    const sun=solarPosition(d,lat,lon,tz),on=sun.alt>0;flags.push(on);
+    if(on){
+      minutes+=step;if(first==null)first=m;last=m+step;
+      geom += Math.max(0,Math.sin(rad(sun.alt))) * step/60;
+    }
+  }
+  return{id:'C1',type:'cover',index:0,orientation:'Horizontal',azimuth:null,length:null,sunMinutes:minutes,minutes,first,last,segments:contiguousSegments(flags,step),geomEquivalentHours:geom}
+}
+
 function sunVector(sun){const alt=rad(sun.alt),az=rad(sun.az);return new THREE.Vector3(Math.cos(alt)*Math.sin(az),Math.sin(alt),-Math.cos(alt)*Math.cos(az)).normalize()}
 function currentDateAtMinutes(mins){const date=new Date($('date').value+'T00:00:00');date.setHours(Math.floor(mins/60),mins%60);return date}
 function currentFacadeSunState(f){
@@ -257,12 +420,18 @@ function trackHTML(segments){
 function updateDailySunDashboard(){
   const grid=$('sun-hours-grid');if(!grid)return;
   if(!S.closed||S.pts.length<3){lastSunResults=null;grid.innerHTML='<div class="sun-empty">Dibuja y cierra una planta para obtener el análisis diario de cada fachada.</div>';$('daylight-out').textContent='—';updateSelectedSunPanel();return}
-  lastSunResults=computeDailySunHours();$('daylight-out').textContent=formatHours(daylightMinutes());
-  grid.innerHTML=lastSunResults.map(r=>`<article class="facade-sun-card ${SEL.type==='facade'&&SEL.index===r.index?'active':''}" data-facecard="${r.index}"><div class="facade-sun-head"><div><strong>F${r.index+1} · ${r.orientation}</strong><span>${r.az.toFixed(1)}° · ${r.len.toFixed(2)} m</span></div><span class="sun-hours">${formatHours(r.minutes)}</span></div><div class="sun-track">${trackHTML(r.segments)}</div><div class="sun-range"><span>${formatClock(r.first)}</span><span>${formatClock(r.last)}</span></div></article>`).join('');
-  qsa('[data-facecard]').forEach(el=>el.onclick=()=>select3DObject('facade',+el.dataset.facecard));
+  lastSunResults=computeDailySunHours();lastRoofResult=computeRoofDaily();$('daylight-out').textContent=formatHours(daylightMinutes());
+  grid.innerHTML=lastSunResults.map(r=>`<article class="facade-sun-card ${SEL.type==='facade'&&SEL.index===r.index?'active':''}" data-facecard="${r.index}"><div class="facade-sun-head"><div><strong>F${r.index+1} · ${r.orientation}</strong><span>${r.az.toFixed(1)}° · ${r.len.toFixed(2)} m</span></div><span class="sun-hours">${formatHours(r.minutes)}</span></div><div class="sun-track">${trackHTML(r.segments)}</div><div class="sun-range"><span>${formatClock(r.first)}</span><span>${formatClock(r.last)}</span></div></article>`).join('')+`<article class="facade-sun-card ${SEL.type==='cover'?'active':''}" data-covercard="1"><div class="facade-sun-head"><div><strong>C1 · Cubierta</strong><span>Horizontal <span class="coverage-badge">SUPERIOR</span></span></div><span class="sun-hours">${formatHours(lastRoofResult.minutes)}</span></div><div class="sun-track">${trackHTML(lastRoofResult.segments)}</div><div class="sun-range"><span>${formatClock(lastRoofResult.first)}</span><span>${formatClock(lastRoofResult.last)}</span></div><div class="coverage-note">Captación geométrica relativa: ${lastRoofResult.geomEquivalentHours.toFixed(1).replace('.',',')} h-eq</div></article>`;
+  qsa('[data-facecard]').forEach(el=>el.onclick=()=>select3DObject('facade',+el.dataset.facecard));const cc=document.querySelector('[data-covercard]');if(cc)cc.onclick=()=>select3DObject('cover',0);
   renderSelectionInspector();updateSelectedSunPanel()
 }
 function updateSelectedSunPanel(){
+  if(SEL.type==='cover'&&lastRoofResult){
+    const r=lastRoofResult;$('selected-facade-name').textContent='C1 · Cubierta';
+    $('selected-facade-detail').textContent='Superficie horizontal superior del modelo. La captación geométrica relativa no equivale a energía solar real.';
+    $('selected-az').textContent='Horizontal';$('selected-hours').textContent=formatHours(r.minutes);$('selected-first').textContent=formatClock(r.first);$('selected-last').textContent=formatClock(r.last);$('selected-track').innerHTML=trackHTML(r.segments);
+    qsa('.facade-sun-card').forEach(c=>c.classList.remove('active'));document.querySelector('[data-covercard]')?.classList.add('active');return
+  }
   if(SEL.type!=='facade'||!lastSunResults?.[SEL.index]){
     $('selected-facade-name').textContent='Ninguna';$('selected-facade-detail').textContent='Haz clic sobre una fachada del modelo 3D o del análisis solar.';
     ['selected-az','selected-hours','selected-first','selected-last'].forEach(id=>$(id).textContent='—');$('selected-track').innerHTML='';return
@@ -287,7 +456,10 @@ function updateSolar(){
 }
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
 function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height','building-az'].forEach(id=>$(id).addEventListener('input',rebuild3D));$('reset-project').onclick=()=>{S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam,pos={iso:[13,10,16],top:[0,25,.01],north:[0,6,20],east:[20,6,0],west:[-20,6,0]}[v]||[13,10,16];camera.position.set(...pos);controls.target.set(0,1,0);controls.update()});initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];autoFit3D=true;fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height'].forEach(id=>$(id).addEventListener('input',()=>{autoFit3D=true;rebuild3D()}));$('building-az').addEventListener('input',rebuild3D);$('reset-project').onclick=()=>{autoFit3D=true;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{
+      const v=b.dataset.cam||'iso';
+      if(buildingGroup)fitCameraToModel(camera,controls,buildingGroup,v);
+    });initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
 
 function communeLabel(){
   const reg=$('region-select'),com=$('commune-select');
@@ -309,7 +481,7 @@ function facadeIdentificationSVG(){
     const a=xy(f.a),b=xy(f.b),x=(a.x+b.x)/2,y=(a.y+b.y)/2;
     return `<g><circle cx="${x}" cy="${y}" r="18" fill="#0b3f52"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="white">F${f.index+1}</text><text x="${x}" y="${y+34}" text-anchor="middle" font-family="Arial" font-size="10" fill="#3c5964">${f.orientation} · ${f.az.toFixed(0)}°</text></g>`
   }).join('');
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="#f5f8f8"/><path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>${labs}<g transform="translate(${W-70},75)"><line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/><polygon points="0,-38 -8,-22 8,-22" fill="#cf4b43"/><text x="0" y="55" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text></g></svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="#f5f8f8"/><path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>${labs}<g><rect x="${W/2-23}" y="${H/2-13}" width="46" height="26" rx="6" fill="#f0b523"/><text x="${W/2}" y="${H/2+5}" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#173039">C1</text></g><g transform="translate(${W-70},75)"><line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/><polygon points="0,-38 -8,-22 8,-22" fill="#cf4b43"/><text x="0" y="55" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text></g></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)
 }
 
@@ -345,6 +517,7 @@ function solarReportPayload(){
     perimeterText:perimText,
     facadeCount:faces.length,
     vertices:p.map((v,i)=>({id:`V${i+1}`,x:v.x,z:v.z})),
+    cover:(()=>{const rr=lastRoofResult||computeRoofDaily();return{id:'C1',orientation:'Horizontal',sunMinutes:rr.minutes,sunHours:rr.minutes/60,first:rr.first,last:rr.last,segments:rr.segments,geomEquivalentHours:rr.geomEquivalentHours}})(),
     facades:recs.map(r=>({
       id:`F${r.index+1}`,
       orientation:r.orientation,
