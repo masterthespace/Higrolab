@@ -299,6 +299,102 @@
   }
 
 
+
+  function addVentilationDetailedReport(doc,root){
+    if(current!=='ventilacion-humedad.html' || typeof window.HIDROLAB_VENT_REPORT!=='function') return false;
+    let x; try{x=window.HIDROLAB_VENT_REPORT()}catch(e){console.error(e);return false}
+    if(!x)return false;
+
+    const sec1=addSection(doc,root,'1. Vivienda y condiciones ambientales');
+    const t1=el(doc,'table','kv'),b1=el(doc,'tbody');
+    [
+      ['Definición del volumen',x.volumeMode==='dims'?'Por dimensiones':'Volumen directo'],
+      ['Volumen interior',`${fmtNum(x.volume,1)} m³`],
+      ['Dimensiones L × A × H',x.volumeMode==='dims'?`${fmtNum(x.dimensions.L,2)} × ${fmtNum(x.dimensions.W,2)} × ${fmtNum(x.dimensions.H,2)} m`:'—'],
+      ['Temperatura interior',`${fmtNum(x.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.Te,1)} °C`],
+      ['HR exterior',`${fmtNum(x.RHe,0)} %`],['HR interior objetivo',`${fmtNum(x.target,0)} %`]
+    ].forEach(r=>addRow(doc,b1,r[0],r[1]));t1.append(b1);sec1.append(t1);
+
+    const sec2=addSection(doc,root,'2. Fuentes de humedad');
+    const t2=el(doc,'table','kv'),b2=el(doc,'tbody'),m=x.moisture||{};
+    if(m.mode==='sources'){
+      [
+        ['Personas',m.people],['Presencia por persona',`${fmtNum(m.personHours,1)} h/día`],['Generación por persona',`${fmtNum(m.personRate,0)} g/h`],
+        ['Aporte de personas',`${fmtNum(m.peopleL,2)} L eq./día`],['Duchas',m.showers],['Aporte por ducha',`${fmtNum(m.showerL,2)} L`],
+        ['Aporte total duchas',`${fmtNum(m.showersL,2)} L/día`],['Cocina',`${fmtNum(m.cookingL,2)} L/día`],
+        ['Cargas de ropa interior',m.laundry],['Aporte por carga',`${fmtNum(m.laundryL,2)} L`],['Aporte ropa',`${fmtNum(m.clothesL,2)} L/día`]
+      ].forEach(r=>addRow(doc,b2,r[0],r[1]))
+    }
+    addRow(doc,b2,'Generación total estimada',`${fmtNum(m.total,2)} L eq./día`);t2.append(b2);sec2.append(t2);
+
+    const sec3=addSection(doc,root,'3. Estrategia seleccionada');
+    const t3=el(doc,'table','kv'),b3=el(doc,'tbody');
+    [
+      ['Modo',x.ventMode==='technical'?'Técnico · caudal conocido':'Práctico'],
+      ['Estrategia',x.strategyLabel],['Duración',x.durationLabel],['Condición de viento',x.wind||'No aplica']
+    ].forEach(r=>addRow(doc,b3,r[0],r[1]));
+    if(x.strategy==='single'){
+      addRow(doc,b3,'Área efectiva ventana',`${fmtNum(x.opening.a1,3)} m²`)
+    }else if(['cross','window_door','cross_extractor'].includes(x.strategy)){
+      addRow(doc,b3,'Área efectiva abertura 1',`${fmtNum(x.opening.a1,3)} m²`);
+      addRow(doc,b3,'Área efectiva abertura 2',`${fmtNum(x.opening.a2,3)} m²`);
+      addRow(doc,b3,'Área equivalente',`${fmtNum(x.opening.aeq,3)} m²`)
+    }
+    if(x.strategy==='cross_extractor')addRow(doc,b3,'Extractor combinado',`${fmtNum(x.comboExtractorFlow,0)} m³/h`);
+    if(x.strategy==='mechanical')addRow(doc,b3,'Caudal extractor / ventilador',`${fmtNum(x.mechanicalFlow,0)} m³/h`);
+    if(x.strategy==='dehumidifier'){
+      addRow(doc,b3,'Capacidad nominal',`${fmtNum(x.dehumidifier.capacity,0)} L/24 h`);
+      addRow(doc,b3,'Factor real de trabajo',`${fmtNum(x.dehumidifier.factor,0)} %`);
+      addRow(doc,b3,'Capacidad estanque',`${fmtNum(x.dehumidifier.tank,1)} L`);
+      addRow(doc,b3,'Extracción efectiva usada',`${fmtNum(x.dehumidifier.effectiveLph,2)} L/h`)
+    }else{
+      addRow(doc,b3,'Caudal usado en la simulación',`${fmtNum(x.result.flow,0)} m³/h`);
+      addRow(doc,b3,'ACH durante apertura',`${fmtNum(x.result.ach,2)} 1/h`);
+      if(x.practicalFlow?.estimated)addRow(doc,b3,'Rango orientativo de caudal',`${fmtNum(x.practicalFlow.low,0)}–${fmtNum(x.practicalFlow.high,0)} m³/h`)
+    }
+    t3.append(b3);sec3.append(t3);
+    sec3.append(el(doc,'p','section-note','ACH = renovaciones de aire por hora. 1 ACH significa mover en una hora un volumen de aire equivalente al volumen completo del recinto.'));
+
+    const sec4=addSection(doc,root,'4. Efecto estimado de la estrategia');
+    const t4=el(doc,'table','kv'),b4=el(doc,'tbody');
+    [
+      ['HR antes',`${fmtNum(x.result.rhBefore,0)} %`],['HR después',`${fmtNum(x.result.rhAfter,0)} %`],
+      ['Reducción del exceso de vapor',`${fmtNum(x.result.reduction,0)} %`],
+      ['Renovaciones durante el período',x.strategy==='dehumidifier'?'0,00':fmtNum(x.result.airChanges,2)],
+      ['Agua retirada',`${fmtNum(x.result.gramsRemoved,0)} g`],['Litros equivalentes retirados',`${fmtNum(x.result.litersRemoved,3)} L`],
+      ['Humedad absoluta inicial',`${fmtNum(x.result.ahBefore,2)} g/m³`],['Humedad absoluta final',`${fmtNum(x.result.ahAfter,2)} g/m³`],
+      ['Humedad absoluta exterior',`${fmtNum(x.result.ahExterior,2)} g/m³`],
+      ['Caudal continuo para HR objetivo',Number.isFinite(x.requiredFlow)?`${fmtNum(x.requiredFlow,0)} m³/h`:'No viable'],
+      ['ACH continuo requerido',Number.isFinite(x.requiredAch)?fmtNum(x.requiredAch,2):'—']
+    ].forEach(r=>addRow(doc,b4,r[0],r[1]));t4.append(b4);sec4.append(t4);
+    sec4.append(el(doc,'p','obs',`${x.advice.label}: ${x.advice.text}`));
+
+    const house=$('#houseViz svg');if(house){const fig=el(doc,'div','chart');fig.append(el(doc,'div','chart-title','Visualización del escenario'));fig.append(safeSvgClone(house,doc));sec4.append(fig)}
+    const timeline=$('#ventTimelineChart');if(timeline){const fig=el(doc,'div','chart');fig.append(el(doc,'div','chart-title','Evolución estimada de HR'));fig.append(safeSvgClone(timeline,doc));sec4.append(fig)}
+
+    const sec5=addSection(doc,root,'5. Capacidad de secado del aire exterior');
+    const t5=el(doc,'table','kv'),b5=el(doc,'tbody');
+    [
+      ['Evaluación',x.strategy==='dehumidifier'?'No aplica a la operación del deshumidificador':x.drying.label],
+      ['Humedad absoluta exterior',`${fmtNum(x.drying.outside,2)} g/m³`],
+      ['Humedad absoluta interior inicial',`${fmtNum(x.drying.inside,2)} g/m³`],
+      ['Diferencia',`${fmtNum(x.drying.delta,2)} g/m³`],
+      ['Agua potencialmente transportable por 100 m³',`${fmtNum(x.drying.per100,3)} L eq.`]
+    ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);sec5.append(t5);
+
+    const sec6=addSection(doc,root,'6. Punto de rocío y riesgo superficial');
+    const t6=el(doc,'table','kv'),b6=el(doc,'tbody'),d=x.dew;
+    [
+      ['Temperatura superficial de referencia',`${fmtNum(d.ts,1)} °C`],
+      ['Punto de rocío antes',`${fmtNum(d.db,1)} °C`],['Punto de rocío después',`${fmtNum(d.da,1)} °C`],
+      ['Margen superficial antes',`${fmtNum(d.mb,1)} °C`],['Margen superficial después',`${fmtNum(d.ma,1)} °C`],
+      ['Evaluación final',d.label]
+    ].forEach(r=>addRow(doc,b6,r[0],r[1]));t6.append(b6);sec6.append(t6);
+    sec6.append(el(doc,'p','obs',d.text));
+
+    return true
+  }
+
   function addRiskMoistureDetailedReport(doc,root){
     if(current!=='riesgo-moho.html' || typeof window.HIDROLAB_RISK_REPORT!=='function') return false;
     let x; try{x=window.HIDROLAB_RISK_REPORT()}catch(e){console.error(e);return false}
@@ -360,7 +456,7 @@
     const meta=d.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; d.head.append(meta);
     const style=d.createElement('style');
     style.textContent=`
-      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;color:#53656e;font-size:8pt}.sign{font-weight:800;color:#244b5c}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}.vapor-pdf-highlight{margin:9px 0;padding:11px;border-radius:8px;background:#eaf7fa;border:1px solid #b9dfe7;color:#0c6078;font-size:14pt;font-weight:900;text-align:center}@media print{.print-note{display:none}.report-section{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.chart-title{font-weight:800;color:#294b59;font-size:9pt;margin-bottom:5px}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;color:#53656e;font-size:8pt}.sign{font-weight:800;color:#244b5c}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}.vapor-pdf-highlight{margin:9px 0;padding:11px;border-radius:8px;background:#eaf7fa;border:1px solid #b9dfe7;color:#0c6078;font-size:14pt;font-weight:900;text-align:center}@media print{.print-note{display:none}.report-section{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     `;
     d.head.append(style);
 
@@ -392,13 +488,15 @@
 
     const isSolar=current==='simulador-solar.html';
     const isRisk=current==='riesgo-moho.html';
+    const isVent=current==='ventilacion-humedad.html';
     const inputs=collectInputs();
-    if(inputs.length && !isSolar && !isRisk){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
+    if(inputs.length && !isSolar && !isRisk && !isVent){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
 
     const solarAdded=addSolarDetailedReport(d,body);
     const riskAdded=addRiskMoistureDetailedReport(d,body);
+    const ventAdded=addVentilationDetailedReport(d,body);
 
-    const results=(isSolar||isRisk)?[]:collectResults();
+    const results=(isSolar||isRisk||isVent)?[]:collectResults();
     if(results.length){ const sec=addSection(d,body,'Resultados de la simulación'); const g=el(d,'div','results-grid'); results.forEach(([a,b])=>{const c=el(d,'div','result'); c.append(el(d,'div','rlabel',a),el(d,'div','rvalue',b||a)); g.append(c)}); sec.append(g); }
 
     const svgs=isSolar?[]:$$('main svg').filter(s=>s.getBoundingClientRect().width>50 && s.getBoundingClientRect().height>40).slice(0,3);

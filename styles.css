@@ -173,3 +173,25 @@ html[data-theme=dark] .strategy-card,html[data-theme=dark] .estimate-band>div,ht
 .dew-controls{max-width:420px}.dew-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.dew-summary-grid>div{border:1px solid #dce6e8;border-radius:10px;padding:9px;background:#f8fbfb}.dew-summary-grid span,.dew-summary-grid small{display:block;font-size:.56rem;color:#74868d}.dew-summary-grid strong{display:block;font-family:var(--ui-mono,monospace);font-size:1.18rem;color:#184a5a;margin:3px 0}.dew-thermometer{margin:18px 4px 22px}.dew-scale{height:18px;border-radius:999px;background:linear-gradient(90deg,#7db8d0,#9dcaa8,#f2d27c,#e48265);position:relative}.dew-marker{position:absolute;top:-28px;transform:translateX(-50%);white-space:nowrap;font-size:.54rem;font-weight:850;padding:4px 6px;border-radius:6px;color:white}.surface-marker{background:#233f4a}.before-marker{background:#c4504b;top:24px}.after-marker{background:#3a9466;top:-28px}
 html[data-theme=dark] .dehum-fields,html[data-theme=dark] .ach-help,html[data-theme=dark] .water-metrics div,html[data-theme=dark] .dew-summary-grid>div{background:var(--ui-panel-soft);border-color:var(--ui-border)}html[data-theme=dark] .bottle{background:var(--ui-panel-solid)}
 @media(max-width:1050px){.strategy-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.strategy-grid{grid-template-columns:1fr 1fr}.water-story-grid{grid-template-columns:1fr}.water-metrics{grid-template-columns:1fr}.dew-summary-grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.strategy-grid{grid-template-columns:1fr}}
+
+/* V7.7 FINAL · contraste, estrategias múltiples e informe */
+.ventilation-v73 .note,.ventilation-v73 small,.ventilation-v73 .field small,.ventilation-v73 .source-card small,
+.ventilation-v73 .air-box span,.ventilation-v73 .air-box small,.ventilation-v73 .timeline-title span,
+.ventilation-v73 .water-metrics span,.ventilation-v73 .dew-summary-grid span,.ventilation-v73 .dew-summary-grid small{
+  color:#435e68!important;
+}
+.ventilation-v73 .field label,.ventilation-v73 .mini-label{color:#294a57!important;font-weight:800}
+.drying-badge,.water-story-badge{
+  font-size:.72rem!important;padding:8px 12px!important;letter-spacing:.03em;box-shadow:0 3px 10px rgba(20,60,72,.10)
+}
+.section-head .drying-badge{min-width:118px;text-align:center}
+.strategy-grid{grid-template-columns:repeat(3,1fr)!important}
+.opening-scenario{margin:10px 0}.opening-title{margin-bottom:8px}.opening-title b{display:block;color:#193f4d;font-size:.74rem}.opening-title span{display:block;color:#48636d;font-size:.63rem;margin-top:2px}
+.dual-opening-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opening-box{border:1px solid #d4e2e6;border-radius:12px;background:#f8fbfc;padding:11px}
+.ach-help{grid-column:auto!important}.ach-help span{color:#3f5c66!important}
+html[data-theme=dark] .opening-box{background:var(--ui-panel-soft);border-color:var(--ui-border)}
+html[data-theme=dark] .ventilation-v73 .note,html[data-theme=dark] .ventilation-v73 small,html[data-theme=dark] .ventilation-v73 .field small,
+html[data-theme=dark] .ventilation-v73 .field label,html[data-theme=dark] .opening-title span{color:#b4c9d0!important}
+html[data-theme=dark] .opening-title b{color:#edf6f8}
+@media(max-width:900px){.dual-opening-grid{grid-template-columns:1fr}.strategy-grid{grid-template-columns:1fr 1fr!important}}
+@media(max-width:560px){.strategy-grid{grid-template-columns:1fr!important}}
