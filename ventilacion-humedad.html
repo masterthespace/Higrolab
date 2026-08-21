@@ -46,8 +46,8 @@
     <div class="field"><label>Temperatura interior [°C]</label><input id="ti" step=".1" type="number" value="20"></div>
     <div class="field"><label>Temperatura exterior [°C]</label><input id="te" step=".1" type="number" value="8"></div>
     <div class="field"><label>HR exterior [%]</label><input id="rhe" max="100" min="1" step="1" type="number" value="80"></div>
-    <div class="field"><label>HR interior objetivo [%]</label><input id="target" max="95" min="20" step="1" type="number" value="60"></div>
-    <div class="field advanced-field"><label>Presión atmosférica [hPa]</label><input id="press" step="1" type="number" value="1013.25"></div>
+    <div class="field"><label>Humedad relativa interior objetivo [%]</label><input id="target" max="95" min="20" step="1" type="number" value="60"><small>Es la HR que quieres alcanzar, no una temperatura.</small></div>
+    
   </div>
 </section>
 
@@ -151,8 +151,47 @@
   <div class="callout" id="status">—</div>
 </section>
 
+
+<section class="card full vent-recommend-card">
+  <div class="section-head">
+    <div><p class="kicker">05 · Ventilación recomendada</p><h2>¿Cuánto puede ayudar una ventilación cruzada?</h2></div>
+    <span id="ventAdviceBadge" class="drying-badge">—</span>
+  </div>
+
+  <div class="vent-advice-grid">
+    <div class="vent-advice-copy">
+      <p id="ventAdviceText">—</p>
+      <div class="vent-time-buttons" id="ventTimeButtons">
+        <button type="button" data-min="5">5 min</button>
+        <button type="button" data-min="10">10 min</button>
+        <button type="button" data-min="15" class="active">15 min</button>
+        <button type="button" data-min="30">30 min</button>
+      </div>
+      <label class="note">Caudal estimado durante ventilación cruzada: <b id="crossFlowLabel">— m³/h</b></label>
+      <input id="crossFlow" class="range" type="range" min="50" max="1200" step="25" value="450">
+      <small class="note">El caudal real depende del tamaño de las aperturas, viento, orientación y diferencia de presión. Este control sirve para simular escenarios.</small>
+    </div>
+
+    <div class="vent-impact">
+      <div class="impact-ring" id="impactRing"><strong id="vaporReduction">—</strong><span>%</span><small>reducción del exceso de vapor*</small></div>
+      <div class="impact-stats">
+        <div><span>HR inicial</span><b id="beforeVentRh">—%</b></div>
+        <div><span>HR tras ventilar</span><b id="afterVentRh">—%</b></div>
+        <div><span>Agua retirada</span><b id="waterRemoved">— g</b></div>
+        <div><span>Renovaciones en el período</span><b id="ventAirChanges">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vent-timeline">
+    <div class="timeline-title"><b>Evolución estimada de HR durante la ventilación</b><span id="timelineSubtitle">—</span></div>
+    <svg id="ventTimelineChart" viewBox="0 0 900 280" class="chart-svg"></svg>
+  </div>
+  <p class="note">*Reducción del exceso de humedad absoluta sobre el aire exterior en un modelo de mezcla perfecta y sin generación adicional durante la ventilación.</p>
+</section>
+
 <section class="card full drying-card">
-  <div class="section-head"><div><p class="kicker">05 · Capacidad de secado</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
+  <div class="section-head"><div><p class="kicker">06 · Capacidad de secado</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
   <div class="drying-grid">
     <div class="air-box exterior"><small>EXTERIOR</small><strong id="outsideState">—</strong><span id="aho">— g/m³</span></div>
     <div class="drying-arrow"><span>→</span><b id="dryingPer100">—</b><small>agua que podría transportar cada 100 m³ renovados*</small></div>
@@ -162,7 +201,7 @@
 </section>
 
 <section class="card full compare-card">
-  <div class="section-head"><div><p class="kicker">06 · Antes vs. propuesta</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
+  <div class="section-head"><div><p class="kicker">07 · Antes vs. propuesta</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
   <div class="compare-layout">
     <div class="compare-column current"><small>ACTUAL</small><strong id="cmpCurrentFlow">—</strong><span>m³/h</span><div><b id="cmpCurrentRh">—%</b> HR</div><div><b id="cmpCurrentAch">—</b> ACH</div></div>
     <div class="compare-center"><span id="compareDelta">—</span><small>cambio de HR</small></div>
@@ -174,7 +213,7 @@
 </section>
 
 <section class="card full">
-  <div class="section-head"><div><p class="kicker">07 · Curva</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
+  <div class="section-head"><div><p class="kicker">08 · Curva</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
   <div class="chart-wrap"><svg class="chart-svg" id="chart" viewBox="0 0 900 410"></svg></div>
   <div class="summary-grid three" style="margin-top:14px">
     <div class="stat"><small>Humedad absoluta exterior</small><strong id="aho2">—</strong><em>g/m³</em></div>
