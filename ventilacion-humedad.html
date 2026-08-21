@@ -134,6 +134,10 @@
         <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="3"/><path d="M24 21c1-8 8-8 10-4 2 5-4 8-10 7M27 25c7 4 4 11 0 11-5 0-5-7-3-12M21 25c-7 4-11-2-8-6 3-4 9 0 11 5"/></svg>
         <b>Extractor / ventilador</b><small>Caudal conocido o estimado</small>
       </button>
+      <button class="strategy-card" type="button" data-strategy="dehumidifier">
+        <svg viewBox="0 0 48 48"><rect x="11" y="6" width="26" height="36" rx="5"/><path d="M24 13s-7 8-7 13a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/><path d="M16 36h16"/></svg>
+        <b>Deshumidificador</b><small>Extrae agua sin renovar aire</small>
+      </button>
     </div>
 
     <div id="naturalVentFields" class="natural-vent-fields">
@@ -162,6 +166,18 @@
     <div id="mechanicalFields" class="form-grid hidden">
       <div class="field"><label>Caudal del extractor / ventilador [m³/h]</label><input id="mechanicalFlow" type="number" min="10" max="2000" step="10" value="120"></div>
     </div>
+    <div id="dehumidifierFields" class="dehum-fields hidden">
+      <div class="dehum-preset">
+        <div class="dehum-icon"><svg viewBox="0 0 48 48"><rect x="11" y="6" width="26" height="36" rx="5"/><path d="M24 13s-7 8-7 13a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/></svg></div>
+        <div><small>PRESET DE REFERENCIA</small><b>Deshumidificador 25 L/24 h</b><span>Capacidad nominal editable. Estanque de referencia: 4 L.</span></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Capacidad nominal [L/24 h]</label><input id="dehumCapacity" type="number" min="1" max="100" step="1" value="25"></div>
+        <div class="field"><label>Factor real de trabajo [%]</label><input id="dehumFactor" type="number" min="10" max="100" step="5" value="55"><small>Permite bajar la capacidad nominal a una condición doméstica más conservadora.</small></div>
+        <div class="field"><label>Capacidad del estanque [L]</label><input id="dehumTank" type="number" min=".5" max="20" step=".5" value="4"></div>
+      </div>
+      <p class="note">La capacidad “25 L/24 h” es una capacidad nominal de extracción. La extracción real depende de temperatura y HR del recinto; por eso HIDROLAB permite aplicar un factor real de trabajo.</p>
+    </div>
   </div>
 
   <div id="technicalVentPanel" class="hidden">
@@ -175,7 +191,7 @@
 
   <div class="vent-duration-row">
     <div>
-      <span class="mini-label">¿Cuánto tiempo abrirás?</span>
+      <span class="mini-label" id="durationQuestion">¿Cuánto tiempo abrirás?</span>
       <div class="vent-time-buttons" id="ventTimeButtons">
         <button type="button" data-min="4">4 min</button>
         <button type="button" data-min="5">5 min</button>
@@ -187,6 +203,9 @@
     </div>
     <div class="vent-duration-summary">
       <span>Escenario activo</span><strong id="scenarioText">—</strong>
+    </div>
+    <div class="ach-help">
+      <b>¿Qué es ACH?</b><span><strong>ACH</strong> = renovaciones de aire por hora. 1 ACH significa mover en una hora un volumen de aire equivalente al volumen completo del recinto.</span>
     </div>
   </div>
 
@@ -285,26 +304,54 @@
   <p class="note">*Indicador comparativo basado en diferencia de humedad absoluta entre aire interior y exterior. No considera almacenamiento higroscópico de materiales ni dinámica transitoria detallada.</p>
 </section>
 
-<section class="card full compare-card">
-  <div class="section-head"><div><p class="kicker">06 · Comparador técnico</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
-  <div class="compare-layout">
-    <div class="compare-column current"><small>ACTUAL</small><strong id="cmpCurrentFlow">—</strong><span>m³/h</span><div><b id="cmpCurrentRh">—%</b> HR</div><div><b id="cmpCurrentAch">—</b> ACH</div></div>
-    <div class="compare-center"><span id="compareDelta">—</span><small>cambio de HR</small></div>
-    <div class="compare-column proposed"><small>PROPUESTA</small><strong id="cmpPropFlow">—</strong><span>m³/h</span><div><b id="cmpPropRh">—%</b> HR</div><div><b id="cmpPropAch">—</b> ACH</div></div>
+
+<section class="card full water-story-card">
+  <div class="section-head">
+    <div><p class="kicker">06 · Agua retirada del aire</p><h2>¿Cuánta humedad estamos sacando realmente?</h2></div>
+    <span class="water-story-badge" id="waterStoryBadge">—</span>
   </div>
-  <label class="note">Caudal propuesto: <b id="proposalLabel">150 m³/h</b></label>
-  <input class="range" id="proposalSlider" min="5" max="500" step="5" value="150">
-  <div class="proposal-actions"><button id="useRequired" type="button">Usar caudal requerido</button><button id="applyProposal" type="button">Aplicar propuesta como actual</button></div>
+  <div class="water-story-grid">
+    <div class="bottle-wrap">
+      <div class="bottle">
+        <div id="bottleFill" class="bottle-fill"></div>
+        <div class="bottle-mark m1">1,0 L</div>
+        <div class="bottle-mark m05">0,5 L</div>
+      </div>
+      <small>Litros equivalentes retirados</small>
+    </div>
+    <div class="water-story-copy">
+      <div class="big-water-number"><strong id="removedLiters">—</strong><span>L eq.</span></div>
+      <p id="waterStoryText">—</p>
+      <div class="water-metrics">
+        <div><span>Humedad absoluta inicial</span><b id="ahBefore">— g/m³</b></div>
+        <div><span>Humedad absoluta final</span><b id="ahAfter">— g/m³</b></div>
+        <div><span>Diferencia retirada</span><b id="ahDelta">— g/m³</b></div>
+        <div><span>Masa total retirada</span><b id="removedGrams">— g</b></div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section class="card full">
-  <div class="section-head"><div><p class="kicker">07 · Curva técnica</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
-  <div class="chart-wrap"><svg class="chart-svg" id="chart" viewBox="0 0 900 410"></svg></div>
-  <div class="summary-grid three" style="margin-top:14px">
-    <div class="stat"><small>Humedad absoluta exterior</small><strong id="aho2">—</strong><em>g/m³</em></div>
-    <div class="stat"><small>Humedad absoluta interior estimada</small><strong id="ahi2">—</strong><em>g/m³</em></div>
-    <div class="stat"><small>Punto de rocío interior</small><strong id="dew">—</strong><em>°C</em></div>
+
+<section class="card full dew-risk-card">
+  <div class="section-head">
+    <div><p class="kicker">07 · Punto de rocío y riesgo superficial</p><h2>¿La estrategia te aleja de la condensación?</h2></div>
+    <span id="dewRiskBadge" class="drying-badge">—</span>
   </div>
+  <div class="dew-controls">
+    <div class="field"><label>Temperatura superficial interior de referencia [°C]</label><input id="surfaceTempRef" type="number" min="-5" max="35" step=".1" value="14"><small>Puede ser una medición con termómetro infrarrojo o una estimación del muro.</small></div>
+  </div>
+  <div class="dew-summary-grid">
+    <div><span>Punto de rocío antes</span><strong id="dewBefore">—</strong><small>°C</small></div>
+    <div><span>Punto de rocío después</span><strong id="dewAfter">—</strong><small>°C</small></div>
+    <div><span>Margen superficial antes</span><strong id="marginBefore">—</strong><small>°C</small></div>
+    <div><span>Margen superficial después</span><strong id="marginAfter">—</strong><small>°C</small></div>
+  </div>
+  <div class="dew-thermometer">
+    <div class="dew-scale"><span id="surfaceMarker" class="dew-marker surface-marker">Superficie</span><span id="dewMarkerBefore" class="dew-marker before-marker">Rocío antes</span><span id="dewMarkerAfter" class="dew-marker after-marker">Rocío después</span></div>
+  </div>
+  <div class="callout" id="dewRiskText">—</div>
+  <p class="note">La ventilación reduce el punto de rocío si consigue retirar vapor. Para evaluar condensación superficial se necesita comparar ese punto de rocío con la temperatura real o estimada de la superficie.</p>
 </section>
 
 </div>
