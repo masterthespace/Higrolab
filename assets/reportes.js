@@ -322,7 +322,13 @@
         ['Personas',m.people],['Presencia por persona',`${fmtNum(m.personHours,1)} h/día`],['Generación por persona',`${fmtNum(m.personRate,0)} g/h`],
         ['Aporte de personas',`${fmtNum(m.peopleL,2)} L eq./día`],['Duchas',m.showers],['Aporte por ducha',`${fmtNum(m.showerL,2)} L`],
         ['Aporte total duchas',`${fmtNum(m.showersL,2)} L/día`],['Cocina',`${fmtNum(m.cookingL,2)} L/día`],
-        ['Cargas de ropa interior',m.laundry],['Aporte por carga',`${fmtNum(m.laundryL,2)} L`],['Aporte ropa',`${fmtNum(m.clothesL,2)} L/día`]
+        ['Cargas de ropa secada al interior',m.laundry],['Aporte por carga',`${fmtNum(m.laundryL,2)} L`],['Aporte secado de ropa',`${fmtNum(m.clothesL,2)} L/día`],
+        ['Lavado de loza',`${fmtNum(m.dishL,2)} L/día`],['Plantas interiores',m.plants],['Aporte plantas',`${fmtNum(m.plantL,2)} L/día`],
+        ['Mascotas / animales',m.pets],['Aporte mascotas',`${fmtNum(m.petL,2)} L/día`],['Limpieza húmeda',`${fmtNum(m.moppingL,2)} L/día`],
+        ['Estufa sin evacuación',m.heaterType==='none'?'No':m.heaterType==='gas'?'Gas':'Parafina'],
+        ['Horas de estufa',m.heaterType==='none'?'—':`${fmtNum(m.heaterHours,1)} h/día`],
+        ['Consumo combustible',m.heaterType==='none'?'—':`${fmtNum(m.fuelRate,2)} kg/h`],
+        ['Aporte estufa',`${fmtNum(m.heaterL,2)} L eq./día`]
       ].forEach(r=>addRow(doc,b2,r[0],r[1]))
     }
     addRow(doc,b2,'Generación total estimada',`${fmtNum(m.total,2)} L eq./día`);t2.append(b2);sec2.append(t2);
@@ -380,7 +386,7 @@
       ['Humedad absoluta interior inicial',`${fmtNum(x.drying.inside,2)} g/m³`],
       ['Diferencia',`${fmtNum(x.drying.delta,2)} g/m³`],
       ['Agua potencialmente transportable por 100 m³',`${fmtNum(x.drying.per100,3)} L eq.`]
-    ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);sec5.append(t5);
+    ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);sec5.append(t5);sec5.append(el(doc,'p','section-note','La clasificación usa la diferencia de humedad absoluta entre interior y exterior: >5 g/m³ = muy favorable; >2 = favorable; >0,5 = poco efectivo; ≤0,5 = no conviene. Estos umbrales son una guía HIDROLAB, no límites normativos.'));
 
     const sec6=addSection(doc,root,'6. Punto de rocío y riesgo superficial');
     const t6=el(doc,'table','kv'),b6=el(doc,'tbody'),d=x.dew;

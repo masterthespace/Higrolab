@@ -16,19 +16,84 @@ function volume(){
 }
 function moistureKgDay(){
   if(moistMode==='manual')return Math.max(0,+$('moist').value||0);
-  const people=Math.max(0,+$('people').value||0),ph=clamp(+$('personHours').value||0,0,24),
-    pr=Math.max(0,+$('personRate').value||0),showers=Math.max(0,+$('showers').value||0),
-    showerL=Math.max(0,+$('showerLiters').value||0),cooking=Math.max(0,+$('cooking').value||0),
-    laundry=Math.max(0,+$('laundry').value||0),laundryL=Math.max(0,+$('laundryLiters').value||0);
-  return (people*ph*pr)/1000+showers*showerL+cooking+laundry*laundryL
+  const people=Math.max(0,+$('people').value||0),ph=clamp(+$('personHours').value||0,0,24),pr=Math.max(0,+$('personRate').value||0),
+    showers=Math.max(0,+$('showers').value||0),showerL=Math.max(0,+$('showerLiters').value||0),
+    cooking=Math.max(0,+$('cooking').value||0),laundry=Math.max(0,+$('laundry').value||0),laundryL=Math.max(0,+$('laundryLiters').value||0),
+    dish=Math.max(0,+$('dishwashing').value||0),plants=Math.max(0,+$('plants').value||0),plantRate=Math.max(0,+$('plantRate').value||0),
+    pets=Math.max(0,+$('pets').value||0),petRate=Math.max(0,+$('petRate').value||0),mopping=Math.max(0,+$('mopping').value||0),
+    heater=$('heaterType').value!=='none',heaterH=clamp(+$('heaterHours').value||0,0,24),fuelRate=Math.max(0,+$('heaterFuelRate').value||0),
+    waterFactor=Math.max(0,+$('heaterWaterFactor').value||0);
+  const plantL=plants*plantRate*24/1000,petL=pets*petRate*24/1000,heaterL=heater?heaterH*fuelRate*waterFactor:0;
+  return (people*ph*pr)/1000+showers*showerL+cooking+laundry*laundryL+dish+plantL+petL+mopping+heaterL
 }
 function moistureBreakdown(){
   if(moistMode==='manual')return{mode:'manual',total:moistureKgDay()};
   const people=Math.max(0,+$('people').value||0),ph=clamp(+$('personHours').value||0,0,24),pr=Math.max(0,+$('personRate').value||0),
-    showers=Math.max(0,+$('showers').value||0),showerL=Math.max(0,+$('showerLiters').value||0),
-    cooking=Math.max(0,+$('cooking').value||0),laundry=Math.max(0,+$('laundry').value||0),laundryL=Math.max(0,+$('laundryLiters').value||0);
-  return{mode:'sources',people,personHours:ph,personRate:pr,peopleL:people*ph*pr/1000,showers,showerL,showersL:showers*showerL,cookingL:cooking,laundry,laundryL,clothesL:laundry*laundryL,total:moistureKgDay()}
+    showers=Math.max(0,+$('showers').value||0),showerL=Math.max(0,+$('showerLiters').value||0),cooking=Math.max(0,+$('cooking').value||0),
+    laundry=Math.max(0,+$('laundry').value||0),laundryL=Math.max(0,+$('laundryLiters').value||0),dish=Math.max(0,+$('dishwashing').value||0),
+    plants=Math.max(0,+$('plants').value||0),plantRate=Math.max(0,+$('plantRate').value||0),pets=Math.max(0,+$('pets').value||0),petRate=Math.max(0,+$('petRate').value||0),
+    mopping=Math.max(0,+$('mopping').value||0),heaterType=$('heaterType').value,heaterH=clamp(+$('heaterHours').value||0,0,24),
+    fuelRate=Math.max(0,+$('heaterFuelRate').value||0),waterFactor=Math.max(0,+$('heaterWaterFactor').value||0);
+  const peopleL=people*ph*pr/1000,showersL=showers*showerL,clothesL=laundry*laundryL,plantL=plants*plantRate*24/1000,
+    petL=pets*petRate*24/1000,heaterL=heaterType!=='none'?heaterH*fuelRate*waterFactor:0;
+  return{mode:'sources',people,personHours:ph,personRate:pr,peopleL,showers,showerL,showersL,cookingL:cooking,laundry,laundryL,clothesL,
+    dishL:dish,plants,plantRate,plantL,pets,petRate,petL,moppingL:mopping,heaterType,heaterHours:heaterH,fuelRate,waterFactor,heaterL,total:moistureKgDay()}
 }
+
+function sourceContributions(){
+  if(moistMode==='manual')return null;
+  const people=Math.max(0,+$('people').value||0),
+    ph=clamp(+$('personHours').value||0,0,24),
+    pr=Math.max(0,+$('personRate').value||0),
+    showers=Math.max(0,+$('showers').value||0),
+    showerL=Math.max(0,+$('showerLiters').value||0),
+    cooking=Math.max(0,+$('cooking').value||0),
+    laundry=Math.max(0,+$('laundry').value||0),
+    laundryL=Math.max(0,+$('laundryLiters').value||0),
+    dish=Math.max(0,+$('dishwashing').value||0),
+    plants=Math.max(0,+$('plants').value||0),
+    plantRate=Math.max(0,+$('plantRate').value||0),
+    pets=Math.max(0,+$('pets').value||0),
+    petRate=Math.max(0,+$('petRate').value||0),
+    mopping=Math.max(0,+$('mopping').value||0),
+    heaterType=$('heaterType').value,
+    heaterH=clamp(+$('heaterHours').value||0,0,24),
+    fuelRate=Math.max(0,+$('heaterFuelRate').value||0),
+    waterFactor=Math.max(0,+$('heaterWaterFactor').value||0);
+
+  return{
+    people:people*ph*pr/1000,
+    showers:showers*showerL,
+    cooking,
+    laundry:laundry*laundryL,
+    heater:heaterType!=='none'?heaterH*fuelRate*waterFactor:0,
+    dish,
+    plants:plants*plantRate*24/1000,
+    pets:pets*petRate*24/1000,
+    mopping
+  }
+}
+function renderSourceContributions(){
+  const c=sourceContributions();
+  if(!c)return;
+  const map={
+    peopleContribution:c.people,
+    showersContribution:c.showers,
+    cookingContribution:c.cooking,
+    laundryContribution:c.laundry,
+    heaterContribution:c.heater,
+    dishContribution:c.dish,
+    plantsContribution:c.plants,
+    petsContribution:c.pets,
+    moppingContribution:c.mopping
+  };
+  Object.entries(map).forEach(([id,val])=>{
+    const el=$(id); if(!el)return;
+    el.textContent=`+${fmt(val,2)} L/día`;
+    el.closest('.source-contribution')?.classList.toggle('has-moisture',val>0);
+  });
+}
+
 function backgroundEquilibrium(flow){
   const Ti=+$('ti').value,Te=+$('te').value,RHe=clamp(+$('rhe').value,1,100),
     Ggh=moistureKgDay()*1000/24,aho=absHumidity(Te,RHe),ahi=aho+Ggh/Math.max(1,flow),RH=rhFromAH(ahi,Ti);
@@ -124,7 +189,7 @@ function setDurationButtonsForStrategy(){
   $('durationQuestion').textContent=strategy==='dehumidifier'?'¿Cuánto tiempo funcionará?':'¿Cuánto tiempo abrirás?'
 }
 function setVolumeMode(mode){volumeMode=mode==='direct'?'direct':'dims';document.querySelectorAll('[data-volume-mode]').forEach(b=>b.classList.toggle('active',b.dataset.volumeMode===volumeMode));$('dimsFields').classList.toggle('hidden',volumeMode!=='dims');$('directVolField').classList.toggle('hidden',volumeMode!=='direct');render()}
-function setMoistMode(mode){moistMode=mode==='manual'?'manual':'sources';document.querySelectorAll('[data-moist-mode]').forEach(b=>b.classList.toggle('active',b.dataset.moistMode===moistMode));$('sourceFields').classList.toggle('hidden',moistMode!=='sources');$('manualMoistField').classList.toggle('hidden',moistMode!=='manual');render()}
+function setMoistMode(mode){moistMode=mode==='manual'?'manual':'sources';document.querySelectorAll('[data-moist-mode]').forEach(b=>b.classList.toggle('active',b.dataset.moistMode===moistMode));$('sourceFields').classList.toggle('hidden',moistMode!=='sources');$('manualMoistField').classList.toggle('hidden',moistMode!=='manual');$('heaterDetails')?.classList.toggle('hidden',moistMode!=='sources'||$('heaterType').value==='none');render()}
 function setVentMode(mode){ventMode=mode==='technical'?'technical':'practical';document.querySelectorAll('[data-vent-mode]').forEach(b=>b.classList.toggle('active',b.dataset.ventMode===ventMode));$('practicalVentPanel').classList.toggle('hidden',ventMode!=='practical');$('technicalVentPanel').classList.toggle('hidden',ventMode!=='technical');render()}
 function setStrategy(s){
   strategy=s;document.querySelectorAll('[data-strategy]').forEach(b=>b.classList.toggle('active',b.dataset.strategy===strategy));
@@ -170,6 +235,7 @@ function renderWaterStory(c){
   const liters=c.gramsRemoved/1000,delta=Math.max(0,c.ah0-c.ah1);$('removedLiters').textContent=fmt(liters,3);$('removedGrams').textContent=`${fmt(c.gramsRemoved,0)} g`;$('ahBefore').textContent=`${fmt(c.ah0,2)} g/m³`;$('ahAfter').textContent=`${fmt(c.ah1,2)} g/m³`;$('ahDelta').textContent=`${fmt(delta,2)} g/m³`;$('bottleFill').style.height=`${Math.min(100,liters/1.2*100)}%`;$('waterStoryBadge').textContent=c.dehum?'AGUA CONDENSADA EN EL EQUIPO':'AGUA EVACUADA CON EL AIRE';$('waterStoryText').textContent=c.dehum?`En ${formatDuration()}, el deshumidificador podría condensar aproximadamente ${fmt(liters,2)} L de agua desde el aire.`:`Durante ${formatDuration()}, la estrategia podría evacuar aproximadamente ${fmt(c.gramsRemoved,0)} g de agua desde el aire, equivalentes a ${fmt(liters,3)} L.`
 }
 function render(){
+  renderSourceContributions();
   const vol=volume(),moist=moistureKgDay(),pf=practicalFlow(),c=actionResult(),dry=dryingData(c),advice=recommendation(c,dry,c),req=required(),reqAch=Number.isFinite(req)?req/vol:Infinity;
   $('volOut').textContent=fmt(vol,1);$('moistOut').textContent=fmt(moist,2);$('waterL').textContent=`${fmt(moist,1)} L`;$('waterFill').style.height=`${Math.min(100,moist/12*100)}%`;
   if(ventMode==='practical'&&!['mechanical','dehumidifier'].includes(strategy)){$('effectiveArea').textContent=fmt(pf.area,2);$('estimatedFlow').textContent=fmt(pf.flow,0);$('estimatedRange').textContent=`${fmt(pf.low,0)}–${fmt(pf.high,0)}`;$('openAch').textContent=fmt(pf.flow/vol,2)}
@@ -178,7 +244,7 @@ function render(){
   $('activeFlow').textContent=c.dehum?'—':fmt(c.Q,0);$('beforeVentRh').textContent=fmt(c.RH,0);$('afterVentRh').textContent=fmt(c.rh1,0);$('vaporReduction').textContent=fmt(c.reduction,0);$('impactPct').textContent=fmt(c.reduction,0);$('impactRing').style.setProperty('--impact-pct',`${clamp(c.reduction,0,100)}%`);$('waterRemoved').textContent=`${fmt(c.gramsRemoved,0)} g`;$('ventAirChanges').textContent=c.dehum?'0,00':fmt(c.airChanges,2);$('reqflow').textContent=Number.isFinite(req)?`${fmt(req,0)} m³/h`:'No viable';$('reqach').textContent=Number.isFinite(reqAch)?fmt(reqAch,2):'—';
   $('ventAdviceText').textContent=advice.text;$('ventAdviceBadge').textContent=advice.label;$('ventAdviceBadge').className=`drying-badge ${advice.cls}`;$('timelineSubtitle').textContent=`${fmt(c.RH,0)}% → ${fmt(c.rh1,0)}% HR en ${formatDuration()}`;
   let cls='safe',txt=`La estrategia reduce el exceso de vapor aproximadamente ${fmt(c.reduction,0)}% en ${formatDuration()}.`;if(!c.dehum&&dry.delta<=.2){cls='danger';txt='Con estas condiciones exteriores no hay capacidad neta de secado significativa.'}else if(c.rh1>=80){cls='danger';txt='Aun después de la estrategia, la HR estimada seguiría muy alta.'}else if(c.rh1>=70){cls='warn';txt='La estrategia ayuda, pero la HR posterior seguiría alta.'}else if(c.rh1>=60){cls='warn';txt='La estrategia mejora el ambiente y deja la HR en una zona moderada.'}$('status').className='callout '+cls;$('status').innerHTML=`<b>${txt}</b> Resultado estimado: ${fmt(c.RH,0)}% → ${fmt(c.rh1,0)}% HR.`;
-  $('aho').textContent=`${fmt(dry.outside,2)} g/m³`;$('ahi').textContent=`${fmt(dry.inside,2)} g/m³`;$('outsideState').textContent=`${fmt(c.Te,1)}°C · ${fmt(c.RHe,0)}% HR`;$('insideState').textContent=`${fmt(c.Ti,1)}°C · ${fmt(c.RH,0)}% HR`;$('dryingPer100').textContent=dry.delta>0?`${fmt(dry.per100,2)} L / 100 m³`:'Sin capacidad neta';$('dryingBadge').textContent=c.dehum?'NO APLICA AL EQUIPO':dry.label;$('dryingBadge').className=`drying-badge ${c.dehum?'mild':dry.cls}`;
+  $('aho').textContent=`${fmt(dry.outside,2)} g/m³`;$('ahi').textContent=`${fmt(dry.inside,2)} g/m³`;$('outsideState').textContent=`${fmt(c.Te,1)}°C · ${fmt(c.RHe,0)}% HR`;$('insideState').textContent=`${fmt(c.Ti,1)}°C · ${fmt(c.RH,0)}% HR`;$('dryingPer100').textContent=dry.delta>0?`${fmt(dry.per100,2)} L / 100 m³`:'Sin capacidad neta';$('dryingBadge').textContent=c.dehum?'NO APLICA AL EQUIPO':dry.label;$('dryingBadge').className=`drying-badge ${c.dehum?'mild':dry.cls}`;$('dryingRuleText').innerHTML=c.dehum?'El deshumidificador retira agua sin depender de la humedad exterior.':`Interior: <b>${fmt(dry.inside,2)} g/m³</b> · Exterior: <b>${fmt(dry.outside,2)} g/m³</b> · Diferencia: <b>${fmt(dry.delta,2)} g/m³</b>. ${dry.delta>0?'El aire exterior puede recibir humedad del interior.':'El exterior no ofrece capacidad neta de secado.'}`;
   renderHouse(c);drawTimeline(c);renderWaterStory(c);renderDewRisk(c)
 }
 function reportData(){
@@ -201,8 +267,9 @@ document.querySelectorAll('[data-volume-mode]').forEach(b=>b.onclick=()=>setVolu
 document.querySelectorAll('[data-moist-mode]').forEach(b=>b.onclick=()=>setMoistMode(b.dataset.moistMode));
 document.querySelectorAll('[data-vent-mode]').forEach(b=>b.onclick=()=>setVentMode(b.dataset.ventMode));
 document.querySelectorAll('[data-strategy]').forEach(b=>b.onclick=()=>setStrategy(b.dataset.strategy));
-['roomL','roomW','roomH','vol','ti','te','rhe','target','people','showers','cooking','laundry','personHours','personRate','showerLiters','laundryLiters','moist',
+['roomL','roomW','roomH','vol','ti','te','rhe','target','people','showers','cooking','laundry','dishwashing','plants','plantRate','pets','petRate','mopping','heaterType','heaterHours','heaterFuelRate','heaterWaterFactor','personHours','personRate','showerLiters','laundryLiters','moist',
 'win1W','win1H','win1Pct','win1WCross','win1HCross','win1PctCross','win2W','win2H','win2Pct','wdWinW','wdWinH','wdWinPct','doorW','doorH','doorPct',
 'ceWin1W','ceWin1H','ceWin1Pct','ceWin2W','ceWin2H','ceWin2Pct','comboExtractorFlow','windLevel','mechanicalFlow','flow','dehumCapacity','dehumFactor','dehumTank','surfaceTempRef']
 .forEach(id=>$(id)?.addEventListener('input',render));
+$('heaterType')?.addEventListener('change',()=>{$('heaterDetails').classList.toggle('hidden',$('heaterType').value==='none');render()});
 setVolumeMode('dims');setMoistMode('sources');setVentMode('practical');setStrategy('cross');setDurationButtonsForStrategy();render();

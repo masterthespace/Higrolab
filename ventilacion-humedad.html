@@ -59,38 +59,73 @@
   </div>
 
   <div id="sourceFields">
-    <div class="source-grid">
+    <div class="source-grid rich-sources">
       <div class="source-card">
         <div class="source-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M6 20c.5-5 2.5-8 6-8s5.5 3 6 8"/></svg></div>
-        <div><b>Personas</b><small>ocupación y respiración</small></div>
+        <div><b>Personas</b><small>respiración y actividad ligera</small></div>
         <input id="people" type="number" min="0" max="20" step="1" value="3">
-      </div>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="peopleContribution">+0,00 L/día</b></div></div>
       <div class="source-card">
         <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 9h14M8 9V6a4 4 0 0 1 8 0v3M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h.01M12 17h.01M16 17h.01"/></svg></div>
-        <div><b>Duchas / día</b><small>vapor liberado al recinto</small></div>
+        <div><b>Duchas / día</b><small>vapor que queda en el recinto</small></div>
         <input id="showers" type="number" min="0" max="20" step="1" value="3">
-      </div>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="showersContribution">+0,00 L/día</b></div></div>
       <div class="source-card">
         <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 19h14M7 16h10l-1-7H8zM9 5c0 1 1 1.5 1 2.5M13 4c0 1 1 1.5 1 3"/></svg></div>
-        <div><b>Cocina</b><small>aporte diario aproximado</small></div>
-        <select id="cooking"><option value="0">Sin aporte</option><option value=".4">Bajo</option><option selected value=".8">Medio</option><option value="1.5">Alto</option></select>
-      </div>
-      <div class="source-card">
+        <div><b>Cocina</b><small>preparación de alimentos</small></div>
+        <select id="cooking"><option value="0">Sin aporte</option><option value=".5">Bajo</option><option selected value="1.2">Medio</option><option value="2.5">Alto / cocina a gas</option></select>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="cookingContribution">+0,00 L/día</b></div></div>
+      <div class="source-card source-emphasis">
         <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9c2-2 6-2 8 0M8 13c2 2 6 2 8 0"/></svg></div>
-        <div><b>Secado de ropa</b><small>cargas / día en interior</small></div>
+        <div><b>Secar ropa al interior</b><small>cargas secadas dentro de la vivienda</small></div>
         <input id="laundry" type="number" min="0" max="5" step=".5" value="0">
+      <div class="source-contribution"><span>Aporte estimado</span><b id="laundryContribution">+0,00 L/día</b></div></div>
+      <div class="source-card source-emphasis combustion-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M12 3c3 4 5 7 5 11a5 5 0 0 1-10 0c0-3 2-6 5-11Z"/><path d="M10 16c1 1 3 1 4-1"/></svg></div>
+        <div><b>Estufa sin evacuación</b><small>gas o parafina · libera vapor al interior</small></div>
+        <select id="heaterType"><option value="none">No uso</option><option value="gas">Gas</option><option value="paraffin">Parafina</option></select>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="heaterContribution">+0,00 L/día</b></div></div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14v9H5zM8 5h8M8 20h8"/><path d="M8 12h8"/></svg></div>
+        <div><b>Lavado de loza</b><small>aporte diario aproximado</small></div>
+        <select id="dishwashing"><option value="0">No / lavavajillas cerrado</option><option value=".25">Bajo</option><option selected value=".5">Medio</option><option value=".8">Alto</option></select>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="dishContribution">+0,00 L/día</b></div></div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M12 20v-8M12 14c-5 0-7-3-7-6 4 0 7 1 7 6ZM12 12c4 0 7-2 7-6-4 0-7 2-7 6Z"/></svg></div>
+        <div><b>Plantas interiores</b><small>macetas con vegetación</small></div>
+        <input id="plants" type="number" min="0" max="50" step="1" value="0">
+      <div class="source-contribution"><span>Aporte estimado</span><b id="plantsContribution">+0,00 L/día</b></div></div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="2"/><circle cx="16" cy="8" r="2"/><circle cx="6" cy="13" r="2"/><circle cx="18" cy="13" r="2"/><path d="M12 12c-4 0-6 3-5 6 2 3 8 3 10 0 1-3-1-6-5-6Z"/></svg></div>
+        <div><b>Mascotas / animales</b><small>aporte orientativo editable</small></div>
+        <input id="pets" type="number" min="0" max="20" step="1" value="0">
+      <div class="source-contribution"><span>Aporte estimado</span><b id="petsContribution">+0,00 L/día</b></div></div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M4 18h16M6 15h12M8 12h8M10 5v4M14 5v4"/></svg></div>
+        <div><b>Limpieza húmeda</b><small>trapear / superficies mojadas</small></div>
+        <select id="mopping"><option value="0">No</option><option value=".15">Ligera</option><option value=".4">Moderada</option></select>
+      <div class="source-contribution"><span>Aporte estimado</span><b id="moppingContribution">+0,00 L/día</b></div></div>
+    </div>
+    <div id="heaterDetails" class="heater-details hidden">
+      <div class="heater-warning"><b>Combustión sin evacuación exterior</b><span>Además de vapor de agua, estos equipos requieren considerar ventilación y seguridad de combustión. HIDROLAB aquí solo cuantifica el aporte de humedad.</span></div>
+      <div class="form-grid three">
+        <div class="field"><label>Horas de uso al día</label><input id="heaterHours" type="number" min="0" max="24" step=".5" value="5"></div>
+        <div class="field"><label>Consumo de combustible [kg/h]</label><input id="heaterFuelRate" type="number" min="0" max="2" step=".01" value=".22"></div>
+        <div class="field"><label>Vapor producido [kg agua/kg combustible]</label><input id="heaterWaterFactor" type="number" min=".2" max="3" step=".1" value="1.0"><small>Valor simplificado editable.</small></div>
       </div>
     </div>
-
-    <details class="source-assumptions">
+  </div>
+  <details class="source-assumptions">
       <summary>Ajustar supuestos del estimador</summary>
       <div class="form-grid">
         <div class="field"><label>Presencia por persona [h/día]</label><input id="personHours" type="number" min="0" max="24" step=".5" value="12"></div>
         <div class="field"><label>Vapor por persona [g/h]</label><input id="personRate" type="number" min="0" max="300" step="5" value="60"></div>
-        <div class="field"><label>Vapor por ducha que queda en el recinto [L]</label><input id="showerLiters" type="number" min="0" max="5" step=".1" value=".5"></div>
-        <div class="field"><label>Vapor por carga de ropa [L]</label><input id="laundryLiters" type="number" min="0" max="10" step=".1" value="1.5"></div>
+        <div class="field"><label>Vapor por ducha que queda en el recinto [L]</label><input id="showerLiters" type="number" min="0" max="5" step=".01" value=".66"></div>
+        <div class="field"><label>Vapor por carga de ropa secada interior [L]</label><input id="laundryLiters" type="number" min="0" max="10" step=".1" value="1.8"></div>
+        <div class="field"><label>Planta interior [g/h por planta]</label><input id="plantRate" type="number" min="0" max="100" step="1" value="15"></div>
+        <div class="field"><label>Mascota / animal [g/h por animal]</label><input id="petRate" type="number" min="0" max="100" step="1" value="10"><small>Valor orientativo; varía mucho con especie y tamaño.</small></div>
       </div>
-      <p class="note">Estos valores son supuestos educativos editables, no valores normativos. Ajusta según el uso real o reemplázalos por una generación medida/conocida.</p>
+      <p class="note">Los valores iniciales son referencias educativas editables. Personas, duchas, plantas y secado de ropa se apoyan en rangos de ASHRAE; mascotas y combustión se mantienen editables porque su aporte real varía ampliamente.</p>
     </details>
   </div>
 
@@ -374,6 +409,10 @@
 
 <section class="card full drying-card">
   <div class="section-head"><div><p class="kicker">05 · ¿Conviene ventilar ahora?</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
+  <div class="drying-explainer">
+    <div><b>¿De qué depende?</b><span>No depende de la HR exterior por sí sola. HIDROLAB combina <strong>temperatura + HR</strong> para obtener humedad absoluta en g/m³.</span></div>
+    <div class="drying-rule"><span id="dryingRuleText">—</span></div>
+  </div>
   <div class="drying-grid">
     <div class="air-box exterior"><small>EXTERIOR</small><strong id="outsideState">—</strong><span id="aho">— g/m³</span></div>
     <div class="drying-arrow"><span>→</span><b id="dryingPer100">—</b><small>agua que podría transportar cada 100 m³ renovados*</small></div>

@@ -195,3 +195,32 @@ html[data-theme=dark] .ventilation-v73 .field label,html[data-theme=dark] .openi
 html[data-theme=dark] .opening-title b{color:#edf6f8}
 @media(max-width:900px){.dual-opening-grid{grid-template-columns:1fr}.strategy-grid{grid-template-columns:1fr 1fr!important}}
 @media(max-width:560px){.strategy-grid{grid-template-columns:1fr!important}}
+
+/* V7.8 · Fuentes de humedad ampliadas + explicación de secado */
+.rich-sources{grid-template-columns:1fr 1fr}
+.source-card.source-emphasis{border-color:#b8d8df;background:#f5fbfc}.combustion-card{border-left:4px solid #d58b37}
+.heater-details{margin:10px 0 2px;padding:11px;border:1px solid #e5cfad;border-radius:12px;background:#fff9ef}.heater-warning{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}.heater-warning b{font-size:.7rem;color:#724c1d;white-space:nowrap}.heater-warning span{font-size:.62rem;color:#574f45;line-height:1.5}
+.drying-explainer{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:-2px 0 13px}.drying-explainer>div{padding:10px 11px;border-radius:10px;border:1px solid #d4e4e8;background:#f6fafb}.drying-explainer b{font-size:.7rem;color:#193f4d}.drying-explainer span{display:block;font-size:.64rem;color:#395863;line-height:1.5;margin-top:2px}.drying-rule{background:#eef8fa!important}.drying-rule b{font-family:var(--ui-mono,monospace);color:#0a6b87}
+html[data-theme=dark] .source-card.source-emphasis,html[data-theme=dark] .heater-details,html[data-theme=dark] .drying-explainer>div{background:var(--ui-panel-soft);border-color:var(--ui-border)}
+html[data-theme=dark] .heater-warning b,html[data-theme=dark] .heater-warning span,html[data-theme=dark] .drying-explainer span{color:#d2e1e5}
+@media(max-width:700px){.rich-sources,.drying-explainer{grid-template-columns:1fr}.heater-warning{display:block}.heater-warning span{margin-top:4px}}
+
+/* V7.9 · aporte individual por fuente en tiempo real */
+.source-card{position:relative;padding-bottom:42px!important}
+.source-contribution{
+  position:absolute;left:9px;right:9px;bottom:7px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:5px 7px;border-radius:8px;background:#edf3f5;border:1px solid #dbe6e8;
+}
+.source-contribution span{font-size:.56rem!important;color:#435e68!important;font-weight:750}
+.source-contribution b{
+  font-family:var(--ui-mono,monospace);font-size:.67rem;color:#315662;
+  white-space:nowrap
+}
+.source-contribution.has-moisture{background:#e9f7fa;border-color:#aad8e2}
+.source-contribution.has-moisture b{color:#08718e}
+.source-emphasis .source-contribution.has-moisture{background:#fff4dd;border-color:#e5c67e}
+.source-emphasis .source-contribution.has-moisture b{color:#8a5a08}
+html[data-theme=dark] .source-contribution{background:rgba(255,255,255,.05);border-color:var(--ui-border)}
+html[data-theme=dark] .source-contribution span{color:#c1d1d6!important}
+html[data-theme=dark] .source-contribution.has-moisture{background:rgba(33,168,198,.10)}
