@@ -66,15 +66,16 @@ canvas.addEventListener('dblclick',e=>{if(S.tool==='wall'&&S.pts.length>=3){S.cl
 function applyCalibration(){if(S.calPts.length!==2)return;const px=Math.hypot(S.calPts[1].x-S.calPts[0].x,S.calPts[1].y-S.calPts[0].y),m=+$('cal-distance').value;if(px>0&&m>0){S.scale=m/px;autoFit3D=true;$('scale-info').textContent=`1 px = ${S.scale.toFixed(5)} m · referencia ${m.toFixed(2)} m`;updateMetrics();rebuild3D()}}
 function polygonData(){
   if(!S.closed||S.pts.length<3)return null;
-  const cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length,cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;
+  const cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length;
+  const cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;
   let sc=S.scale;
   if(!(Number.isFinite(sc)&&sc>0)){
     const xs=S.pts.map(p=>p.x),ys=S.pts.map(p=>p.y);
     const pxMax=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys),1);
-    sc=8/pxMax; // visual fallback only: longest plan dimension = 8 m
+    sc=8/pxMax;
   }
-  return S.pts.map(p=>({x:(p.x-cx)*sc,z:(p.y-cy)*sc}))
-}))}
+  return S.pts.map(p=>({x:(p.x-cx)*sc,z:(p.y-cy)*sc}));
+}
 function areaPerim(){const p=polygonData();if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function updateMetrics(){const m=areaPerim();$('area-out').textContent=m.a?m.a.toFixed(1)+' m²':'—';$('perim-out').textContent=m.l?m.l.toFixed(1)+' m':'—';$('faces-out').textContent=S.closed?S.pts.length:'—';$('status-pill').textContent=S.closed?`Planta cerrada · ${S.pts.length} fachadas`:`${S.pts.length} vértices`}
 function selectVertex(i){const p=S.pts[i];$('selection-panel').innerHTML=`<h3>VÉRTICE V${i+1}</h3><div class="vertex-editor"><label>X [px]<input id="vx" type="number" step=".1" value="${p.x.toFixed(1)}"></label><label>Y [px]<input id="vy" type="number" step=".1" value="${p.y.toFixed(1)}"></label><button id="delv">Eliminar vértice</button></div>`;$('vx').oninput=()=>{S.pts[i].x=+$('vx').value;drawCAD();rebuild3D()};$('vy').oninput=()=>{S.pts[i].y=+$('vy').value;drawCAD();rebuild3D()};$('delv').onclick=()=>{S.pts.splice(i,1);S.closed=S.closed&&S.pts.length>=3;$('selection-panel').innerHTML='<h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div>';updateMetrics();drawCAD();rebuild3D()}}
@@ -624,4 +625,4 @@ function solarReportPayload(){
 }
 window.HIDROLAB_SOLAR_REPORT=solarReportPayload;
 
-init();
+try{init()}catch(err){console.error('HIDROLAB Solar Studio init error',err);const pill=document.getElementById('status-pill');if(pill)pill.textContent='Error de inicio';const panel=document.getElementById('selection-panel');if(panel)panel.innerHTML='<h3>ERROR DE INICIO</h3><div class="empty">El módulo no pudo iniciar. Recarga la página; si persiste, revisa la consola del navegador.</div>'}
