@@ -133,13 +133,23 @@ function vaporEstimate(){
 function renderVaporEstimate(){
   const card=$('vaporCard');if(!card)return;
   const manual=$('duration').value==='manual';
-  card.classList.toggle('hidden',!manual);
-  if(!manual)return;
-  const v=vaporEstimate();
+  const intro=$('vaporIntro'),state=$('vaporState');
+  card.classList.toggle('vapor-active',manual);
+  if(!manual){
+    card.classList.remove('vapor-high');
+    if(intro)intro.textContent='Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.';
+    if(state)state.textContent='ESPERANDO HORAS';
+    $('vaporLiters').textContent='—';$('vaporMass').textContent='—';$('vaporTankLabel').textContent='0 L';$('vaporFill').style.height='0%';
+    $('vaporBreakdown').innerHTML='Selecciona <b>Ingresar horas manualmente</b> en Persistencia estimada.';
+    return
+  }
+  const v=vaporEstimate(),high=v.hours>=10;
+  card.classList.toggle('vapor-high',high);
+  if(intro)intro.textContent=high?'Período prolongado: visualiza cuánta agua equivalente se libera durante las horas indicadas.':'Estimación acumulada durante las horas manuales indicadas.';
+  if(state)state.textContent=high?'PERÍODO PROLONGADO':'CÁLCULO ACTIVO';
   $('vaporLiters').textContent=fmt(v.liters,2);
   $('vaporMass').textContent=`${fmt(v.kg,2)} kg de agua`;
   $('vaporTankLabel').textContent=`${fmt(v.liters,2)} L`;
-  // Visualization scale: 0–10 L fills the tank; values above 10 L stay full.
   $('vaporFill').style.height=`${Math.min(100,v.liters/10*100)}%`;
   $('vaporBreakdown').innerHTML=`${fmt(v.hours,1)} h × (${v.people} pers. × ${fmt(v.perPerson,0)} g/h + ${fmt(v.extra,0)} g/h adicionales) = <b>${fmt(v.grams,0)} g</b> = <b>${fmt(v.liters,2)} L eq.</b>`;
 }

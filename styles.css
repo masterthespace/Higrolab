@@ -102,3 +102,12 @@ html[data-theme=dark] .manual-hours{background:var(--ui-panel-soft);border-color
 .vapor-disclaimer{margin-top:8px;font-size:.59rem;line-height:1.5;color:#6d7f86}.vapor-disclaimer b{color:#445d66}
 html[data-theme=dark] .vapor-card{background:linear-gradient(145deg,rgba(20,61,76,.72),rgba(15,48,61,.78));border-color:var(--ui-border)}html[data-theme=dark] .vapor-visual,html[data-theme=dark] .vapor-breakdown{background:rgba(255,255,255,.04);border-color:var(--ui-border)}html[data-theme=dark] .vapor-tank{background:#102733}html[data-theme=dark] .vapor-tank>span{color:#e9f7fa;text-shadow:none}
 @media(max-width:650px){.vapor-controls{grid-template-columns:1fr}.vapor-visual{grid-template-columns:72px 1fr}.vapor-result strong{font-size:1.7rem}}
+
+/* V7.2.3 · Vapor siempre visible */
+.vapor-card{opacity:.76;filter:saturate(.75);transition:opacity .22s ease,filter .22s ease,box-shadow .22s ease,border-color .22s ease}
+.vapor-card.vapor-active{opacity:1;filter:none;border-color:#79c9dc;box-shadow:0 12px 34px rgba(20,129,157,.10)}
+.vapor-card.vapor-high{border-color:#e3a43c;box-shadow:0 14px 38px rgba(225,153,40,.16);background:linear-gradient(145deg,#fffaf0,#eef9fb)}
+.vapor-state{margin-left:auto;white-space:nowrap;border:1px solid #c9d9de;border-radius:999px;padding:5px 8px;font-size:.52rem;font-weight:900;letter-spacing:.08em;color:#678089;background:rgba(255,255,255,.65)}
+.vapor-active .vapor-state{color:#0c7896;border-color:#95d2e1;background:#eaf9fc}.vapor-high .vapor-state{color:#9c6110;border-color:#efc77f;background:#fff3d9}
+html[data-theme=dark] .vapor-card.vapor-high{background:linear-gradient(145deg,rgba(84,58,18,.32),rgba(15,48,61,.80))}
+@media(max-width:650px){.vapor-state{display:none}}
