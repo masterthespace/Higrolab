@@ -16,7 +16,24 @@
 <div class="form-grid risk-common-fields">
   <div class="field"><label>Temperatura interior del aire [°C]</label><input id="ta" step=".1" type="number" value="18"/></div>
   <div class="field"><label>HR interior [%]</label><input id="rh" max="100" min="1" step="1" type="number" value="70"/></div>
-  <div class="field"><label>Persistencia estimada</label><select id="duration"><option value="1">Evento breve / ocasional</option><option selected value="2">Varias horas frecuentes</option><option value="3">Condición diaria prolongada</option><option value="4">Condición casi permanente</option></select></div>
+  <div class="field"><label>Persistencia estimada</label>
+<select id="duration">
+  <option value="1">Evento breve / ocasional</option>
+  <option selected value="2">Varias horas frecuentes</option>
+  <option value="3">Condición diaria prolongada</option>
+  <option value="4">Condición casi permanente</option>
+  <option value="manual">Ingresar horas manualmente</option>
+</select>
+<div id="manualHoursWrap" class="manual-hours hidden">
+  <label>Horas de persistencia al día [h/día]</label>
+  <div class="manual-hours-row">
+    <input id="durationHours" type="number" min="0" max="24" step=".5" value="8">
+    <input id="durationHoursSlider" type="range" min="0" max="24" step=".5" value="8">
+    <b id="durationHoursOut">8,0 h</b>
+  </div>
+  <small>Impacto en el índice: <b id="durationPenaltyOut">+5,0 puntos</b>. Escala continua: 0 h = +0 · 24 h = +15.</small>
+</div>
+</div>
 </div>
 
 <div id="measuredPanel" class="risk-mode-panel">
@@ -80,6 +97,31 @@
 <section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIDROLAB</small>
 <div class="metric-big score-metric"><strong id="score">—</strong><span id="scoreLevel">0 = bajo · 100 = muy alto</span></div>
 <div class="risk-scale"><span>BAJO</span><span>ATENCIÓN</span><span>ELEVADO</span><span>MUY ALTO</span></div>
-<div class="bar risk-bar"><span id="scoreBar"></span></div></div></section>
+<div class="bar risk-bar"><span id="scoreBar"></span></div></div>
+<div id="vaporCard" class="vapor-card hidden">
+  <div class="vapor-card-head">
+    <div><small>ESTIMADOR LÚDICO</small><h3>Vapor liberado durante el período</h3><p>Aparece cuando usas persistencia manual. Convierte la humedad generada en litros equivalentes de agua líquida.</p></div>
+    <div class="vapor-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48"><path d="M24 5S11 20 11 30a13 13 0 0 0 26 0C37 20 24 5 24 5Z"/><path d="M18 31c1 4 4 6 8 6"/></svg>
+    </div>
+  </div>
+  <div class="vapor-controls">
+    <label>Personas presentes<input id="vaporPeople" type="number" min="0" max="20" step="1" value="2"></label>
+    <label>Generación por persona [g/h]<input id="vaporPerPerson" type="number" min="0" max="500" step="5" value="60"></label>
+    <label>Otras fuentes [g/h]<input id="vaporExtra" type="number" min="0" max="5000" step="10" value="0"></label>
+  </div>
+  <div class="vapor-visual">
+    <div class="vapor-tank"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
+    <div class="vapor-result">
+      <span>Vapor liberado acumulado</span>
+      <strong id="vaporLiters">—</strong><em>L eq. agua</em>
+      <small id="vaporMass">— kg de agua</small>
+    </div>
+  </div>
+  <div class="vapor-breakdown" id="vaporBreakdown">—</div>
+  <div class="vapor-disclaimer">
+    <b>Importante:</b> es agua liberada acumulada, no agua necesariamente presente en el aire al mismo tiempo. Ventilación, extracción, absorción de materiales y condensación modifican la cantidad que permanece dentro del recinto.
+  </div>
+</div></section>
 <section class="card full"><div class="section-head"><div><p class="kicker">03 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIDROLAB · Evaluación preventiva de humedad superficial</footer>
 <script defer="" src="assets/riesgo-moho.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>

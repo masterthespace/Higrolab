@@ -73,11 +73,21 @@ function layerR(l){
 }
 function thermal(){const rLayers=layers.reduce((s,l)=>s+layerR(l),0),rTotal=R_SI+rLayers+R_SE;return{rLayers,rTotal,U:1/rTotal}}
 function estimatedSurfaceTemperature(ti,te,u){return ti-u*R_SI*(ti-te)}
+function persistenceData(){
+  const raw=$('duration').value;
+  if(raw==='manual'){
+    const hours=clamp(+$('durationHours').value||0,0,24);
+    const penalty=15*(hours/24);
+    return{mode:'manual',hours,penalty,label:`${fmt(hours,1)} h/día`}
+  }
+  const level=clamp(+raw||1,1,4);
+  return{mode:'preset',hours:null,penalty:(level-1)*5,label:$('duration').selectedOptions[0]?.textContent||''}
+}
 function data(){
   const ta=+$('ta').value,rh=clamp(+$('rh').value,1,100),te=+$('te').value,th=thermal(),measuredTs=+$('ts').value,
-  ts=inputMode==='estimated'?estimatedSurfaceTemperature(ta,te,th.U):measuredTs,p=pv(ta,rh),rhs=100*p/ps(ts),d=dew(ta,rh),t80=threshold(p,.8),dur=+$('duration').value;
-  let base=rhs<=65?10:rhs<70?20:rhs<80?40:rhs<90?65:rhs<100?82:95,score=clamp(base+(dur-1)*5,0,100);
-  return{ta,rh,te,ts,p,rhs,d,t80,dur,score,...th}
+  ts=inputMode==='estimated'?estimatedSurfaceTemperature(ta,te,th.U):measuredTs,p=pv(ta,rh),rhs=100*p/ps(ts),d=dew(ta,rh),t80=threshold(p,.8),persist=persistenceData();
+  let base=rhs<=65?10:rhs<70?20:rhs<80?40:rhs<90?65:rhs<100?82:95,score=clamp(base+persist.penalty,0,100);
+  return{ta,rh,te,ts,p,rhs,d,t80,score,persist,...th}
 }
 function materialOptions(selected){return Object.entries(MATERIALS).map(([k,m])=>`<option value="${k}"${k===selected?' selected':''}>${m.name}</option>`).join('')}
 function renderLayers(){
@@ -110,6 +120,42 @@ function draw(d){
   let pts=[];for(let x=minX;x<=maxX;x+=.2)pts.push(`${sx(x)},${sy(clamp(100*d.p/ps(x),minY,maxY))}`);const st=scoreStyle(d.score);
   s+=`<polyline fill="none" stroke="#176d91" stroke-width="4" points="${pts.join(' ')}"/><circle cx="${sx(d.ts)}" cy="${sy(clamp(d.rhs,minY,maxY))}" r="7" fill="${st.color}" stroke="white" stroke-width="3"/><line x1="${sx(d.d)}" y1="${T}" x2="${sx(d.d)}" y2="${H-BT}" stroke="#c84b4b" stroke-dasharray="6 5"/><text x="${sx(d.d)+5}" y="${T+16}" font-size="11" fill="#b94444">Rocío ${fmt(d.d)}°C</text><text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">Temperatura superficial interior del muro (°C)</text><text x="16" y="${H/2}" transform="rotate(-90 16 ${H/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">HR superficial</text>`;$('chart').innerHTML=s
 }
+
+function vaporEstimate(){
+  const hours=$('duration').value==='manual'?clamp(+$('durationHours').value||0,0,24):0;
+  const people=clamp(+$('vaporPeople').value||0,0,20);
+  const perPerson=clamp(+$('vaporPerPerson').value||0,0,500);
+  const extra=clamp(+$('vaporExtra').value||0,0,5000);
+  const humanRate=people*perPerson,totalRate=humanRate+extra;
+  const grams=totalRate*hours,kg=grams/1000,liters=kg; // 1 kg water ≈ 1 L liquid equivalent
+  return{hours,people,perPerson,extra,humanRate,totalRate,grams,kg,liters}
+}
+function renderVaporEstimate(){
+  const card=$('vaporCard');if(!card)return;
+  const manual=$('duration').value==='manual';
+  card.classList.toggle('hidden',!manual);
+  if(!manual)return;
+  const v=vaporEstimate();
+  $('vaporLiters').textContent=fmt(v.liters,2);
+  $('vaporMass').textContent=`${fmt(v.kg,2)} kg de agua`;
+  $('vaporTankLabel').textContent=`${fmt(v.liters,2)} L`;
+  // Visualization scale: 0–10 L fills the tank; values above 10 L stay full.
+  $('vaporFill').style.height=`${Math.min(100,v.liters/10*100)}%`;
+  $('vaporBreakdown').innerHTML=`${fmt(v.hours,1)} h × (${v.people} pers. × ${fmt(v.perPerson,0)} g/h + ${fmt(v.extra,0)} g/h adicionales) = <b>${fmt(v.grams,0)} g</b> = <b>${fmt(v.liters,2)} L eq.</b>`;
+}
+
+function syncPersistenceUI(){
+  const manual=$('duration').value==='manual';
+  $('manualHoursWrap').classList.toggle('hidden',!manual);
+  if(manual){
+    const h=clamp(+$('durationHours').value||0,0,24);
+    $('durationHours').value=h;
+    $('durationHoursSlider').value=h;
+    $('durationHoursOut').textContent=fmt(h,1)+' h';
+    $('durationPenaltyOut').textContent='+'+fmt(15*(h/24),1)+' puntos';
+  }
+  renderVaporEstimate();
+}
 function setMode(mode){inputMode=mode==='estimated'?'estimated':'measured';$('modeMeasured').classList.toggle('active',inputMode==='measured');$('modeEstimated').classList.toggle('active',inputMode==='estimated');$('measuredPanel').classList.toggle('hidden',inputMode!=='measured');$('estimatedPanel').classList.toggle('hidden',inputMode!=='estimated');render()}
 function render(){
   const d=data(),st=scoreStyle(d.score);
@@ -117,7 +163,16 @@ function render(){
   else{$('rLayers').textContent=fmt(d.rLayers,3);$('rTotal').textContent=fmt(d.rTotal,3);$('uCalculated').textContent=fmt(d.U,2);$('tsEstimated').textContent=fmt(d.ts,1)}
   $('rhs').textContent=fmt(d.rhs,0);$('dew').textContent=fmt(d.d);$('t80').textContent=fmt(d.t80);$('margin').textContent=fmt(d.ts-d.d);$('score').textContent=fmt(d.score,0);$('scoreLevel').textContent=`${st.level} · 0 = bajo · 100 = muy alto`;$('scoreBar').style.width=d.score+'%';$('scoreBar').style.background=st.color;$('score').style.color=st.color;
   let cls='safe',txt='Humedad superficial relativamente baja para este indicador.';if(d.rhs>=100){cls='danger';txt='La superficie está en condición de saturación o condensación posible.'}else if(d.rhs>=90){cls='danger';txt='Humedad superficial muy alta; si persiste, la condición requiere atención.'}else if(d.rhs>=80){cls='warn';txt='Humedad superficial elevada; la persistencia aumenta el riesgo preventivo.'}else if(d.rhs>=70){cls='warn';txt='Zona de atención: la superficie está acumulando una HR mayor que el aire del recinto.'}
-  const source=inputMode==='estimated'?` T° superficial estimada: ${fmt(d.ts)} °C · U calculada: ${fmt(d.U,2)} W/m²K.`:` T° superficial interior medida: ${fmt(d.ts)} °C.`;$('status').className='callout '+cls;$('status').innerHTML=`<b>${txt}</b> HR superficial estimada: ${fmt(d.rhs,0)}%.${source}`;draw(d)
+  const source=inputMode==='estimated'?` T° superficial estimada: ${fmt(d.ts)} °C · U calculada: ${fmt(d.U,2)} W/m²K.`:` T° superficial interior medida: ${fmt(d.ts)} °C.`;const persistence=` Persistencia: ${d.persist.label} · aporte al índice +${fmt(d.persist.penalty,1)}.`;$('status').className='callout '+cls;$('status').innerHTML=`<b>${txt}</b> HR superficial estimada: ${fmt(d.rhs,0)}%.${source}${persistence}`;renderVaporEstimate();draw(d)
 }
-$('modeMeasured').onclick=()=>setMode('measured');$('modeEstimated').onclick=()=>setMode('estimated');$('wallTemplate').onchange=e=>loadTemplate(e.target.value);$('addLayer').onclick=()=>{layers.push(makeLayer('custom',20));$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};$('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};['ta','rh','ts','te','duration'].forEach(id=>$(id).addEventListener('input',render));
-loadTemplate('eifs_concrete');render();
+$('modeMeasured').onclick=()=>setMode('measured');
+$('modeEstimated').onclick=()=>setMode('estimated');
+$('wallTemplate').onchange=e=>loadTemplate(e.target.value);
+$('addLayer').onclick=()=>{layers.push(makeLayer('custom',20));$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
+$('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};
+['ta','rh','ts','te'].forEach(id=>$(id).addEventListener('input',render));
+$('duration').addEventListener('change',()=>{syncPersistenceUI();render()});
+$('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours').value||0,0,24);$('durationHoursSlider').value=h;syncPersistenceUI();render()});
+$('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
+['vaporPeople','vaporPerPerson','vaporExtra'].forEach(id=>$(id).addEventListener('input',renderVaporEstimate));
+loadTemplate('eifs_concrete');syncPersistenceUI();render();
