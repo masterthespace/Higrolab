@@ -580,66 +580,78 @@ function safeCanvasDataURL(canvas){
   try{return canvas?.toDataURL?.('image/png')||''}catch(_){return''}
 }
 
-function facadeIdentificationSVG(){
-  const fs=facadeDescriptors(),p=polygonData(); if(!fs.length||!p?.length)return'';
+function facadeIdentificationFrom3D(){
+  if(!renderer||!camera||!buildingGroup)return'';
+  renderer.render(scene,camera);
 
-  // El esquema PDF debe usar la MISMA transformación de orientación
-  // que el modelo 3D: Norte definido + azimut adicional del edificio.
-  const theta=totalRotationRad(),c=Math.cos(theta),s=Math.sin(theta);
-  const world=v=>({
-    x:c*v.x+s*v.z,
-    z:-s*v.x+c*v.z
+  const src=renderer.domElement;
+  const out=document.createElement('canvas');
+  out.width=src.width;out.height=src.height;
+  const ctx=out.getContext('2d');
+  ctx.drawImage(src,0,0,out.width,out.height);
+
+  const cssRect=src.getBoundingClientRect();
+  const sx=out.width/Math.max(1,cssRect.width),sy=out.height/Math.max(1,cssRect.height);
+
+  buildingGroup.updateMatrixWorld(true);
+  camera.updateMatrixWorld(true);
+
+  function drawTag(x,y,title,sub,active=false){
+    ctx.save();
+    ctx.font=`900 ${Math.max(16,Math.round(18*sx))}px Arial`;
+    const padX=Math.round(9*sx),padY=Math.round(6*sy);
+    const tw=ctx.measureText(title).width;
+    const w=Math.max(tw+padX*2,Math.round(62*sx)),h=Math.round(42*sy);
+    ctx.fillStyle=active?'rgba(134,184,23,.96)':'rgba(11,63,82,.94)';
+    ctx.strokeStyle='rgba(255,255,255,.72)';
+    ctx.lineWidth=Math.max(1,1.2*sx);
+    const rx=x-w/2,ry=y-h/2;
+    const r=Math.max(4,6*sx);
+    ctx.beginPath();
+    ctx.roundRect(rx,ry,w,h,r);
+    ctx.fill();ctx.stroke();
+
+    ctx.fillStyle=active?'#142400':'#ffffff';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=`900 ${Math.max(15,Math.round(17*sx))}px Arial`;
+    ctx.fillText(title,x,y-Math.round(7*sy));
+    ctx.font=`700 ${Math.max(10,Math.round(11*sx))}px Arial`;
+    ctx.fillText(sub,x,y+Math.round(10*sy));
+    ctx.restore();
+  }
+
+  facadeDescriptors().forEach(f=>{
+    const p=f.center.clone().add(f.nLocal.clone().multiplyScalar(.06)).applyMatrix4(buildingGroup.matrixWorld);
+    const pr=p.project(camera);
+    if(pr.z<-1||pr.z>1)return;
+    const x=(pr.x*.5+.5)*out.width;
+    const y=(-pr.y*.5+.5)*out.height;
+    if(x<0||y<0||x>out.width||y>out.height)return;
+    drawTag(x,y,`F${f.index+1}`,`${f.orientation} · ${f.az.toFixed(0)}°`,SEL.type==='facade'&&SEL.index===f.index);
   });
 
-  const wp=p.map(world);
-  const minX=Math.min(...wp.map(v=>v.x)),maxX=Math.max(...wp.map(v=>v.x));
-  const minZ=Math.min(...wp.map(v=>v.z)),maxZ=Math.max(...wp.map(v=>v.z));
+  const roof=roofDescriptor?.();
+  if(roof){
+    const p=roof.center.clone().applyMatrix4(buildingGroup.matrixWorld);
+    const pr=p.project(camera);
+    if(pr.z>=-1&&pr.z<=1){
+      const x=(pr.x*.5+.5)*out.width,y=(-pr.y*.5+.5)*out.height;
+      if(x>=0&&y>=0&&x<=out.width&&y<=out.height)drawTag(x,y,'C1','Cubierta',SEL.type==='cover');
+    }
+  }
 
-  const W=760,H=480,pad=70;
-  const sx=(W-2*pad)/Math.max(.1,maxX-minX),sy=(H-2*pad)/Math.max(.1,maxZ-minZ),sc=Math.min(sx,sy);
-  const cx=(minX+maxX)/2,cz=(minZ+maxZ)/2;
-  const xy=v=>({
-    x:W/2+(v.x-cx)*sc,
-    y:H/2-(v.z-cz)*sc
-  });
+  // North reference is copied from the exact 3D viewport through the scene itself.
+  // Add a small legend so the report explicitly states this is not a reconstructed plan.
+  ctx.save();
+  const boxW=Math.round(370*sx),boxH=Math.round(40*sy),x0=Math.round(12*sx),y0=out.height-boxH-Math.round(12*sy);
+  ctx.fillStyle='rgba(255,255,255,.90)';ctx.strokeStyle='rgba(72,95,105,.35)';ctx.lineWidth=Math.max(1,sx);
+  ctx.beginPath();ctx.roundRect(x0,y0,boxW,boxH,Math.round(6*sx));ctx.fill();ctx.stroke();
+  ctx.fillStyle='#334e59';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.font=`700 ${Math.max(10,Math.round(11*sx))}px Arial`;
+  ctx.fillText('Vista capturada directamente del Modelo 3D de HIDROLAB',x0+Math.round(10*sx),y0+boxH/2);
+  ctx.restore();
 
-  const path=wp.map((v,i)=>`${i?'L':'M'} ${xy(v).x.toFixed(1)} ${xy(v).y.toFixed(1)}`).join(' ')+' Z';
-
-  const labs=fs.map(f=>{
-    const a=xy(world(f.a)),b=xy(world(f.b));
-    const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
-    return `<g>
-      <circle cx="${x}" cy="${y}" r="18" fill="#0b3f52"/>
-      <text x="${x}" y="${y+4}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="white">F${f.index+1}</text>
-      <text x="${x}" y="${y+34}" text-anchor="middle" font-family="Arial" font-size="10" fill="#3c5964">${f.orientation} · ${f.az.toFixed(0)}°</text>
-    </g>`
-  }).join('');
-
-  const centroid=wp.reduce((a,v)=>({x:a.x+v.x/wp.length,z:a.z+v.z/wp.length}),{x:0,z:0});
-  const cc=xy(centroid);
-
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-    <rect width="100%" height="100%" fill="#f5f8f8"/>
-    <path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>
-    ${labs}
-    <g>
-      <rect x="${cc.x-23}" y="${cc.y-13}" width="46" height="26" rx="6" fill="#f0b523"/>
-      <text x="${cc.x}" y="${cc.y+5}" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#173039">C1</text>
-    </g>
-
-    <!-- Norte geográfico: siempre fijo hacia arriba del esquema -->
-    <g transform="translate(${W-72},82)">
-      <line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/>
-      <polygon points="0,-40 -9,-21 9,-21" fill="#cf4b43"/>
-      <text x="0" y="57" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text>
-      <text x="0" y="73" text-anchor="middle" font-family="Arial" font-size="8" fill="#7f4a47">NORTE GEOGRÁFICO</text>
-    </g>
-
-    <text x="${pad}" y="${H-18}" font-family="Arial" font-size="9" fill="#60747d">
-      Planta rotada según Norte del proyecto y azimut del edificio. Coincide con el modelo 3D.
-    </text>
-  </svg>`;
-  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)
+  try{return out.toDataURL('image/png')}catch(_){return''}
 }
 
 function solarReportPayload(){
@@ -688,7 +700,7 @@ function solarReportPayload(){
       segments:r.segments
     })),
     snapshots:{
-      facadeMap:facadeIdentificationSVG(),
+      facadeMap:facadeIdentificationFrom3D(),
       plan:safeCanvasDataURL(canvas),
       model:safeCanvasDataURL(renderer?.domElement),
       solar:safeCanvasDataURL(solarRenderer?.domElement)

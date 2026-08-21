@@ -265,7 +265,7 @@
     if(snaps.plan||snaps.model||snaps.solar){
       const sec=addSection(doc,root,'Visualizaciones e identificación de fachadas');
       const figs=el(doc,'div','report-figures');
-      addImageFigure(doc,figs,'Esquema de identificación de fachadas F1, F2, F3…',snaps.facadeMap);
+      addImageFigure(doc,figs,'Identificación de fachadas sobre el mismo Modelo 3D',snaps.facadeMap);
       addImageFigure(doc,figs,'Planta y orientación',snaps.plan);
       addImageFigure(doc,figs,'Modelo 3D de la vivienda',snaps.model);
       addImageFigure(doc,figs,`Análisis solar · ${data.selectedTime}`,snaps.solar);
