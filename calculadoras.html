@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Calculadoras</title><link href="styles.css" rel="stylesheet"/><link href="modern-ui.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">Suite técnica interactiva</div><h1>Calculadoras HIDROLAB</h1><p>Herramientas para humedad, condensación, envolvente térmica, ventilación, confort, energía y comparación de transmitancia.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">Suite técnica interactiva</div><h1>Calculadoras HIDROLAB</h1><p>Herramientas para humedad, condensación, envolvente térmica, ventilación, confort y energía.</p></div></header>
 <main class="wrap main"><section class="card">
-<div class="catalog-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="tool-search" type="search" placeholder="Buscar herramienta: condensación, U, ventilación, solar, CEV…"></div>
+<div class="catalog-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="tool-search" type="search" placeholder="Buscar herramienta: condensación, U, ventilación, confort, energía, solar…"></div>
 <div class="catalog-shell">
 <aside class="catalog-sidebar" aria-label="Categorías">
 <a href="#humedad"><svg viewBox="0 0 24 24"><path d="M12 2.5S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.5-6-11.5Z"/></svg>Humedad</a>
 <a href="#envolvente"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 10h18M3 15h18"/></svg>Envolvente</a>
 <a href="#confort"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 14.5c2 1.8 5 1.8 7 0"/></svg>Confort</a>
-<a href="#cev"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.7 8.3 7 10 4.3-1.7 7-5.4 7-10V6z"/></svg>CEV</a>
+
 <a href="simulador-solar.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>Solar 3D</a>
 </aside>
 <div class="catalog-content">
@@ -29,21 +29,4 @@
 <article class="tool-card"><div class="tool-visual"><div class="tool-icon">$</div></div><div class="tool-body"><h3>Costo de calefacción</h3><p>Compara consumo y costo eléctrico según carga térmica, COP, horas y tarifa ingresada.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="costo-calefaccion.html">Abrir</a></div></article>
 </div></div>
 
-<div class="category" id="cev">
-<div class="category-head"><div><p class="kicker">CEV + Reglamentación térmica vigente</p><h2>Herramientas normativas interactivas</h2></div><p>Basadas en Manual CEV 2025, OGUC art. 4.1.10 actualizado, Res. Ex. 1802/2025 y zonificación A–I.</p></div>
-<div class="cards-4">
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">P</div></div><div class="tool-body"><h3>Puentes térmicos P01–P05</h3><p>Identifica encuentros, longitudes, mitigación P04 y configuración P05.</p><div class="tool-meta"><span class="tool-tag new">CEV</span></div><a class="btn btn-dark" href="puentes-termicos-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">▣</div></div><div class="tool-body"><h3>Ventanas Uw + P05</h3><p>Uw por marco, vidrio y borde; permeabilidad al aire según zona.</p><div class="tool-meta"><span class="tool-tag new">NCh 3137</span></div><a class="btn btn-dark" href="ventanas-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">☀</div></div><div class="tool-body"><h3>FAV · protecciones solares</h3><p>FAV1, FAV2 y FAV3 con geometría interactiva y criterios del Manual.</p><div class="tool-meta"><span class="tool-tag new">CEV</span></div><a class="btn btn-dark" href="fav-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">⇥</div></div><div class="tool-body"><h3>Infiltraciones 50 Pa</h3><p>Blower door, clase máxima por provincia y tamaño de muestra.</p><div class="tool-meta"><span class="tool-tag new">OGUC</span></div><a class="btn btn-dark" href="infiltraciones-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">≈</div></div><div class="tool-body"><h3>Ventilación mínima Fmin</h3><p>Ecuación 16 del Manual CEV: área, ocupación, volumen y caudal.</p><div class="tool-meta"><span class="tool-tag new">Anexo D</span></div><a class="btn btn-dark" href="ventilacion-minima-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">A–I</div></div><div class="tool-body"><h3>Zona térmica nacional</h3><p>Comunas, condiciones de altitud/meridiano y U/Rt OGUC por zona.</p><div class="tool-meta"><span class="tool-tag new">Vigente</span></div><a class="btn btn-dark" href="zona-termica-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">🚪</div></div><div class="tool-body"><h3>Puertas y ventanas</h3><p>Pre-chequeo de U y clase mínima de permeabilidad a 100 Pa.</p><div class="tool-meta"><span class="tool-tag new">OGUC</span></div><a class="btn btn-dark" href="puertas-ventanas-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">kW</div></div><div class="tool-body"><h3>Potencia calefacción</h3><p>Potencia equivalente de sistemas centralizados y regla del 65%.</p><div class="tool-meta"><span class="tool-tag new">Ec. 6</span></div><a class="btn btn-dark" href="potencia-calefaccion-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">H₂O</div></div><div class="tool-body"><h3>ACS y acumulación</h3><p>Regla de equipos ≥80% y estimación complementaria de pérdidas de estanque.</p><div class="tool-meta"><span class="tool-tag new">CEV</span></div><a class="btn btn-dark" href="acs-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">SC</div></div><div class="tool-body"><h3>SCOP bomba de calor</h3><p>Relación demanda/consumo y chequeo de requisitos de cálculo horario anual.</p><div class="tool-meta"><span class="tool-tag new">Anexo B</span></div><a class="btn btn-dark" href="scop-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">FAR</div></div><div class="tool-body"><h3>FAR · obstrucciones remotas</h3><p>Bonus: divisiones, A/B/D y ángulos para comprender sombras del entorno.</p><div class="tool-meta"><span class="tool-tag new">CEV</span></div><a class="btn btn-dark" href="far-cev.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">☀3D</div></div><div class="tool-body"><h3>Simulador solar 3D</h3><p>Cubo/vivienda por comuna, fecha, hora y azimut: sombra, caras soleadas y diseño interactivo de aleros.</p><div class="tool-meta"><span class="tool-tag new">V6 · Solar</span></div><a class="btn btn-dark" href="simulador-solar.html">Abrir</a></div></article>
-</div>
-</div>
 </div></div></section></main><footer class="wrap footer">HIDROLAB · Herramientas interactivas para viviendas saludables y eficientes</footer><script src="modern-ui.js"></script></body></html>

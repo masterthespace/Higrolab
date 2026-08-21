@@ -54,7 +54,6 @@
     else if(/muro|perdidas|potencia|puente|comparador|zona-termica/.test(f))accent='#e89436';
     else if(/confort|scop/.test(f))accent='#8fbd2c';
     else if(/ventilacion|infiltracion/.test(f))accent='#57b4a6';
-    else if(/cev|ventanas|puertas|acs|fav|far/.test(f))accent='#5f8dd3';
     document.documentElement.style.setProperty('--category-accent',accent);
   }
 

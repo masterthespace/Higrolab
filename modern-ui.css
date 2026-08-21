@@ -279,3 +279,10 @@ html[data-theme="dark"] .footer{color:#78909a}
   .hero-copy h1{font-size:2.6rem}.solar-preview{min-height:280px}
   .solar-mini-scene{opacity:.35;width:65%}
 }
+
+/* HIDROLAB Core sin CEV — redistribución Bento */
+.bento .comfort{grid-column:span 6}
+.bento .ventilation{grid-column:span 6}
+@media(max-width:900px){
+  .bento .comfort,.bento .ventilation{grid-column:auto}
+}
