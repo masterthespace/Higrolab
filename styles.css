@@ -111,3 +111,9 @@ html[data-theme=dark] .vapor-card{background:linear-gradient(145deg,rgba(20,61,7
 .vapor-active .vapor-state{color:#0c7896;border-color:#95d2e1;background:#eaf9fc}.vapor-high .vapor-state{color:#9c6110;border-color:#efc77f;background:#fff3d9}
 html[data-theme=dark] .vapor-card.vapor-high{background:linear-gradient(145deg,rgba(84,58,18,.32),rgba(15,48,61,.80))}
 @media(max-width:650px){.vapor-state{display:none}}
+
+.composite-help{margin:0 0 9px;padding:8px 10px;border:1px solid #cfe2e7;border-radius:9px;background:#f3fafb;color:#547079;font-size:.62rem;line-height:1.5}
+.wall-layer.composite-layer{border-color:#79b9c9;background:#f4fbfd;position:relative;padding-top:54px}
+.composite-picker{position:absolute;left:36px;right:8px;top:7px;font-size:.58rem;color:#58717a}
+.composite-picker select{display:block;width:100%;margin-top:3px;font-weight:700}
+html[data-theme=dark] .wall-layer.composite-layer,html[data-theme=dark] .composite-help{background:rgba(33,168,198,.07);border-color:var(--ui-border)}

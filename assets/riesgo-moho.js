@@ -15,7 +15,27 @@ const MATERIALS={
   gypsum:{name:'Yeso-cartón',lambda:0.25,min:12,max:12,step:1,thickness:12},
   plaster:{name:'Estuco / mortero',lambda:0.87,min:5,max:25,step:5,thickness:15},
   air:{name:'Cámara de aire',R:0.18,kind:'air',thickness:25},
+  gypsum_eps:{name:'Panel yeso-cartón + EPS (interior)',R:0.523,kind:'composite',thickness:30,product:'Volcapol 30 mm'},
   custom:{name:'Material personalizado',lambda:0.20,min:1,max:300,step:1,thickness:20}
+};
+const GYPSUM_EPS_PRODUCTS={
+  'vol_20':{label:'Volcapol 20 mm · Yeso 10 + EPS 10',thickness:20,R:.281},
+  'vol_25':{label:'Volcapol 25 mm · Yeso 10 + EPS 15',thickness:25,R:.402},
+  'vol_30':{label:'Volcapol 30 mm · Yeso 10 + EPS 20',thickness:30,R:.523},
+  'vol_32_5':{label:'Volcapol 32,5 mm · Yeso 12,5 + EPS 20',thickness:32.5,R:.532},
+  'vol_35':{label:'Volcapol 35 mm · Yeso 15 + EPS 20',thickness:35,R:.542},
+  'vol_40':{label:'Volcapol 40 mm · Yeso 10 + EPS 30',thickness:40,R:.765},
+  'vol_42_5':{label:'Volcapol 42,5 mm · Yeso 12,5 + EPS 30',thickness:42.5,R:.774},
+  'vol_45':{label:'Volcapol 45 mm · Yeso 15 + EPS 30',thickness:45,R:.784},
+  'vol_50':{label:'Volcapol 50 mm · Yeso 10 + EPS 40',thickness:50,R:1.007},
+  'vol_52_5':{label:'Volcapol 52,5 mm · Yeso 12,5 + EPS 40',thickness:52.5,R:1.017},
+  'vol_55':{label:'Volcapol 55 mm · Yeso 15 + EPS 40',thickness:55,R:1.026},
+  'poli_r_20':{label:'Poligyp Regular 20 mm · Yeso 10 + EPS 10',thickness:20,R:.24},
+  'poli_r_30':{label:'Poligyp Regular 30 mm · Yeso 10 + EPS 20',thickness:30,R:.48},
+  'poli_r_40':{label:'Poligyp Regular 40 mm · Yeso 10 + EPS 30',thickness:40,R:.73},
+  'poli_g_20':{label:'Poligyp Plusgrafito 20 mm · Yeso 10 + EPS 10',thickness:20,R:.29},
+  'poli_g_30':{label:'Poligyp Plusgrafito 30 mm · Yeso 10 + EPS 20',thickness:30,R:.59},
+  'poli_g_40':{label:'Poligyp Plusgrafito 40 mm · Yeso 10 + EPS 30',thickness:40,R:.88}
 };
 const TEMPLATES={
   eifs_concrete:[['eps',50],['concrete',150],['plaster',15]],
@@ -68,7 +88,7 @@ function renderQuickControls(name){
   }
 }
 function layerR(l){
-  if(l.kind==='air')return clamp(+l.R||0,0,2);
+  if(l.kind==='air'||l.kind==='composite')return clamp(+l.R||0,0,5);
   return (clamp(+l.thickness||0,0,1000)/1000)/clamp(+l.lambda||.001,.001,10)
 }
 function thermal(){const rLayers=layers.reduce((s,l)=>s+layerR(l),0),rTotal=R_SI+rLayers+R_SE;return{rLayers,rTotal,U:1/rTotal}}
@@ -93,19 +113,22 @@ function materialOptions(selected){return Object.entries(MATERIALS).map(([k,m])=
 function renderLayers(){
   const host=$('wallLayers');if(!host)return;
   host.innerHTML=layers.map((l,i)=>{
-    const air=l.kind==='air';
-    return `<div class="wall-layer" data-id="${l.id}">
+    const air=l.kind==='air',composite=l.kind==='composite';
+    const productPicker=composite?`<label class="composite-picker">Producto / espesor<select class="composite-product">${Object.entries(GYPSUM_EPS_PRODUCTS).map(([k,p])=>`<option value="${k}"${Math.abs(p.R-l.R)<.0001&&p.thickness===l.thickness?' selected':''}>${p.label}</option>`).join('')}</select></label>`:'';
+    return `<div class="wall-layer${composite?' composite-layer':''}" data-id="${l.id}">${productPicker}
       <div class="layer-order">${i+1}</div>
       <div class="layer-main"><select class="layer-type">${materialOptions(l.type)}</select><span class="layer-position">${i===0?'EXTERIOR':i===layers.length-1?'INTERIOR':''}</span></div>
-      <label>${air?'Espesor ref.':'Espesor'} [mm]<input class="layer-thickness" type="number" min="1" max="1000" step="${MATERIALS[l.type]?.step||1}" value="${l.thickness}"></label>
-      <label>${air?'R cámara [m²K/W]':'λ [W/mK]'}<input class="layer-prop" type="number" min=".001" step="${air?'.01':'.001'}" value="${air?l.R:l.lambda}"></label>
+      <label>${air?'Espesor ref.':composite?'Espesor total':'Espesor'} [mm]<input class="layer-thickness" ${composite?'readonly':''} type="number" min="1" max="1000" step="${MATERIALS[l.type]?.step||1}" value="${l.thickness}"></label>
+      <label>${air?'R cámara [m²K/W]':composite?'R producto [m²K/W]':'λ [W/mK]'}<input class="layer-prop" ${composite?'readonly':''} type="number" min=".001" step="${air?'.01':'.001'}" value="${air||composite?l.R:l.lambda}"></label>
       <div class="layer-r"><span>R capa</span><b>${fmt(layerR(l),3)}</b></div>
       <div class="layer-actions"><button class="layer-up" type="button">↑</button><button class="layer-down" type="button">↓</button><button class="layer-delete" type="button">×</button></div>
     </div>`
   }).join('');
   host.querySelectorAll('.wall-layer').forEach(row=>{
     const id=row.dataset.id,get=()=>layers.find(l=>l.id===id);
-    row.querySelector('.layer-type').onchange=e=>{const l=get(),m=MATERIALS[e.target.value];if(!l||!m)return;l.type=e.target.value;l.name=m.name;l.kind=m.kind||'solid';l.lambda=m.lambda??null;l.R=m.R??null;l.thickness=m.thickness;$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
+    const cp=row.querySelector('.composite-product');
+    if(cp)cp.onchange=e=>{const l=get(),p=GYPSUM_EPS_PRODUCTS[e.target.value];if(l&&p){l.thickness=p.thickness;l.R=p.R;l.product=p.label;renderLayers();render()}};
+    row.querySelector('.layer-type').onchange=e=>{const l=get(),m=MATERIALS[e.target.value];if(!l||!m)return;l.type=e.target.value;l.name=m.name;l.kind=m.kind||'solid';l.lambda=m.lambda??null;l.R=m.R??null;l.thickness=m.thickness;l.product=m.product||null;$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
     row.querySelector('.layer-thickness').oninput=e=>{const l=get();if(l){l.thickness=+e.target.value;$('wallTemplate').value='custom';render()}};
     row.querySelector('.layer-prop').oninput=e=>{const l=get();if(l){if(l.kind==='air')l.R=+e.target.value;else l.lambda=+e.target.value;$('wallTemplate').value='custom';render()}};
     row.querySelector('.layer-delete').onclick=()=>{layers=layers.filter(l=>l.id!==id);$('wallTemplate').value='custom';renderLayers();render()};
