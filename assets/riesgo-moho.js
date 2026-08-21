@@ -190,6 +190,21 @@ function syncPersistenceUI(){
   renderVaporEstimate();
 }
 function setMode(mode){inputMode=mode==='estimated'?'estimated':'measured';$('modeMeasured').classList.toggle('active',inputMode==='measured');$('modeEstimated').classList.toggle('active',inputMode==='estimated');$('measuredPanel').classList.toggle('hidden',inputMode!=='measured');$('estimatedPanel').classList.toggle('hidden',inputMode!=='estimated');render()}
+
+window.HIDROLAB_RISK_REPORT=()=>{
+  const d=data(),st=scoreStyle(d.score),v=vaporEstimate();
+  return{
+    inputMode,modeLabel:inputMode==='estimated'?'Temperatura superficial estimada mediante muro':'Temperatura superficial medida',
+    ta:d.ta,rh:d.rh,te:d.te,ts:d.ts,p:d.p,rhs:d.rhs,dew:d.d,t80:d.t80,margin:d.ts-d.d,
+    score:d.score,scoreLevel:st.level,persistence:{...d.persist},
+    thermal:{rsi:R_SI,rse:R_SE,rLayers:d.rLayers,rTotal:d.rTotal,U:d.U},
+    layers:layers.map((l,i)=>({order:i+1,position:i===0?'Exterior':i===layers.length-1?'Interior':'Intermedia',
+      name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind})),
+    vapor:{active:d.persist.mode==='manual',hours:v.hours,people:v.people,perPerson:v.perPerson,extra:v.extra,
+      humanRate:v.humanRate,totalRate:v.totalRate,grams:v.grams,kg:v.kg,liters:v.liters}
+  }
+};
+
 function render(){
   const d=data(),st=scoreStyle(d.score);
   if(inputMode==='measured'){$('tsSlider').min=Math.floor(d.d-5);$('tsSlider').max=Math.ceil(d.ta+5);$('tsSlider').value=d.ts;$('tsLabel').textContent=fmt(d.ts)+' °C';$('tsMinLabel').textContent=$('tsSlider').min+' °C';$('tsMaxLabel').textContent=$('tsSlider').max+' °C'}

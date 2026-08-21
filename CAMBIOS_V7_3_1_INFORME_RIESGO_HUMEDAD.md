@@ -1,0 +1,2 @@
+# V7.3.1 — Informe PDF ampliado del módulo Riesgo de humedad superficial
+El PDF ahora reproduce prácticamente todo el escenario relevante: entradas ambientales, Tsi medida/estimada, punto de rocío, HR superficial, margen, T80, índice preventivo, persistencia, muro completo con capas/R/U, y —cuando se ingresan horas manuales— personas, tasas de vapor, otras fuentes, gramos, kg y litros equivalentes acumulados. Conserva gráfico, proyecto, observaciones, marca de agua HIDROLAB y pie Calificador CEV Gonzalo C.

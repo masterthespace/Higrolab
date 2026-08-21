@@ -298,6 +298,60 @@
     const sec=el(doc,'section','report-section'); sec.append(el(doc,'h2','',title)); root.append(sec); return sec;
   }
 
+
+  function addRiskMoistureDetailedReport(doc,root){
+    if(current!=='riesgo-moho.html' || typeof window.HIDROLAB_RISK_REPORT!=='function') return false;
+    let x; try{x=window.HIDROLAB_RISK_REPORT()}catch(e){console.error(e);return false}
+    if(!x)return false;
+    const summary=addSection(doc,root,'Resumen higrotérmico');
+    const t=el(doc,'table','kv'),tb=el(doc,'tbody');
+    [
+      ['Modo de evaluación',x.modeLabel],['Temperatura interior',`${fmtNum(x.ta,1)} °C`],
+      ['Humedad relativa interior',`${fmtNum(x.rh,0)} %`],['Temperatura exterior',`${fmtNum(x.te,1)} °C`],
+      ['Temperatura superficial interior del muro',`${fmtNum(x.ts,1)} °C`],['Punto de rocío interior',`${fmtNum(x.dew,1)} °C`],
+      ['HR superficial estimada',`${fmtNum(x.rhs,0)} %`],['Margen al punto de rocío',`${fmtNum(x.margin,1)} °C`],
+      ['T° superficial crítica para 80 % HR',`${fmtNum(x.t80,1)} °C`],
+      ['Índice preventivo HIDROLAB',`${fmtNum(x.score,0)} / 100 · ${x.scoreLevel}`],
+      ['Persistencia considerada',x.persistence.label],['Aporte de persistencia al índice',`+${fmtNum(x.persistence.penalty,1)} puntos`]
+    ].forEach(r=>addRow(doc,tb,r[0],r[1]));t.append(tb);summary.append(t);
+
+    if(x.inputMode==='estimated'){
+      const wall=addSection(doc,root,'Muro utilizado para estimar la temperatura superficial');
+      const wt=el(doc,'table','data-table'),wh=el(doc,'tr');
+      ['#','Posición','Material / producto','Espesor','Propiedad térmica','R capa'].forEach(h=>wh.append(el(doc,'th','',h)));wt.append(wh);
+      (x.layers||[]).forEach(l=>{
+        const tr=el(doc,'tr'),prop=l.kind==='air'||l.kind==='composite'?`R declarado ${fmtNum(l.Rdeclared,3)} m²K/W`:`λ ${fmtNum(l.lambda,3)} W/mK`;
+        [String(l.order),l.position,l.name,`${fmtNum(l.thickness,1)} mm`,prop,`${fmtNum(l.Rlayer,3)} m²K/W`].forEach(v=>tr.append(el(doc,'td','',v)));wt.append(tr)
+      });wall.append(wt);
+      const rt=el(doc,'table','kv'),rtb=el(doc,'tbody');
+      [['Rsi interior',`${fmtNum(x.thermal.rsi,2)} m²K/W`],['R capas',`${fmtNum(x.thermal.rLayers,3)} m²K/W`],
+       ['Rse exterior',`${fmtNum(x.thermal.rse,2)} m²K/W`],['R total',`${fmtNum(x.thermal.rTotal,3)} m²K/W`],
+       ['Transmitancia U',`${fmtNum(x.thermal.U,2)} W/m²K`],['T° superficial estimada',`${fmtNum(x.ts,1)} °C`]]
+       .forEach(r=>addRow(doc,rtb,r[0],r[1]));rt.append(rtb);wall.append(rt);
+    }
+
+    const pers=addSection(doc,root,'Persistencia y generación de vapor');
+    if(x.vapor.active){
+      const vt=el(doc,'table','kv'),vtb=el(doc,'tbody');
+      [['Horas persistentes ingresadas',`${fmtNum(x.vapor.hours,1)} h/día`],['Personas consideradas',String(x.vapor.people)],
+       ['Generación por persona',`${fmtNum(x.vapor.perPerson,0)} g/h`],['Generación por personas',`${fmtNum(x.vapor.humanRate,0)} g/h`],
+       ['Otras fuentes',`${fmtNum(x.vapor.extra,0)} g/h`],['Generación total durante el período',`${fmtNum(x.vapor.grams,0)} g`],
+       ['Masa equivalente de agua',`${fmtNum(x.vapor.kg,2)} kg`],['Vapor liberado acumulado',`${fmtNum(x.vapor.liters,2)} L eq. de agua`]]
+       .forEach(r=>addRow(doc,vtb,r[0],r[1]));vt.append(vtb);pers.append(vt);
+      pers.append(el(doc,'div','vapor-pdf-highlight',`${fmtNum(x.vapor.liters,2)} L eq. de agua liberada durante ${fmtNum(x.vapor.hours,1)} horas`));
+      pers.append(el(doc,'p','section-note','El valor representa vapor liberado acumulado convertido a litros equivalentes de agua líquida. No significa que esa cantidad permanezca simultáneamente en el aire ni que toda ella condense sobre el muro.'));
+    }else pers.append(el(doc,'p','section-note',`Persistencia seleccionada: ${x.persistence.label}. No se calculó vapor acumulado porque el escenario no utiliza ingreso manual de horas.`));
+
+    const interp=addSection(doc,root,'Interpretación del resultado');
+    let text='La condición superficial estimada se mantiene en un rango relativamente controlado para este indicador.';
+    if(x.rhs>=100)text='La superficie alcanza una condición compatible con saturación o condensación superficial posible.';
+    else if(x.rhs>=90)text='La humedad relativa superficial estimada es muy alta; si esta condición persiste, requiere atención.';
+    else if(x.rhs>=80)text='La humedad relativa superficial es elevada y la persistencia incrementa el riesgo preventivo.';
+    else if(x.rhs>=70)text='La superficie se encuentra en zona de atención por acumulación de humedad relativa respecto del aire del recinto.';
+    interp.append(el(doc,'p','obs',`${text} HR superficial: ${fmtNum(x.rhs,0)} %. Margen al rocío: ${fmtNum(x.margin,1)} °C. Índice preventivo HIDROLAB: ${fmtNum(x.score,0)}/100 (${x.scoreLevel}).`));
+    return true
+  }
+
   function buildReport(){
     const w=window.open('','_blank');
     if(!w){ alert('El navegador bloqueó la ventana del informe. Habilita ventanas emergentes para HIDROLAB y vuelve a intentarlo.'); return; }
@@ -306,7 +360,7 @@
     const meta=d.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; d.head.append(meta);
     const style=d.createElement('style');
     style.textContent=`
-      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;color:#53656e;font-size:8pt}.sign{font-weight:800;color:#244b5c}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}@media print{.print-note{display:none}.report-section{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;color:#53656e;font-size:8pt}.sign{font-weight:800;color:#244b5c}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}.vapor-pdf-highlight{margin:9px 0;padding:11px;border-radius:8px;background:#eaf7fa;border:1px solid #b9dfe7;color:#0c6078;font-size:14pt;font-weight:900;text-align:center}@media print{.print-note{display:none}.report-section{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     `;
     d.head.append(style);
 
@@ -337,12 +391,14 @@
     }
 
     const isSolar=current==='simulador-solar.html';
+    const isRisk=current==='riesgo-moho.html';
     const inputs=collectInputs();
-    if(inputs.length && !isSolar){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
+    if(inputs.length && !isSolar && !isRisk){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
 
     const solarAdded=addSolarDetailedReport(d,body);
+    const riskAdded=addRiskMoistureDetailedReport(d,body);
 
-    const results=isSolar?[]:collectResults();
+    const results=(isSolar||isRisk)?[]:collectResults();
     if(results.length){ const sec=addSection(d,body,'Resultados de la simulación'); const g=el(d,'div','results-grid'); results.forEach(([a,b])=>{const c=el(d,'div','result'); c.append(el(d,'div','rlabel',a),el(d,'div','rvalue',b||a)); g.append(c)}); sec.append(g); }
 
     const svgs=isSolar?[]:$$('main svg').filter(s=>s.getBoundingClientRect().width>50 && s.getBoundingClientRect().height>40).slice(0,3);

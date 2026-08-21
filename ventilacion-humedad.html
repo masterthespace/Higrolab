@@ -1,7 +1,194 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Ventilación y humedad</title><link href="styles.css" rel="stylesheet"/><link rel="stylesheet" href="modern-ui.css"><meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero mini-hero"><div class="eyebrow">Ventilación · balance de vapor</div><h1>Calculadora de ventilación y control de humedad</h1><p>Relaciona volumen, caudal de aire, humedad exterior y generación interior de vapor para estimar la HR de equilibrio y el caudal necesario para un objetivo.</p></div></header>
-<main class="wrap main"><div class="calc-grid"><section class="card"><div class="section-head"><div><p class="kicker">01 · Vivienda</p><h2>Datos de entrada</h2></div></div><div class="form-grid"><div class="field"><label>Volumen interior</label><input id="vol" step="1" type="number" value="180"/><small>m³</small></div><div class="field"><label>Caudal de ventilación</label><input id="flow" step="1" type="number" value="90"/><small>m³/h</small></div><div class="field"><label>Temperatura interior</label><input id="ti" step=".1" type="number" value="20"/></div><div class="field"><label>Temperatura exterior</label><input id="te" step=".1" type="number" value="8"/></div><div class="field"><label>HR exterior</label><input id="rhe" max="100" min="1" step="1" type="number" value="80"/></div><div class="field"><label>Generación de humedad</label><input id="moist" min="0" step=".1" type="number" value="6"/><small>kg de agua/día</small></div><div class="field"><label>HR interior objetivo</label><input id="target" max="95" min="20" step="1" type="number" value="60"/></div><div class="field"><label>Presión atmosférica</label><input id="press" step="1" type="number" value="1013.25"/><small>hPa</small></div></div><div class="preset-row" style="margin-top:14px"><button class="preset" data-m="3">Baja generación</button><button class="preset" data-m="6">Familia media</button><button class="preset" data-m="10">Alta generación</button></div><div class="callout" style="margin-top:14px">La generación de humedad representa vapor aportado por ocupantes, duchas, cocina, secado de ropa, plantas y otras fuentes. El modelo supone mezcla uniforme y régimen estacionario.</div></section>
-<section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Equilibrio estimado</h2></div></div><div class="summary-grid"><div class="stat"><small>Renovaciones de aire</small><strong id="ach">—</strong><em>ACH</em></div><div class="stat"><small>HR interior de equilibrio</small><strong id="eqrh">—</strong><em>%</em></div><div class="stat"><small>Caudal requerido para objetivo</small><strong id="reqflow">—</strong><em>m³/h</em></div><div class="stat"><small>ACH requerido</small><strong id="reqach">—</strong><em>1/h</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="section-divider"></div><p class="kicker">Control interactivo del caudal</p><label class="note">Mueve el caudal y observa la HR estimada: <b id="flowLabel">90 m³/h</b></label><input class="range" id="flowSlider" max="400" min="10" step="5" type="range" value="90"/><div class="gauge" style="margin-top:14px"><span class="gauge-pin" id="gaugePin"></span></div><div class="legend-row"><span><i class="legend-dot" style="background:#2f8b61"></i>Menor humedad</span><span><i class="legend-dot" style="background:#cda235"></i>Atención</span><span><i class="legend-dot" style="background:#c9564e"></i>Muy húmedo</span></div></section>
-<section class="card full"><div class="section-head"><div><p class="kicker">03 · Curva</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="summary-grid three" style="margin-top:14px"><div class="stat"><small>Humedad absoluta exterior</small><strong id="aho">—</strong><em>g/m³</em></div><div class="stat"><small>Humedad absoluta interior estimada</small><strong id="ahi">—</strong><em>g/m³</em></div><div class="stat"><small>Punto de rocío estimado interior</small><strong id="dew">—</strong><em>°C</em></div></div></section></div></main><footer class="wrap footer">HIDROLAB · Modelo simplificado de balance de vapor y ventilación</footer>
-<script defer="" src="assets/ventilacion-humedad.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HIDROLAB · Ventilación y control de humedad</title>
+<link href="styles.css" rel="stylesheet"/>
+<link rel="stylesheet" href="modern-ui.css"/>
+<meta content="strict-origin-when-cross-origin" name="referrer"/>
+</head>
+<body>
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+    <nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav>
+  </div>
+  <div class="wrap hero mini-hero">
+    <div class="eyebrow">Ventilación · balance de vapor · V7.3</div>
+    <h1>Calculadora de ventilación y control de humedad</h1>
+    <p>Visualiza cómo la vivienda genera humedad, cómo el aire exterior puede ayudar a evacuarla y cuánto cambia la HR interior cuando modificas el caudal de ventilación.</p>
+  </div>
+</header>
+
+<main class="wrap main ventilation-v73">
+<div class="vent-layout">
+
+<section class="card vent-config">
+  <div class="section-head"><div><p class="kicker">01 · La vivienda</p><h2>Define el recinto</h2></div></div>
+  <div class="segmented" id="volumeMode">
+    <button type="button" class="active" data-volume-mode="dims">Por dimensiones</button>
+    <button type="button" data-volume-mode="direct">Volumen directo</button>
+  </div>
+  <div id="dimsFields" class="form-grid three">
+    <div class="field"><label>Largo [m]</label><input id="roomL" type="number" min=".5" step=".1" value="8"></div>
+    <div class="field"><label>Ancho [m]</label><input id="roomW" type="number" min=".5" step=".1" value="7.5"></div>
+    <div class="field"><label>Altura [m]</label><input id="roomH" type="number" min="1.5" step=".1" value="2.4"></div>
+  </div>
+  <div id="directVolField" class="form-grid hidden">
+    <div class="field"><label>Volumen interior [m³]</label><input id="vol" type="number" min="1" step="1" value="144"></div>
+  </div>
+  <div class="volume-result"><span>Volumen usado en el cálculo</span><strong id="volOut">144,0</strong><em>m³</em></div>
+
+  <div class="section-divider"></div>
+  <p class="kicker">Condiciones del aire</p>
+  <div class="form-grid">
+    <div class="field"><label>Temperatura interior [°C]</label><input id="ti" step=".1" type="number" value="20"></div>
+    <div class="field"><label>Temperatura exterior [°C]</label><input id="te" step=".1" type="number" value="8"></div>
+    <div class="field"><label>HR exterior [%]</label><input id="rhe" max="100" min="1" step="1" type="number" value="80"></div>
+    <div class="field"><label>HR interior objetivo [%]</label><input id="target" max="95" min="20" step="1" type="number" value="60"></div>
+    <div class="field advanced-field"><label>Presión atmosférica [hPa]</label><input id="press" step="1" type="number" value="1013.25"></div>
+  </div>
+</section>
+
+<section class="card moisture-card">
+  <div class="section-head"><div><p class="kicker">02 · Fuentes de humedad</p><h2>¿De dónde viene el vapor?</h2></div></div>
+  <div class="segmented" id="moistureMode">
+    <button type="button" class="active" data-moist-mode="sources">Estimar por fuentes</button>
+    <button type="button" data-moist-mode="manual">Ingresar kg/día</button>
+  </div>
+
+  <div id="sourceFields">
+    <div class="source-grid">
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M6 20c.5-5 2.5-8 6-8s5.5 3 6 8"/></svg></div>
+        <div><b>Personas</b><small>ocupación y respiración</small></div>
+        <input id="people" type="number" min="0" max="20" step="1" value="3">
+      </div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 9h14M8 9V6a4 4 0 0 1 8 0v3M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 17h.01M12 17h.01M16 17h.01"/></svg></div>
+        <div><b>Duchas / día</b><small>vapor liberado al recinto</small></div>
+        <input id="showers" type="number" min="0" max="20" step="1" value="3">
+      </div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 19h14M7 16h10l-1-7H8zM9 5c0 1 1 1.5 1 2.5M13 4c0 1 1 1.5 1 3"/></svg></div>
+        <div><b>Cocina</b><small>aporte diario aproximado</small></div>
+        <select id="cooking"><option value="0">Sin aporte</option><option value=".4">Bajo</option><option selected value=".8">Medio</option><option value="1.5">Alto</option></select>
+      </div>
+      <div class="source-card">
+        <div class="source-icon"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9c2-2 6-2 8 0M8 13c2 2 6 2 8 0"/></svg></div>
+        <div><b>Secado de ropa</b><small>cargas / día en interior</small></div>
+        <input id="laundry" type="number" min="0" max="5" step=".5" value="0">
+      </div>
+    </div>
+
+    <details class="source-assumptions">
+      <summary>Ajustar supuestos del estimador</summary>
+      <div class="form-grid">
+        <div class="field"><label>Presencia por persona [h/día]</label><input id="personHours" type="number" min="0" max="24" step=".5" value="12"></div>
+        <div class="field"><label>Vapor por persona [g/h]</label><input id="personRate" type="number" min="0" max="300" step="5" value="60"></div>
+        <div class="field"><label>Vapor por ducha que queda en el recinto [L]</label><input id="showerLiters" type="number" min="0" max="5" step=".1" value=".5"></div>
+        <div class="field"><label>Vapor por carga de ropa [L]</label><input id="laundryLiters" type="number" min="0" max="10" step=".1" value="1.5"></div>
+      </div>
+      <p class="note">Estos valores son supuestos educativos editables, no valores normativos. Ajusta según el uso real o reemplázalos por una generación medida/conocida.</p>
+    </details>
+  </div>
+
+  <div id="manualMoistField" class="form-grid hidden">
+    <div class="field"><label>Generación total de humedad [kg/día]</label><input id="moist" min="0" step=".1" type="number" value="6"></div>
+  </div>
+
+  <div class="moisture-total">
+    <div class="water-drop"><div id="waterFill" class="water-fill"></div><span id="waterL">—</span></div>
+    <div><span>Vapor liberado estimado</span><strong id="moistOut">—</strong><em>L eq. agua / día</em><small>No significa que todo permanezca simultáneamente en el aire.</small></div>
+  </div>
+</section>
+
+<section class="card airflow-card">
+  <div class="section-head"><div><p class="kicker">03 · Ventilación</p><h2>Haz que la vivienda “respire”</h2></div></div>
+  <div class="flow-control">
+    <label>Caudal actual <b id="flowLabel">90 m³/h</b></label>
+    <input class="range" id="flowSlider" max="500" min="5" step="5" type="range" value="90">
+    <input id="flow" type="number" min="1" max="1000" step="5" value="90">
+  </div>
+
+  <div class="house-viz" id="houseViz">
+    <svg viewBox="0 0 620 300" aria-label="Visualización de ventilación del recinto">
+      <defs>
+        <linearGradient id="roomFill" x1="0" x2="1"><stop offset="0" stop-color="#eff6f7"/><stop offset="1" stop-color="#e4eef1"/></linearGradient>
+        <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+      </defs>
+      <rect x="110" y="65" width="395" height="180" rx="6" fill="url(#roomFill)" stroke="#57727c" stroke-width="3"/>
+      <path d="M110 65 307 25 505 65" fill="#eaf1f3" stroke="#57727c" stroke-width="3"/>
+      <rect x="420" y="150" width="55" height="95" fill="#d8e6e9" stroke="#57727c"/>
+      <g id="humidityCloud" opacity=".5"><ellipse cx="300" cy="160" rx="115" ry="60" fill="#55b9d1" opacity=".24" filter="url(#blur)"/><circle cx="260" cy="150" r="28" fill="#55b9d1" opacity=".18"/><circle cx="330" cy="170" r="36" fill="#55b9d1" opacity=".18"/></g>
+      <g id="airIn" class="air-stream"><path d="M35 145 C70 145 80 130 115 130" fill="none" stroke="#42a9c2" stroke-width="6" stroke-linecap="round"/><path d="m104 119 16 11-16 11" fill="none" stroke="#42a9c2" stroke-width="5"/></g>
+      <g id="airOut" class="air-stream"><path d="M500 190 C535 190 550 175 588 175" fill="none" stroke="#7fae42" stroke-width="6" stroke-linecap="round"/><path d="m574 164 16 11-16 11" fill="none" stroke="#7fae42" stroke-width="5"/></g>
+      <text x="35" y="118" fill="#36798c" font-size="13" font-weight="700">AIRE EXTERIOR</text>
+      <text x="495" y="220" fill="#60853a" font-size="13" font-weight="700">SALIDA</text>
+      <text id="houseRhText" x="305" y="150" text-anchor="middle" fill="#153f4d" font-size="32" font-weight="900">— % HR</text>
+      <text id="houseAchText" x="305" y="178" text-anchor="middle" fill="#63777f" font-size="13">— ACH</text>
+    </svg>
+    <div class="house-caption"><span id="airMotionLabel">—</span><b id="houseStatus">—</b></div>
+  </div>
+</section>
+
+<section class="card result-card">
+  <div class="section-head"><div><p class="kicker">04 · Resultado</p><h2>Equilibrio estimado</h2></div></div>
+  <div class="summary-grid">
+    <div class="stat"><small>Renovaciones de aire</small><strong id="ach">—</strong><em>ACH</em></div>
+    <div class="stat"><small>HR interior de equilibrio</small><strong id="eqrh">—</strong><em>%</em></div>
+    <div class="stat"><small>Caudal para objetivo</small><strong id="reqflow">—</strong><em>m³/h</em></div>
+    <div class="stat"><small>ACH requerido</small><strong id="reqach">—</strong><em>1/h</em></div>
+  </div>
+
+  <div class="humidity-tank">
+    <div class="tank-scale"><span>100</span><span>80</span><span>60</span><span>40</span></div>
+    <div class="tank-shell"><div id="rhTankFill" class="tank-fill"></div><div class="tank-target" id="tankTarget"></div></div>
+    <div class="tank-copy"><span>HR de equilibrio</span><strong id="tankRh">—%</strong><small>Línea blanca = objetivo</small></div>
+  </div>
+
+  <div class="callout" id="status">—</div>
+</section>
+
+<section class="card full drying-card">
+  <div class="section-head"><div><p class="kicker">05 · Capacidad de secado</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
+  <div class="drying-grid">
+    <div class="air-box exterior"><small>EXTERIOR</small><strong id="outsideState">—</strong><span id="aho">— g/m³</span></div>
+    <div class="drying-arrow"><span>→</span><b id="dryingPer100">—</b><small>agua que podría transportar cada 100 m³ renovados*</small></div>
+    <div class="air-box interior"><small>INTERIOR ESTIMADO</small><strong id="insideState">—</strong><span id="ahi">— g/m³</span></div>
+  </div>
+  <p class="note">*Indicador comparativo basado en diferencia de humedad absoluta entre aire interior y exterior. No considera almacenamiento higroscópico de materiales ni dinámica transitoria detallada.</p>
+</section>
+
+<section class="card full compare-card">
+  <div class="section-head"><div><p class="kicker">06 · Antes vs. propuesta</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
+  <div class="compare-layout">
+    <div class="compare-column current"><small>ACTUAL</small><strong id="cmpCurrentFlow">—</strong><span>m³/h</span><div><b id="cmpCurrentRh">—%</b> HR</div><div><b id="cmpCurrentAch">—</b> ACH</div></div>
+    <div class="compare-center"><span id="compareDelta">—</span><small>cambio de HR</small></div>
+    <div class="compare-column proposed"><small>PROPUESTA</small><strong id="cmpPropFlow">—</strong><span>m³/h</span><div><b id="cmpPropRh">—%</b> HR</div><div><b id="cmpPropAch">—</b> ACH</div></div>
+  </div>
+  <label class="note">Caudal propuesto: <b id="proposalLabel">150 m³/h</b></label>
+  <input class="range" id="proposalSlider" min="5" max="500" step="5" value="150">
+  <div class="proposal-actions"><button id="useRequired" type="button">Usar caudal requerido</button><button id="applyProposal" type="button">Aplicar propuesta como actual</button></div>
+</section>
+
+<section class="card full">
+  <div class="section-head"><div><p class="kicker">07 · Curva</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
+  <div class="chart-wrap"><svg class="chart-svg" id="chart" viewBox="0 0 900 410"></svg></div>
+  <div class="summary-grid three" style="margin-top:14px">
+    <div class="stat"><small>Humedad absoluta exterior</small><strong id="aho2">—</strong><em>g/m³</em></div>
+    <div class="stat"><small>Humedad absoluta interior estimada</small><strong id="ahi2">—</strong><em>g/m³</em></div>
+    <div class="stat"><small>Punto de rocío interior</small><strong id="dew">—</strong><em>°C</em></div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer class="wrap footer">HIDROLAB · Modelo simplificado de balance de vapor y ventilación</footer>
+<script defer src="assets/ventilacion-humedad.js"></script>
+<script defer src="assets/reportes.js"></script>
+<script src="modern-ui.js"></script>
+</body>
+</html>
