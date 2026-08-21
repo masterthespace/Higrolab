@@ -44,3 +44,25 @@
 .scop-ring{--p:50%;width:190px;height:190px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:conic-gradient(#2d86a5 var(--p),#e1e8eb 0);position:relative}.scop-ring:before{content:"";position:absolute;width:145px;height:145px;border-radius:50%;background:#fff}.scop-ring span{position:relative;font-size:2.5rem;font-weight:900}
 .far-visual{height:250px;border:1px solid #dbe4e8;border-radius:16px;position:relative;background:linear-gradient(#e7f4f8 60%,#d8e3cc 60%)}.far-house{position:absolute;left:8%;bottom:18%;width:100px;height:90px;background:#fff;border:4px solid #4f6973;display:grid;place-items:center;font-weight:900}.far-obstacle{position:absolute;bottom:18%;right:25%;width:70px;height:50%;background:#5f6d73;transition:.2s}
 @media(max-width:800px){.cev-layout,.grid-2{grid-template-columns:1fr}.results-3{grid-template-columns:1fr}.acs-row{grid-template-columns:65px 1fr 35px 1fr 25px}}
+
+/* V7.1 · Evaluador de riesgo de humedad superficial persistente */
+.surface-mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 18px}
+.surface-mode-btn{
+  text-align:left;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fbfcfc;
+  color:var(--ink);display:grid;grid-template-columns:12px 1fr;grid-template-rows:auto auto;column-gap:9px;cursor:pointer
+}
+.surface-mode-btn .mode-dot{grid-row:1/3;width:10px;height:10px;border-radius:50%;border:2px solid #92a5ad;margin-top:4px}
+.surface-mode-btn b{font-size:.83rem}.surface-mode-btn small{color:var(--muted);font-size:.7rem;line-height:1.45;margin-top:3px}
+.surface-mode-btn.active{border-color:#2c8fac;background:#f0fafc;box-shadow:0 0 0 3px rgba(44,143,172,.08)}
+.surface-mode-btn.active .mode-dot{border-color:#2c8fac;background:#2c8fac;box-shadow:0 0 0 3px rgba(44,143,172,.12)}
+.risk-mode-panel.hidden{display:none}
+.estimate-intro{display:flex;justify-content:space-between;gap:14px;align-items:center;background:#eef6f8;border:1px solid #d8e8ed;border-radius:13px;padding:12px 14px;margin:4px 0 15px}
+.estimate-intro b{display:block;font-size:.8rem}.estimate-intro span{display:block;color:var(--muted);font-size:.7rem;margin-top:3px;line-height:1.4}.estimate-intro code{white-space:nowrap;background:#fff;border:1px solid #dae5e8;border-radius:8px;padding:7px 9px;color:#315662;font-size:.72rem}
+.estimated-ts-field{display:flex;flex-direction:column}.estimated-ts-output{display:flex;align-items:baseline;gap:6px;min-height:41px;border:1px solid #d7e2e5;border-radius:10px;background:#f8fbfb;padding:8px 11px}.estimated-ts-output strong{font-family:var(--ui-mono,monospace);font-size:1.35rem;color:#0b607d}.estimated-ts-output span{font-size:.72rem;color:var(--muted)}
+.estimate-quality{margin-top:12px;border-left:4px solid #2c8fac;background:#eef7f9;border-radius:8px;padding:10px 12px}.estimate-quality b{display:block;font-size:.75rem}.estimate-quality span{display:block;color:var(--muted);font-size:.69rem;line-height:1.5;margin-top:2px}.estimate-quality.mild{border-left-color:#c29027;background:#fff7e5}
+.risk-scale{display:grid;grid-template-columns:40fr 20fr 20fr 20fr;margin:9px 0 4px;font-size:.56rem;font-weight:850;letter-spacing:.05em;color:#708087}.risk-scale span:nth-child(1){color:#2f9b67}.risk-scale span:nth-child(2){color:#b08a10}.risk-scale span:nth-child(3){color:#db7728}.risk-scale span:nth-child(4){color:#c74646}.risk-bar{height:12px!important;background:linear-gradient(90deg,#dff4e9 0 40%,#fff3c8 40% 60%,#ffe2c5 60% 80%,#f8d3d3 80% 100%)!important}.risk-bar span{height:100%;border-radius:999px;box-shadow:0 0 0 1px rgba(255,255,255,.45) inset}.score-metric strong{transition:color .2s ease}
+@media(max-width:720px){.surface-mode{grid-template-columns:1fr}.estimate-intro{display:block}.estimate-intro code{display:inline-block;margin-top:8px}.risk-scale{font-size:.48rem}}
+html[data-theme="dark"] .surface-mode-btn{background:var(--ui-panel-soft);color:var(--ui-text);border-color:var(--ui-border)}
+html[data-theme="dark"] .surface-mode-btn.active{background:rgba(33,168,198,.10);border-color:#3aa9c4}
+html[data-theme="dark"] .estimate-intro,html[data-theme="dark"] .estimate-quality{background:rgba(33,168,198,.07);border-color:var(--ui-border)}
+html[data-theme="dark"] .estimate-intro code,html[data-theme="dark"] .estimated-ts-output{background:var(--ui-panel-solid);border-color:var(--ui-border);color:var(--ui-text)}
