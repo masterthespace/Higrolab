@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 const $=id=>document.getElementById(id), qsa=s=>[...document.querySelectorAll(s)];
-const S={tool:'select',img:null,imgW:0,imgH:0,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
+const S={tool:'select',img:null,imgURL:null,imgW:0,imgH:0,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
 
 function createOrbitControls(cam, dom){
   const ctl={target:new THREE.Vector3(0,1,0),enabled:true};
@@ -536,7 +536,36 @@ function updateSolar(){
 }
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
 function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{S.img=img;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];autoFit3D=true;fitImage()};img.src=URL.createObjectURL(f)};$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height'].forEach(id=>$(id).addEventListener('input',()=>{autoFit3D=true;rebuild3D()}));$('building-az').addEventListener('input',rebuild3D);$('reset-project').onclick=()=>{autoFit3D=true;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{
+
+function updateImageControls(){
+  const btn=$('clear-image');
+  if(btn)btn.disabled=!S.img;
+}
+function clearReferenceImage(){
+  if(S.imgURL){
+    try{URL.revokeObjectURL(S.imgURL)}catch(_){}
+  }
+  S.img=null;S.imgURL=null;S.imgW=0;S.imgH=0;
+  const input=$('image-file');if(input)input.value='';
+  updateImageControls();
+  drawCAD();
+  $('cad-hint').textContent=S.closed
+    ?'Imagen eliminada. La geometría, calibración y orientación se conservaron.'
+    :'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
+}
+
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
+  const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{
+    S.img=img;S.imgURL=url;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;
+    S.pts=[];S.closed=false;S.scale=null;S.calPts=[];autoFit3D=true;
+    updateImageControls();fitImage()
+  };
+  img.onerror=()=>{try{URL.revokeObjectURL(url)}catch(_){};S.imgURL=null;updateImageControls()};
+  img.src=url
+};$('clear-image').onclick=clearReferenceImage;updateImageControls();$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height'].forEach(id=>$(id).addEventListener('input',()=>{autoFit3D=true;rebuild3D()}));$('building-az').addEventListener('input',rebuild3D);$('reset-project').onclick=()=>{autoFit3D=true;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{
       const v=b.dataset.cam||'iso';
       if(buildingGroup)fitCameraToModel(camera,controls,buildingGroup,v);
     });initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
@@ -553,15 +582,63 @@ function safeCanvasDataURL(canvas){
 
 function facadeIdentificationSVG(){
   const fs=facadeDescriptors(),p=polygonData(); if(!fs.length||!p?.length)return'';
-  const minX=Math.min(...p.map(v=>v.x)),maxX=Math.max(...p.map(v=>v.x)),minZ=Math.min(...p.map(v=>v.z)),maxZ=Math.max(...p.map(v=>v.z));
-  const W=760,H=480,pad=60,sx=(W-2*pad)/Math.max(.1,maxX-minX),sy=(H-2*pad)/Math.max(.1,maxZ-minZ),sc=Math.min(sx,sy);
-  const xy=v=>({x:pad+(v.x-minX)*sc,y:H-pad-(v.z-minZ)*sc});
-  const path=p.map((v,i)=>`${i?'L':'M'} ${xy(v).x.toFixed(1)} ${xy(v).y.toFixed(1)}`).join(' ')+' Z';
+
+  // El esquema PDF debe usar la MISMA transformación de orientación
+  // que el modelo 3D: Norte definido + azimut adicional del edificio.
+  const theta=totalRotationRad(),c=Math.cos(theta),s=Math.sin(theta);
+  const world=v=>({
+    x:c*v.x+s*v.z,
+    z:-s*v.x+c*v.z
+  });
+
+  const wp=p.map(world);
+  const minX=Math.min(...wp.map(v=>v.x)),maxX=Math.max(...wp.map(v=>v.x));
+  const minZ=Math.min(...wp.map(v=>v.z)),maxZ=Math.max(...wp.map(v=>v.z));
+
+  const W=760,H=480,pad=70;
+  const sx=(W-2*pad)/Math.max(.1,maxX-minX),sy=(H-2*pad)/Math.max(.1,maxZ-minZ),sc=Math.min(sx,sy);
+  const cx=(minX+maxX)/2,cz=(minZ+maxZ)/2;
+  const xy=v=>({
+    x:W/2+(v.x-cx)*sc,
+    y:H/2-(v.z-cz)*sc
+  });
+
+  const path=wp.map((v,i)=>`${i?'L':'M'} ${xy(v).x.toFixed(1)} ${xy(v).y.toFixed(1)}`).join(' ')+' Z';
+
   const labs=fs.map(f=>{
-    const a=xy(f.a),b=xy(f.b),x=(a.x+b.x)/2,y=(a.y+b.y)/2;
-    return `<g><circle cx="${x}" cy="${y}" r="18" fill="#0b3f52"/><text x="${x}" y="${y+4}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="white">F${f.index+1}</text><text x="${x}" y="${y+34}" text-anchor="middle" font-family="Arial" font-size="10" fill="#3c5964">${f.orientation} · ${f.az.toFixed(0)}°</text></g>`
+    const a=xy(world(f.a)),b=xy(world(f.b));
+    const x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+    return `<g>
+      <circle cx="${x}" cy="${y}" r="18" fill="#0b3f52"/>
+      <text x="${x}" y="${y+4}" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="white">F${f.index+1}</text>
+      <text x="${x}" y="${y+34}" text-anchor="middle" font-family="Arial" font-size="10" fill="#3c5964">${f.orientation} · ${f.az.toFixed(0)}°</text>
+    </g>`
   }).join('');
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="#f5f8f8"/><path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>${labs}<g><rect x="${W/2-23}" y="${H/2-13}" width="46" height="26" rx="6" fill="#f0b523"/><text x="${W/2}" y="${H/2+5}" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#173039">C1</text></g><g transform="translate(${W-70},75)"><line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/><polygon points="0,-38 -8,-22 8,-22" fill="#cf4b43"/><text x="0" y="55" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text></g></svg>`;
+
+  const centroid=wp.reduce((a,v)=>({x:a.x+v.x/wp.length,z:a.z+v.z/wp.length}),{x:0,z:0});
+  const cc=xy(centroid);
+
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <rect width="100%" height="100%" fill="#f5f8f8"/>
+    <path d="${path}" fill="#dde7e8" stroke="#173039" stroke-width="3"/>
+    ${labs}
+    <g>
+      <rect x="${cc.x-23}" y="${cc.y-13}" width="46" height="26" rx="6" fill="#f0b523"/>
+      <text x="${cc.x}" y="${cc.y+5}" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#173039">C1</text>
+    </g>
+
+    <!-- Norte geográfico: siempre fijo hacia arriba del esquema -->
+    <g transform="translate(${W-72},82)">
+      <line x1="0" y1="35" x2="0" y2="-25" stroke="#cf4b43" stroke-width="4"/>
+      <polygon points="0,-40 -9,-21 9,-21" fill="#cf4b43"/>
+      <text x="0" y="57" text-anchor="middle" font-family="Arial" font-size="14" font-weight="700" fill="#cf4b43">N</text>
+      <text x="0" y="73" text-anchor="middle" font-family="Arial" font-size="8" fill="#7f4a47">NORTE GEOGRÁFICO</text>
+    </g>
+
+    <text x="${pad}" y="${H-18}" font-family="Arial" font-size="9" fill="#60747d">
+      Planta rotada según Norte del proyecto y azimut del edificio. Coincide con el modelo 3D.
+    </text>
+  </svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)
 }
 
@@ -590,6 +667,7 @@ function solarReportPayload(){
     daylightMinutes:daylightMinutes(),
     wallHeight:+$('wall-height').value,
     additionalAzimuth:+$('building-az').value,
+    reportPlanRotationDeg:(deg(totalRotationRad())%360+360)%360,
     northAngle:S.northAngle||0,
     calibrated:hasMetricCalibration(),
     scale:S.scale||null,

@@ -52,3 +52,13 @@
   font-size:9px;font-weight:900;letter-spacing:.04em;pointer-events:none
 }
 .scale-warning.hidden{display:none}
+
+/* V6.3.11 — control de imagen de referencia */
+.image-actions{display:flex;gap:7px;margin-top:8px}
+.image-actions button{
+  width:100%;border:1px solid #d3a9a9;background:#fff7f7;color:#8c3838;
+  border-radius:7px;padding:8px 10px;font-size:10px;font-weight:800;cursor:pointer
+}
+.image-actions button:hover:not(:disabled){background:#fff0f0;border-color:#c77f7f}
+.image-actions button:disabled{opacity:.42;cursor:not-allowed}
+.image-help{margin-top:6px}
