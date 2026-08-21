@@ -43,3 +43,12 @@
   color:#3b545e;font-size:9px;font-weight:800;pointer-events:none;
   box-shadow:0 3px 12px #0001
 }
+
+/* V6.3.8 — escala real, regla vertical y persona de referencia */
+.scale-warning{
+  position:absolute;right:18px;top:18px;z-index:9;
+  padding:7px 10px;border-radius:7px;
+  background:#fff2c8e8;border:1px solid #d4ad3a;color:#6f5600;
+  font-size:9px;font-weight:900;letter-spacing:.04em;pointer-events:none
+}
+.scale-warning.hidden{display:none}

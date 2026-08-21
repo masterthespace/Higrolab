@@ -64,10 +64,85 @@ function nearestVertex(p){let best=-1,dist=14/S.zoom;S.pts.forEach((v,i)=>{const
 canvas.addEventListener('pointerdown',e=>{if(e.button===1||e.button===2){S.drag={pan:true,x:e.clientX,y:e.clientY,px:S.panX,py:S.panY};canvas.setPointerCapture(e.pointerId);return}let p=screenToWorld(e);if(S.tool==='wall'){if(S.closed){S.pts=[];S.closed=false}p=snapPoint(p);if(S.pts.length>2&&Math.hypot(p.x-S.pts[0].x,p.y-S.pts[0].y)<14/S.zoom){S.closed=true}else S.pts.push(p);autoFit3D=true;updateMetrics();drawCAD();rebuild3D();return}if(S.tool==='measure'){S.calPts.push(p);if(S.calPts.length>2)S.calPts=[p];if(S.calPts.length===2)applyCalibration();drawCAD();return}if(S.tool==='north'){S.northPts.push(p);if(S.northPts.length>2)S.northPts=[p];if(S.northPts.length===2){const a=S.northPts[0],b=S.northPts[1];S.northAngle=(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;rebuild3D()}drawCAD();return}const i=nearestVertex(p);if(i>=0){S.drag={vertex:i};canvas.setPointerCapture(e.pointerId);selectVertex(i)}});
 canvas.addEventListener('dblclick',e=>{if(S.tool==='wall'&&S.pts.length>=3){S.closed=true;autoFit3D=true;updateMetrics();drawCAD();rebuild3D()}});canvas.addEventListener('pointermove',e=>{if(S.drag?.pan){S.panX=S.drag.px+e.clientX-S.drag.x;S.panY=S.drag.py+e.clientY-S.drag.y;drawCAD();return}const p=screenToWorld(e);if(S.drag?.vertex!=null){S.pts[S.drag.vertex]=p;autoFit3D=true;updateMetrics();drawCAD();rebuild3D();return}S.hover=nearestVertex(p);drawCAD()});canvas.addEventListener('pointerup',()=>S.drag=null);canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{e.preventDefault();const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,before={x:(mx-S.panX)/S.zoom,y:(my-S.panY)/S.zoom},z=Math.exp(-e.deltaY*.001);S.zoom=Math.max(.08,Math.min(12,S.zoom*z));S.panX=mx-before.x*S.zoom;S.panY=my-before.y*S.zoom;drawCAD()},{passive:false});
 function applyCalibration(){if(S.calPts.length!==2)return;const px=Math.hypot(S.calPts[1].x-S.calPts[0].x,S.calPts[1].y-S.calPts[0].y),m=+$('cal-distance').value;if(px>0&&m>0){S.scale=m/px;autoFit3D=true;$('scale-info').textContent=`1 px = ${S.scale.toFixed(5)} m · referencia ${m.toFixed(2)} m`;updateMetrics();rebuild3D()}}
-function polygonData(){if(!S.closed||S.pts.length<3)return null;const sc=S.scale||(.02),cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length,cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;return S.pts.map(p=>({x:(p.x-cx)*sc,z:(p.y-cy)*sc}))}
+function polygonData(){
+  if(!S.closed||S.pts.length<3)return null;
+  const cx=S.pts.reduce((a,p)=>a+p.x,0)/S.pts.length,cy=S.pts.reduce((a,p)=>a+p.y,0)/S.pts.length;
+  let sc=S.scale;
+  if(!(Number.isFinite(sc)&&sc>0)){
+    const xs=S.pts.map(p=>p.x),ys=S.pts.map(p=>p.y);
+    const pxMax=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys),1);
+    sc=8/pxMax; // visual fallback only: longest plan dimension = 8 m
+  }
+  return S.pts.map(p=>({x:(p.x-cx)*sc,z:(p.y-cy)*sc}))
+}))}
 function areaPerim(){const p=polygonData();if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function updateMetrics(){const m=areaPerim();$('area-out').textContent=m.a?m.a.toFixed(1)+' m²':'—';$('perim-out').textContent=m.l?m.l.toFixed(1)+' m':'—';$('faces-out').textContent=S.closed?S.pts.length:'—';$('status-pill').textContent=S.closed?`Planta cerrada · ${S.pts.length} fachadas`:`${S.pts.length} vértices`}
 function selectVertex(i){const p=S.pts[i];$('selection-panel').innerHTML=`<h3>VÉRTICE V${i+1}</h3><div class="vertex-editor"><label>X [px]<input id="vx" type="number" step=".1" value="${p.x.toFixed(1)}"></label><label>Y [px]<input id="vy" type="number" step=".1" value="${p.y.toFixed(1)}"></label><button id="delv">Eliminar vértice</button></div>`;$('vx').oninput=()=>{S.pts[i].x=+$('vx').value;drawCAD();rebuild3D()};$('vy').oninput=()=>{S.pts[i].y=+$('vy').value;drawCAD();rebuild3D()};$('delv').onclick=()=>{S.pts.splice(i,1);S.closed=S.closed&&S.pts.length>=3;$('selection-panel').innerHTML='<h3>SELECCIÓN</h3><div class="empty">Selecciona un vértice o una fachada.</div>';updateMetrics();drawCAD();rebuild3D()}}
+
+
+function hasMetricCalibration(){return Number.isFinite(S.scale)&&S.scale>0}
+function currentPlanExtent(){
+  const p=polygonData(); if(!p?.length)return null;
+  const xs=p.map(v=>v.x),zs=p.map(v=>v.z);
+  return{width:Math.max(...xs)-Math.min(...xs),depth:Math.max(...zs)-Math.min(...zs)}
+}
+function updateCalibrationWarning(){
+  const calibrated=hasMetricCalibration();
+  ['scale-warning-3d','scale-warning-solar'].forEach(id=>{const e=$(id);if(e)e.classList.toggle('hidden',calibrated)});
+}
+function makePersonSilhouette(height=1.70){
+  const g=new THREE.Group();
+  const dark=new THREE.MeshStandardMaterial({color:0x455a64,roughness:.9,metalness:0});
+  const skin=new THREE.MeshStandardMaterial({color:0x7b8d95,roughness:.9,metalness:0});
+
+  const headR=height*.075;
+  const head=new THREE.Mesh(new THREE.SphereGeometry(headR,18,12),skin);
+  head.position.y=height-headR;
+
+  const torsoH=height*.42, torso=new THREE.Mesh(
+    new THREE.CapsuleGeometry(height*.075,torsoH-height*.15,6,12),dark
+  );
+  torso.position.y=height*.61;
+
+  const legH=height*.42;
+  [-1,1].forEach(s=>{
+    const leg=new THREE.Mesh(new THREE.CylinderGeometry(height*.027,height*.032,legH,10),dark);
+    leg.position.set(s*height*.045,legH*.5,0);g.add(leg)
+  });
+
+  const armH=height*.36;
+  [-1,1].forEach(s=>{
+    const arm=new THREE.Mesh(new THREE.CylinderGeometry(height*.022,height*.025,armH,10),dark);
+    arm.position.set(s*height*.115,height*.60,0);
+    arm.rotation.z=s*.08;
+    g.add(arm)
+  });
+
+  g.add(head,torso);
+  g.userData.realHeight=height;
+  return g
+}
+function addVerticalRuler(sc,group){
+  if(sc.userData.heightRuler)sc.remove(sc.userData.heightRuler);
+  const b=modelBounds(group);if(!b)return;
+  const h=Math.max(+$('wall-height').value||2.4,2);
+  const ruler=new THREE.Group();
+  const mat=new THREE.LineBasicMaterial({color:0x37515d});
+  const tickMat=new THREE.LineBasicMaterial({color:0x607d86});
+  const x=b.center.x-b.size.x*.62-Math.max(.7,b.maxPlan*.08),z=b.center.z;
+  const pts=[new THREE.Vector3(x,0,z),new THREE.Vector3(x,h,z)];
+  ruler.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat));
+  const maxTick=Math.ceil(h);
+  for(let i=0;i<=maxTick;i++){
+    const len=(i%1===0)?.34:.18;
+    const tg=new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x-len,Math.min(i,h),z),
+      new THREE.Vector3(x+len,Math.min(i,h),z)
+    ]);
+    ruler.add(new THREE.Line(tg,tickMat));
+  }
+  sc.add(ruler);sc.userData.heightRuler=ruler;
+}
 
 function modelBounds(group){
   if(!group)return null;
@@ -135,19 +210,23 @@ function fitCameraToModel(cam,ctl,group,view='iso'){
 function updateScaleHUD(){
   const p=polygonData(),b=buildingGroup?modelBounds(buildingGroup):null;
   if(!p||!b)return;
-  const h=+$('wall-height').value||0;
-  const text=`Cuadrícula: 1 m · altura: ${h.toFixed(2).replace('.',',')} m · planta máx.: ${b.maxPlan.toFixed(1).replace('.',',')} m`;
+  const h=+$('wall-height').value||0,ext=currentPlanExtent();
+  const state=hasMetricCalibration()?'ESCALA CALIBRADA':'ESCALA APROXIMADA';
+  const text=`Cuadrícula: 1 m · altura: ${h.toFixed(2).replace('.',',')} m · planta: ${ext?ext.width.toFixed(1).replace('.',',')+' × '+ext.depth.toFixed(1).replace('.',',')+' m':'—'} · ${state}`;
   if($('scale-3d-hud'))$('scale-3d-hud').textContent=text;
   if($('scale-solar-hud'))$('scale-solar-hud').textContent=text;
+  updateCalibrationWarning();
 }
 function addHumanScaleReference(sc){
   if(sc.userData.humanRef)sc.remove(sc.userData.humanRef);
-  const g=new THREE.Group();
-  const mat=new THREE.MeshBasicMaterial({color:0x6f858d,transparent:true,opacity:.82});
-  const body=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,1.15,12),mat);body.position.y=.72;
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.13,14,10),mat);head.position.y=1.43;
-  g.add(body,head);const bb=sc===scene?modelBounds(buildingGroup):modelBounds(solarBuilding);const d=bb?Math.max(1.2,bb.maxPlan*.10):1.2;g.position.set(bb?bb.center.x-bb.size.x*.55-d:-1.2,0,bb?bb.center.z+bb.size.z*.35:1.2);g.userData.realHeight=1.56;
-  sc.add(g);sc.userData.humanRef=g;
+  const group=sc===scene?buildingGroup:solarBuilding;
+  const bb=modelBounds(group);if(!bb)return;
+  const person=makePersonSilhouette(1.70);
+  const gap=Math.max(.8,bb.maxPlan*.08);
+  person.position.set(bb.center.x-bb.size.x*.55-gap,0,bb.center.z+bb.size.z*.28);
+  person.rotation.y=0.15;
+  sc.add(person);sc.userData.humanRef=person;
+  addVerticalRuler(sc,group);
 }
 
 function init3D(containerId,solar=false){
@@ -511,7 +590,7 @@ function solarReportPayload(){
     wallHeight:+$('wall-height').value,
     additionalAzimuth:+$('building-az').value,
     northAngle:S.northAngle||0,
-    calibrated:!!S.scale,
+    calibrated:hasMetricCalibration(),
     scale:S.scale||null,
     areaText,
     perimeterText:perimText,
