@@ -104,94 +104,179 @@
   </div>
 </section>
 
-<section class="card airflow-card">
-  <div class="section-head"><div><p class="kicker">03 · Ventilación</p><h2>Haz que la vivienda “respire”</h2></div></div>
-  <div class="flow-control">
-    <label>Caudal actual <b id="flowLabel">90 m³/h</b></label>
-    <input class="range" id="flowSlider" max="500" min="5" step="5" type="range" value="90">
-    <input id="flow" type="number" min="1" max="1000" step="5" value="90">
-  </div>
 
-  <div class="house-viz" id="houseViz">
-    <svg viewBox="0 0 620 300" aria-label="Visualización de ventilación del recinto">
-      <defs>
-        <linearGradient id="roomFill" x1="0" x2="1"><stop offset="0" stop-color="#eff6f7"/><stop offset="1" stop-color="#e4eef1"/></linearGradient>
-        <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
-      </defs>
-      <rect x="110" y="65" width="395" height="180" rx="6" fill="url(#roomFill)" stroke="#57727c" stroke-width="3"/>
-      <path d="M110 65 307 25 505 65" fill="#eaf1f3" stroke="#57727c" stroke-width="3"/>
-      <rect x="420" y="150" width="55" height="95" fill="#d8e6e9" stroke="#57727c"/>
-      <g id="humidityCloud" opacity=".5"><ellipse cx="300" cy="160" rx="115" ry="60" fill="#55b9d1" opacity=".24" filter="url(#blur)"/><circle cx="260" cy="150" r="28" fill="#55b9d1" opacity=".18"/><circle cx="330" cy="170" r="36" fill="#55b9d1" opacity=".18"/></g>
-      <g id="airIn" class="air-stream"><path d="M35 145 C70 145 80 130 115 130" fill="none" stroke="#42a9c2" stroke-width="6" stroke-linecap="round"/><path d="m104 119 16 11-16 11" fill="none" stroke="#42a9c2" stroke-width="5"/></g>
-      <g id="airOut" class="air-stream"><path d="M500 190 C535 190 550 175 588 175" fill="none" stroke="#7fae42" stroke-width="6" stroke-linecap="round"/><path d="m574 164 16 11-16 11" fill="none" stroke="#7fae42" stroke-width="5"/></g>
-      <text x="35" y="118" fill="#36798c" font-size="13" font-weight="700">AIRE EXTERIOR</text>
-      <text x="495" y="220" fill="#60853a" font-size="13" font-weight="700">SALIDA</text>
-      <text id="houseRhText" x="305" y="150" text-anchor="middle" fill="#153f4d" font-size="32" font-weight="900">— % HR</text>
-      <text id="houseAchText" x="305" y="178" text-anchor="middle" fill="#63777f" font-size="13">— ACH</text>
-    </svg>
-    <div class="house-caption"><span id="airMotionLabel">—</span><b id="houseStatus">—</b></div>
-  </div>
-</section>
-
-<section class="card result-card">
-  <div class="section-head"><div><p class="kicker">04 · Resultado</p><h2>Equilibrio estimado</h2></div></div>
-  <div class="summary-grid">
-    <div class="stat"><small>Renovaciones de aire</small><strong id="ach">—</strong><em>ACH</em></div>
-    <div class="stat"><small>HR interior de equilibrio</small><strong id="eqrh">—</strong><em>%</em></div>
-    <div class="stat"><small>Caudal para objetivo</small><strong id="reqflow">—</strong><em>m³/h</em></div>
-    <div class="stat"><small>ACH requerido</small><strong id="reqach">—</strong><em>1/h</em></div>
-  </div>
-
-  <div class="humidity-tank">
-    <div class="tank-scale"><span>100</span><span>80</span><span>60</span><span>40</span></div>
-    <div class="tank-shell"><div id="rhTankFill" class="tank-fill"></div><div class="tank-target" id="tankTarget"></div></div>
-    <div class="tank-copy"><span>HR de equilibrio</span><strong id="tankRh">—%</strong><small>Línea blanca = objetivo</small></div>
-  </div>
-
-  <div class="callout" id="status">—</div>
-</section>
-
-
-<section class="card full vent-recommend-card">
+<section class="card full airflow-card practical-vent-card">
   <div class="section-head">
-    <div><p class="kicker">05 · Ventilación recomendada</p><h2>¿Cuánto puede ayudar una ventilación cruzada?</h2></div>
-    <span id="ventAdviceBadge" class="drying-badge">—</span>
+    <div><p class="kicker">03 · Estrategia de ventilación</p><h2>¿Cómo vas a ventilar realmente?</h2></div>
+    <span id="strategyBadge" class="drying-badge">—</span>
   </div>
 
-  <div class="vent-advice-grid">
-    <div class="vent-advice-copy">
-      <p id="ventAdviceText">—</p>
+  <div class="segmented" id="ventInputMode">
+    <button type="button" class="active" data-vent-mode="practical">Modo práctico</button>
+    <button type="button" data-vent-mode="technical">Modo técnico · m³/h</button>
+  </div>
+
+  <div id="practicalVentPanel">
+    <div class="strategy-grid">
+      <button class="strategy-card" type="button" data-strategy="single">
+        <svg viewBox="0 0 48 48"><rect x="8" y="10" width="20" height="28" rx="2"/><path d="M28 24h10M34 18l6 6-6 6"/></svg>
+        <b>Una ventana</b><small>Ventilación unilateral</small>
+      </button>
+      <button class="strategy-card active" type="button" data-strategy="cross">
+        <svg viewBox="0 0 48 48"><rect x="5" y="10" width="12" height="28" rx="2"/><rect x="31" y="10" width="12" height="28" rx="2"/><path d="M13 24h22M29 18l7 6-7 6"/></svg>
+        <b>Dos ventanas cruzadas</b><small>Aberturas opuestas</small>
+      </button>
+      <button class="strategy-card" type="button" data-strategy="window_door">
+        <svg viewBox="0 0 48 48"><rect x="6" y="12" width="13" height="24" rx="2"/><rect x="31" y="7" width="11" height="31" rx="1"/><path d="M15 24h20M29 18l7 6-7 6"/></svg>
+        <b>Ventana + puerta</b><small>Flujo cruzado amplio</small>
+      </button>
+      <button class="strategy-card" type="button" data-strategy="mechanical">
+        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="3"/><path d="M24 21c1-8 8-8 10-4 2 5-4 8-10 7M27 25c7 4 4 11 0 11-5 0-5-7-3-12M21 25c-7 4-11-2-8-6 3-4 9 0 11 5"/></svg>
+        <b>Extractor / ventilador</b><small>Caudal conocido o estimado</small>
+      </button>
+    </div>
+
+    <div id="naturalVentFields" class="natural-vent-fields">
+      <div class="form-grid">
+        <div class="field"><label>Ancho útil de cada abertura [m]</label><input id="openW" type="number" min=".1" max="5" step=".05" value="0.9"></div>
+        <div class="field"><label>Alto útil de cada abertura [m]</label><input id="openH" type="number" min=".1" max="4" step=".05" value="1.0"></div>
+        <div class="field"><label>Porcentaje realmente abierto [%]</label><input id="openPct" type="number" min="5" max="100" step="5" value="60"></div>
+        <div class="field"><label>Condición exterior / viento</label>
+          <select id="windLevel">
+            <option value="calm">Muy poco viento</option>
+            <option value="light" selected>Brisa suave</option>
+            <option value="moderate">Viento moderado</option>
+            <option value="strong">Viento notorio</option>
+          </select>
+        </div>
+      </div>
+      <div class="estimate-band">
+        <div><span>Área útil de apertura</span><strong id="effectiveArea">—</strong><small>m²</small></div>
+        <div class="primary"><span>Caudal estimado</span><strong id="estimatedFlow">—</strong><small>m³/h</small></div>
+        <div><span>Rango orientativo</span><strong id="estimatedRange">—</strong><small>m³/h</small></div>
+        <div><span>ACH mientras está abierto</span><strong id="openAch">—</strong><small>1/h</small></div>
+      </div>
+      <p class="note">El caudal natural es una <b>estimación</b>. Depende de viento, orientación, diferencias de presión, obstáculos y geometría real de las aberturas. HIDROLAB muestra un rango para no presentar una falsa precisión.</p>
+    </div>
+
+    <div id="mechanicalFields" class="form-grid hidden">
+      <div class="field"><label>Caudal del extractor / ventilador [m³/h]</label><input id="mechanicalFlow" type="number" min="10" max="2000" step="10" value="120"></div>
+    </div>
+  </div>
+
+  <div id="technicalVentPanel" class="hidden">
+    <div class="form-grid">
+      <div class="field"><label>Caudal de ventilación conocido [m³/h]</label><input id="flow" type="number" min="1" max="2000" step="5" value="90"></div>
+    </div>
+    <p class="note">Usa este modo solo si conoces el caudal medido o de diseño. El resto del módulo utilizará este mismo valor.</p>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div class="vent-duration-row">
+    <div>
+      <span class="mini-label">¿Cuánto tiempo abrirás?</span>
       <div class="vent-time-buttons" id="ventTimeButtons">
+        <button type="button" data-min="4">4 min</button>
         <button type="button" data-min="5">5 min</button>
         <button type="button" data-min="10">10 min</button>
         <button type="button" data-min="15" class="active">15 min</button>
+        <button type="button" data-min="20">20 min</button>
         <button type="button" data-min="30">30 min</button>
       </div>
-      <label class="note">Caudal estimado durante ventilación cruzada: <b id="crossFlowLabel">— m³/h</b></label>
-      <input id="crossFlow" class="range" type="range" min="50" max="1200" step="25" value="450">
-      <small class="note">El caudal real depende del tamaño de las aperturas, viento, orientación y diferencia de presión. Este control sirve para simular escenarios.</small>
     </div>
+    <div class="vent-duration-summary">
+      <span>Escenario activo</span><strong id="scenarioText">—</strong>
+    </div>
+  </div>
 
-    <div class="vent-impact">
-      <div class="impact-ring" id="impactRing"><strong id="vaporReduction">—</strong><span>%</span><small>reducción del exceso de vapor*</small></div>
-      <div class="impact-stats">
-        <div><span>HR inicial</span><b id="beforeVentRh">—%</b></div>
-        <div><span>HR tras ventilar</span><b id="afterVentRh">—%</b></div>
-        <div><span>Agua retirada</span><b id="waterRemoved">— g</b></div>
-        <div><span>Renovaciones en el período</span><b id="ventAirChanges">—</b></div>
+  <div class="house-viz practical-house" id="houseViz">
+    <svg viewBox="0 0 720 330" aria-label="Visualización de la estrategia de ventilación">
+      <defs>
+        <linearGradient id="roomFill" x1="0" x2="1"><stop id="roomStop1" offset="0" stop-color="#e7ecee"/><stop id="roomStop2" offset="1" stop-color="#dce4e7"/></linearGradient>
+        <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+      </defs>
+      <rect x="145" y="70" width="430" height="195" rx="6" fill="url(#roomFill)" stroke="#57727c" stroke-width="3"/>
+      <path d="M145 70 360 25 575 70" fill="#eaf1f3" stroke="#57727c" stroke-width="3"/>
+
+      <g id="leftWindow">
+        <rect x="145" y="135" width="28" height="68" fill="#cfe4e9" stroke="#4e7582" stroke-width="2"/>
+      </g>
+      <g id="rightWindow">
+        <rect x="547" y="135" width="28" height="68" fill="#cfe4e9" stroke="#4e7582" stroke-width="2"/>
+      </g>
+      <g id="doorOpening" opacity="0">
+        <rect x="520" y="150" width="55" height="115" fill="#d8e6e9" stroke="#57727c"/>
+      </g>
+
+      <g id="humidityCloud" opacity=".55">
+        <ellipse cx="360" cy="170" rx="130" ry="68" fill="#778b91" opacity=".30" filter="url(#blur)"/>
+        <circle cx="305" cy="160" r="34" fill="#758c92" opacity=".20"/>
+        <circle cx="395" cy="180" r="42" fill="#758c92" opacity=".20"/>
+      </g>
+
+      <g id="airIn" class="air-stream">
+        <path d="M45 165 C90 165 110 155 150 155" fill="none" stroke="#42a9c2" stroke-width="7" stroke-linecap="round"/>
+        <path d="m136 143 18 12-18 12" fill="none" stroke="#42a9c2" stroke-width="5"/>
+      </g>
+      <g id="airOut" class="air-stream">
+        <path d="M570 185 C615 185 630 170 680 170" fill="none" stroke="#66a842" stroke-width="7" stroke-linecap="round"/>
+        <path d="m665 158 18 12-18 12" fill="none" stroke="#66a842" stroke-width="5"/>
+      </g>
+      <g id="singleReturn" opacity="0" class="air-stream">
+        <path d="M150 205 C110 205 95 220 55 220" fill="none" stroke="#9ab7bf" stroke-width="5" stroke-linecap="round"/>
+      </g>
+
+      <text x="44" y="130" fill="#36798c" font-size="13" font-weight="700">AIRE EXTERIOR</text>
+      <text x="590" y="215" fill="#60853a" font-size="13" font-weight="700">SALIDA</text>
+      <text id="houseRhText" x="360" y="158" text-anchor="middle" fill="#153f4d" font-size="34" font-weight="900">— % HR</text>
+      <text id="houseRhAfterText" x="360" y="190" text-anchor="middle" fill="#63777f" font-size="14">tras ventilar: — % HR</text>
+      <text id="houseAchText" x="360" y="216" text-anchor="middle" fill="#63777f" font-size="12">— ACH durante apertura</text>
+    </svg>
+    <div class="house-caption">
+      <span id="airMotionLabel">—</span>
+      <b id="houseStatus">—</b>
+    </div>
+  </div>
+</section>
+
+<section class="card full result-card">
+  <div class="section-head">
+    <div><p class="kicker">04 · Resultado del escenario</p><h2>¿Qué efecto tendría esta ventilación?</h2></div>
+    <span id="ventAdviceBadge" class="drying-badge">—</span>
+  </div>
+
+  <div class="summary-grid">
+    <div class="stat"><small>Caudal usado</small><strong id="activeFlow">—</strong><em>m³/h</em></div>
+    <div class="stat"><small>HR antes de ventilar</small><strong id="beforeVentRh">—</strong><em>%</em></div>
+    <div class="stat"><small>HR después</small><strong id="afterVentRh">—</strong><em>%</em></div>
+    <div class="stat"><small>Reducción exceso de vapor</small><strong id="vaporReduction">—</strong><em>%</em></div>
+  </div>
+
+  <div class="practical-result-grid">
+    <div class="impact-ring" id="impactRing"><strong id="impactPct">—</strong><span>%</span><small>del exceso de vapor retirado*</small></div>
+    <div class="practical-recommend">
+      <p id="ventAdviceText">—</p>
+      <div class="recommend-lines">
+        <div><span>Agua retirada del aire</span><b id="waterRemoved">— g</b></div>
+        <div><span>Renovaciones durante apertura</span><b id="ventAirChanges">—</b></div>
+        <div><span>Caudal necesario continuo para HR objetivo</span><b id="reqflow">— m³/h</b></div>
+        <div><span>ACH continuo requerido</span><b id="reqach">—</b></div>
       </div>
     </div>
   </div>
 
   <div class="vent-timeline">
-    <div class="timeline-title"><b>Evolución estimada de HR durante la ventilación</b><span id="timelineSubtitle">—</span></div>
+    <div class="timeline-title"><b>Evolución estimada de HR mientras las ventanas están abiertas</b><span id="timelineSubtitle">—</span></div>
     <svg id="ventTimelineChart" viewBox="0 0 900 280" class="chart-svg"></svg>
   </div>
-  <p class="note">*Reducción del exceso de humedad absoluta sobre el aire exterior en un modelo de mezcla perfecta y sin generación adicional durante la ventilación.</p>
+
+  <div class="callout" id="status">—</div>
+  <p class="note">*Modelo de mezcla perfecta, sin generación adicional de vapor durante el periodo de apertura. Es una estimación educativa y no una medición del caudal real.</p>
 </section>
 
 <section class="card full drying-card">
-  <div class="section-head"><div><p class="kicker">06 · Capacidad de secado</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
+  <div class="section-head"><div><p class="kicker">05 · ¿Conviene ventilar ahora?</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
   <div class="drying-grid">
     <div class="air-box exterior"><small>EXTERIOR</small><strong id="outsideState">—</strong><span id="aho">— g/m³</span></div>
     <div class="drying-arrow"><span>→</span><b id="dryingPer100">—</b><small>agua que podría transportar cada 100 m³ renovados*</small></div>
@@ -201,7 +286,7 @@
 </section>
 
 <section class="card full compare-card">
-  <div class="section-head"><div><p class="kicker">07 · Antes vs. propuesta</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
+  <div class="section-head"><div><p class="kicker">06 · Comparador técnico</p><h2>Prueba otro caudal sin perder tu escenario actual</h2></div></div>
   <div class="compare-layout">
     <div class="compare-column current"><small>ACTUAL</small><strong id="cmpCurrentFlow">—</strong><span>m³/h</span><div><b id="cmpCurrentRh">—%</b> HR</div><div><b id="cmpCurrentAch">—</b> ACH</div></div>
     <div class="compare-center"><span id="compareDelta">—</span><small>cambio de HR</small></div>
@@ -213,7 +298,7 @@
 </section>
 
 <section class="card full">
-  <div class="section-head"><div><p class="kicker">08 · Curva</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
+  <div class="section-head"><div><p class="kicker">07 · Curva técnica</p><h2>Efecto del caudal sobre la humedad interior</h2></div><span class="note">Balance de vapor simplificado</span></div>
   <div class="chart-wrap"><svg class="chart-svg" id="chart" viewBox="0 0 900 410"></svg></div>
   <div class="summary-grid three" style="margin-top:14px">
     <div class="stat"><small>Humedad absoluta exterior</small><strong id="aho2">—</strong><em>g/m³</em></div>
