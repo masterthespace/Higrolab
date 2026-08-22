@@ -136,6 +136,36 @@ function renderLayers(){
     row.querySelector('.layer-down').onclick=()=>{const i=layers.findIndex(l=>l.id===id);if(i>=0&&i<layers.length-1)[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderLayers();render()}
   })
 }
+
+function wallVizColor(type){
+  const map={eps:'#d9e8a5',concrete:'#aeb8ba',masonry_armada:'#caa582',masonry_reforzada:'#caa582',fibercement:'#bfc9cc',osb:'#c99b67',glasswool:'#f2d779',mineralwool:'#d5c77b',gypsum:'#e6e3dc',plaster:'#d8d0c4',air:'#dff1f6',composite:'#d7e9ac'};
+  return map[type]||'#c8d4d8'
+}
+function renderWallGraphic(d){
+  const host=$('wallStackViz');if(!host)return;
+  const totalMm=Math.max(1,layers.reduce((s,l)=>s+(+l.thickness||0),0));
+  host.innerHTML=layers.map((l,i)=>{
+    const mm=Math.max(1,+l.thickness||1);
+    const flex=Math.max(.45,Math.min(5,mm/30));
+    return `<div class="wall-viz-layer" style="flex:${flex};background:${wallVizColor(l.type)}" title="${l.product||l.name}: ${fmt(mm,0)} mm · R ${fmt(layerR(l),3)}"><span>${i+1}</span><b>${l.product||l.name}</b><small>${fmt(mm,0)} mm</small></div>`
+  }).join('');
+  $('wallVizTe').textContent=fmt(d.te,1)+' °C';$('wallVizTi').textContent=fmt(d.ta,1)+' °C';
+  $('wallVizR').textContent=fmt(d.wall.rTotal,3)+' m²K/W';$('wallVizU').textContent=fmt(d.wall.U,2)+' W/m²K';$('wallVizTsi').textContent=fmt(d.ts,1)+' °C'
+}
+function renderDependencyFlow(d){
+  const set=(id,val)=>{const e=$(id);if(e)e.textContent=val};
+  set('flowTi',fmt(d.ta,1)+' °C');set('flowRh',fmt(d.rh,0)+' %');set('flowDew',fmt(d.d,1)+' °C');
+  set('flowLayers',layers.length+' capas');set('flowR',fmt(d.wall.rTotal,3));set('flowU',fmt(d.wall.U,2));
+  set('flowTsi',fmt(d.ts,1)+' °C');set('flowTsi2',fmt(d.ts,1));set('flowDew2',fmt(d.d,1));
+  const margin=d.ts-d.d,box=$('flowRiskBox');
+  let txt='Margen favorable',cls='good';
+  if(margin<=0){txt='Superficie en o bajo el punto de rocío · condensación posible';cls='bad'}
+  else if(margin<2){txt='Margen crítico · muy cerca del punto de rocío';cls='bad'}
+  else if(margin<4){txt='Margen reducido · atención';cls='warn'}
+  set('flowRiskText',txt);
+  if(box)box.className='dep-final '+cls
+}
+
 function draw(d){
   const W=900,H=410,L=62,R=25,T=25,BT=52,minX=Math.min(-5,Math.floor(d.d-5),Math.floor(d.te-2)),maxX=Math.max(25,Math.ceil(d.ta+3)),minY=40,maxY=110,sx=x=>L+(x-minX)/(maxX-minX)*(W-L-R),sy=y=>T+(maxY-y)/(maxY-minY)*(H-T-BT);
   let s=`<rect width="${W}" height="${H}" fill="#fbfcfc"/>`;[[40,70,'#e8f5ef'],[70,80,'#eef5dc'],[80,90,'#fff5db'],[90,100,'#fff0e5'],[100,110,'#fde8e8']].forEach(z=>s+=`<rect x="${L}" y="${sy(z[1])}" width="${W-L-R}" height="${sy(z[0])-sy(z[1])}" fill="${z[2]}"/>`);
@@ -226,7 +256,7 @@ function riskTraceability(d){
 }
 
 function render(){
-  const d=data();riskTraceability(d),st=scoreStyle(d.score);
+  const d=data();riskTraceability(d);renderWallGraphic(d);renderDependencyFlow(d),st=scoreStyle(d.score);
   if(inputMode==='measured'){$('tsSlider').min=Math.floor(d.d-5);$('tsSlider').max=Math.ceil(d.ta+5);$('tsSlider').value=d.ts;$('tsLabel').textContent=fmt(d.ts)+' °C';$('tsMinLabel').textContent=$('tsSlider').min+' °C';$('tsMaxLabel').textContent=$('tsSlider').max+' °C'}
   else{$('rLayers').textContent=fmt(d.rLayers,3);$('rTotal').textContent=fmt(d.rTotal,3);$('uCalculated').textContent=fmt(d.U,2);$('tsEstimated').textContent=fmt(d.ts,1)}
   $('rhs').textContent=fmt(d.rhs,0);$('dew').textContent=fmt(d.d);$('t80').textContent=fmt(d.t80);$('margin').textContent=fmt(d.ts-d.d);$('score').textContent=fmt(d.score,0);$('scoreLevel').textContent=`${st.level} · 0 = bajo · 100 = muy alto`;$('scoreBar').style.width=d.score+'%';$('scoreBar').style.background=st.color;$('score').style.color=st.color;

@@ -81,7 +81,22 @@
     </div>
     <div class="wall-presets" id="wallQuickControls"></div>
     <div class="composite-help"><b>Revestimiento térmico interior:</b> en “+ Agregar capa”, selecciona <b>Panel yeso-cartón + EPS (interior)</b> y ubícalo como última capa hacia el INTERIOR. Incluye configuraciones Volcapol y Poligyp con R declarado por fabricante.</div>
-    <div id="wallLayers" class="wall-layers"></div>
+    <div id="wallLayers" class="wall-layers"></div><div class="wall-live-viz">
+      <div class="wall-live-head">
+        <div><b>Lectura gráfica del muro</b><span>Las capas se dibujan de exterior → interior y cambian al modificar material o espesor.</span></div>
+        <span class="calc-origin physical">ACTUALIZACIÓN EN TIEMPO REAL</span>
+      </div>
+      <div class="wall-live-body">
+        <div class="wall-side outside">EXTERIOR<br><strong id="wallVizTe">— °C</strong></div>
+        <div class="wall-stack" id="wallStackViz"></div>
+        <div class="wall-side inside">INTERIOR<br><strong id="wallVizTi">— °C</strong></div>
+      </div>
+      <div class="wall-viz-footer">
+        <span>R total <b id="wallVizR">—</b></span>
+        <span>U <b id="wallVizU">—</b></span>
+        <span>Superficie interior <b id="wallVizTsi">—</b></span>
+      </div>
+    </div>
     <div class="wall-summary">
       <div><span>R capas</span><strong id="rLayers">—</strong><small>m²K/W</small></div>
       <div><span>R total</span><strong id="rTotal">—</strong><small>m²K/W</small></div>
@@ -106,10 +121,47 @@
   <div class="mold-zone" style="background:#fde9e7"><b>≥90%</b><small>Muy alta humedad</small></div>
 </div>
 </section>
+<section class="card full dependency-card">
+  <div class="section-head"><div><p class="kicker">Cómo se conectan los cálculos</p><h2>Del ambiente y el muro al riesgo superficial</h2></div></div>
+  <div class="dependency-flow">
+    <div class="dep-branch air-branch">
+      <span class="dep-tag physical">AIRE INTERIOR</span>
+      <div class="dep-node"><small>Temperatura interior</small><strong id="flowTi">— °C</strong></div>
+      <div class="dep-plus">+</div>
+      <div class="dep-node"><small>HR interior</small><strong id="flowRh">— %</strong></div>
+      <div class="dep-arrow">→</div>
+      <div class="dep-node output"><small>Punto de rocío</small><strong id="flowDew">— °C</strong><em>No depende del muro</em></div>
+    </div>
+    <div class="dep-branch wall-branch">
+      <span class="dep-tag normative">MURO</span>
+      <div class="dep-node"><small>Capas + espesores + λ</small><strong id="flowLayers">— capas</strong></div>
+      <div class="dep-arrow">→</div>
+      <div class="dep-node"><small>R total / U</small><strong><span id="flowR">—</span> / <span id="flowU">—</span></strong></div>
+      <div class="dep-arrow">→</div>
+      <div class="dep-node output"><small>T° superficial interior</small><strong id="flowTsi">— °C</strong><em>Sí depende del muro</em></div>
+    </div>
+    <div class="dep-converge">
+      <div class="dep-arrow down">↓</div>
+      <div class="dep-final" id="flowRiskBox">
+        <small>COMPARACIÓN CLAVE</small>
+        <strong><span id="flowTsi2">—</span> °C superficie vs <span id="flowDew2">—</span> °C rocío</strong>
+        <b id="flowRiskText">—</b>
+      </div>
+    </div>
+  </div>
+  <div class="dep-context">
+    <span class="dep-tag estimate">VAPOR GENERADO</span>
+    <p>El estimador lúdico muestra cuánta agua liberan personas y actividades durante un período. <b>No modifica automáticamente la HR interior ni el punto de rocío</b>, porque para hacerlo correctamente también habría que conocer volumen del recinto, ventilación, extracción y condiciones iniciales. Se muestra como contexto de carga de humedad, no como entrada directa al cálculo superficial.</p>
+  </div>
+</section>
 <section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIDROLAB</small>
 <div class="metric-big score-metric"><strong id="score">—</strong><span id="scoreLevel">0 = bajo · 100 = muy alto</span></div>
 <div class="risk-scale"><span>BAJO</span><span>ATENCIÓN</span><span>ELEVADO</span><span>MUY ALTO</span></div>
 <div class="bar risk-bar"><span id="scoreBar"></span></div></div>
+</section>
+<section class="card full vapor-context-card">
+  <div class="section-head"><div><p class="kicker">03 · Carga de humedad del período</p><h2>¿Cuánto vapor se está liberando?</h2></div><span class="calc-origin estimate">CONTEXTO · NO CAMBIA HR AUTOMÁTICAMENTE</span></div>
+  <div class="vapor-context-note"><b>Qué significa:</b> esta sección cuantifica agua liberada por personas y actividades durante las horas seleccionadas. Sirve para entender la carga de humedad, pero no altera por sí sola el punto de rocío calculado con la HR medida/ingresada.</div>
 <div id="vaporCard" class="vapor-card">
   <div class="vapor-card-head">
     <div><small>ESTIMADOR LÚDICO</small><h3>Vapor liberado durante el período</h3><p id="vaporIntro">Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.</p></div>
@@ -165,5 +217,5 @@
     <b>Importante:</b> es agua liberada acumulada, no agua necesariamente presente en el aire al mismo tiempo. Ventilación, extracción, absorción de materiales y condensación modifican la cantidad que permanece dentro del recinto.
   </div>
 </div></section>
-<section class="card full"><div class="section-head"><div><p class="kicker">03 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIDROLAB · Evaluación preventiva de humedad superficial</footer>
+<section class="card full"><div class="section-head"><div><p class="kicker">04 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIDROLAB · Evaluación preventiva de humedad superficial</footer>
 <script defer="" src="assets/riesgo-moho.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>
