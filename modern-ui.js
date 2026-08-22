@@ -2,7 +2,7 @@
 (function(){
   'use strict';
   const root=document.documentElement;
-  document.body.classList.add('ui-ready');
+  document.body.classList.add('ui-enter');
 
   const ICONS={
     sun:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>`,
@@ -120,10 +120,10 @@
   function solarPreview(){
     const c=document.querySelector('#home-solar-preview');
     if(!c)return;
-    let ctx;try{ctx=c.getContext('2d')}catch(_){c.closest('.solar-preview')?.classList.add('preview-fallback');return}if(!ctx){c.closest('.solar-preview')?.classList.add('preview-fallback');return}
+    const ctx=c.getContext('2d');
     let angle=-.55,drag=false,lastX=0,t=0;
     const resize=()=>{const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=r.width*d;c.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)};
-    resize();try{if('ResizeObserver' in window)new ResizeObserver(resize).observe(c);else window.addEventListener('resize',resize,{passive:true})}catch(_){window.addEventListener('resize',resize,{passive:true})}
+    resize();new ResizeObserver(resize).observe(c);
     c.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;c.setPointerCapture?.(e.pointerId)});
     c.addEventListener('pointermove',e=>{if(drag){angle+=(e.clientX-lastX)*.009;lastX=e.clientX}});
     c.addEventListener('pointerup',()=>drag=false);c.addEventListener('pointercancel',()=>drag=false);
@@ -173,5 +173,5 @@
   installRipple();
   catalogSearch();
   solarPreview();
-  requestAnimationFrame(()=>{document.body.classList.add('ui-ready');reveal()});
+  requestAnimationFrame(()=>{document.body.classList.remove('ui-enter');document.body.classList.add('ui-ready');reveal()});
 })();

@@ -417,7 +417,7 @@
       ['Temperatura superficial interior del muro',`${fmtNum(x.ts,1)} °C`],['Punto de rocío interior',`${fmtNum(x.dew,1)} °C`],
       ['HR superficial estimada',`${fmtNum(x.rhs,0)} %`],['Margen al punto de rocío',`${fmtNum(x.margin,1)} °C`],
       ['T° superficial crítica para 80 % HR',`${fmtNum(x.t80,1)} °C`],
-      ['Índice preventivo HIDROLAB',`${fmtNum(x.score,0)} / 100 · ${x.scoreLevel}`],
+      ['Índice preventivo HIDROLAB (estimación didáctica, no índice normativo)',`${fmtNum(x.score,0)} / 100 · ${x.scoreLevel}`],
       ['Persistencia considerada',x.persistence.label],['Aporte de persistencia al índice',`+${fmtNum(x.persistence.penalty,1)} puntos`]
     ].forEach(r=>addRow(doc,tb,r[0],r[1]));t.append(tb);summary.append(t);
 
@@ -454,7 +454,7 @@
     else if(x.rhs>=90)text='La humedad relativa superficial estimada es muy alta; si esta condición persiste, requiere atención.';
     else if(x.rhs>=80)text='La humedad relativa superficial es elevada y la persistencia incrementa el riesgo preventivo.';
     else if(x.rhs>=70)text='La superficie se encuentra en zona de atención por acumulación de humedad relativa respecto del aire del recinto.';
-    interp.append(el(doc,'p','obs',`${text} HR superficial: ${fmtNum(x.rhs,0)} %. Margen al rocío: ${fmtNum(x.margin,1)} °C. Índice preventivo HIDROLAB: ${fmtNum(x.score,0)}/100 (${x.scoreLevel}).`));
+    interp.append(el(doc,'p','obs',`${text} HR superficial: ${fmtNum(x.rhs,0)} %. Margen al rocío: ${fmtNum(x.margin,1)} °C. Índice preventivo HIDROLAB (estimación didáctica, no índice normativo): ${fmtNum(x.score,0)}/100 (${x.scoreLevel}).`));
     return true
   }
 

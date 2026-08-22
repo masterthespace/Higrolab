@@ -51,7 +51,7 @@ body{
   min-height:100vh;
   transition:background-color .22s ease,color .22s ease;
 }
-body.ui-enter{opacity:1;transform:none}
+body.ui-enter{opacity:0;transform:translateY(7px)}
 body.ui-ready{opacity:1;transform:none;transition:opacity .28s ease,transform .28s ease}
 ::selection{background:color-mix(in srgb,var(--category-accent) 28%,transparent)}
 a,button,input,select,textarea{transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -285,43 +285,4 @@ html[data-theme="dark"] .footer{color:#78909a}
 .bento .ventilation{grid-column:span 6}
 @media(max-width:900px){
   .bento .comfort,.bento .ventilation{grid-column:auto}
-}
-
-
-/* HIDROLAB V8.1.2 — corrección móvil SOLO portada */
-.home-v7 .hero-actions .btn-primary{
-  background:#fff!important;color:#07394a!important;border:1px solid rgba(255,255,255,.95)!important;
-  box-shadow:0 10px 28px rgba(0,0,0,.16)
-}
-.home-v7 .hero-actions .btn-soft{
-  background:rgba(255,255,255,.13)!important;color:#fff!important;border:1px solid rgba(255,255,255,.30)!important;
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)
-}
-.home-v7 .hero-actions .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px}
-.home-v7 .solar-preview.preview-fallback canvas{display:none}
-.home-v7 .solar-preview.preview-fallback::before{
-  content:"SOLAR 3D";position:absolute;inset:0;display:grid;place-items:center;
-  font:900 clamp(2rem,10vw,4.3rem)/1 var(--ui-mono);letter-spacing:-.06em;color:rgba(255,255,255,.14)
-}
-@media(max-width:620px){
-  .home-v7 .wrap{width:min(100% - 22px,1180px)}
-  .home-v7 .nav{top:0;margin-top:7px;padding:8px 9px;border-radius:14px}
-  .home-v7 .brand{font-size:.92rem}.home-v7 .brand-icon{width:30px;height:30px}.home-v7 .brand-icon:after{left:8px;top:7px}
-  .home-v7 .theme-toggle{height:34px;min-width:36px;padding:0 8px}
-  .home-v7 .hero-v7{padding:38px 0 54px;gap:24px}
-  .home-v7 .hero-copy h1{font-size:clamp(2.1rem,11vw,3rem);line-height:1.02;margin-top:9px}
-  .home-v7 .hero-copy p{font-size:.94rem;line-height:1.55;color:#e3f0f3}
-  .home-v7 .hero-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:20px}
-  .home-v7 .hero-actions .btn{width:100%;min-height:50px;font-size:.91rem;border-radius:13px}
-  .home-v7 .hero-badges{gap:6px}.home-v7 .hero-badge{font-size:.65rem;padding:6px 8px;color:#e6f1f4}
-  .home-v7 .solar-preview{min-height:240px;border-radius:19px}
-  .home-v7 .preview-head{top:13px;left:13px;right:13px}.home-v7 .preview-foot{bottom:12px;left:13px;right:13px}
-  .home-v7 .home-main{margin-top:-24px}
-  .home-v7 .section-v7{margin-top:10px}.home-v7 .section-v7-head{display:block}.home-v7 .section-v7-head>p{margin-top:7px;font-size:.78rem}
-  .home-v7 .bento{gap:11px}.home-v7 .bento-card{padding:17px;border-radius:17px;min-height:0!important}.home-v7 .bento .solar{min-height:275px!important}
-  .home-v7 .bento-card h3{font-size:1.05rem}.home-v7 .bento-card p{font-size:.8rem}.home-v7 .bento-big-number{font-size:1.55rem;margin-top:18px}
-  .home-v7 .footer{font-size:.68rem;padding-inline:3px}
-}
-@media(max-width:380px){
-  .home-v7 .hero-copy h1{font-size:2rem}.home-v7 .solar-preview{min-height:215px}.home-v7 .hero-badge{font-size:.61rem}
 }

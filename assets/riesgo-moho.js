@@ -4,19 +4,19 @@ clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 let inputMode='measured',layers=[];
 
 const MATERIALS={
-  eps:{name:'EPS',lambda:0.038,min:20,max:100,step:10,thickness:50},
-  concrete:{name:'Hormigón armado',lambda:1.63,min:100,max:250,step:10,thickness:150},
-  masonry_armada:{name:'Albañilería armada',lambda:0.80,min:150,max:150,step:1,thickness:150},
-  masonry_reforzada:{name:'Albañilería reforzada',lambda:0.80,min:150,max:150,step:1,thickness:150},
-  fibercement:{name:'Placa fibrocemento / Permanit',lambda:0.35,min:4,max:12,step:2,thickness:8},
-  osb:{name:'OSB',lambda:0.13,min:11,max:11,step:1,thickness:11},
-  glasswool:{name:'Lana de vidrio',lambda:0.040,min:80,max:140,step:10,thickness:100},
-  mineralwool:{name:'Lana mineral',lambda:0.039,min:80,max:140,step:10,thickness:100},
-  gypsum:{name:'Yeso-cartón',lambda:0.25,min:12,max:12,step:1,thickness:12},
-  plaster:{name:'Estuco / mortero',lambda:0.87,min:5,max:25,step:5,thickness:15},
-  air:{name:'Cámara de aire',R:0.18,kind:'air',thickness:25},
+  eps:{name:'EPS',lambda:0.038,min:20,max:100,step:10,thickness:50,source:'NCh853:2021 / valor según densidad; verificar producto'},
+  concrete:{name:'Hormigón armado',lambda:1.63,min:100,max:250,step:10,thickness:150,source:'NCh853:2021 · hormigón armado normal · ρ 2400 kg/m³'},
+  masonry_armada:{name:'Albañilería armada',lambda:0.80,min:150,max:150,step:1,thickness:150,source:'Preset HIDROLAB · verificar solución real/LOSCAT'},
+  masonry_reforzada:{name:'Albañilería reforzada',lambda:0.80,min:150,max:150,step:1,thickness:150,source:'Preset HIDROLAB · verificar solución real/LOSCAT'},
+  fibercement:{name:'Placa fibrocemento / Permanit',lambda:0.35,min:4,max:12,step:2,thickness:8,source:'Preset HIDROLAB · usar ficha/ensayo del producto'},
+  osb:{name:'OSB',lambda:0.13,min:11,max:11,step:1,thickness:11,source:'Preset HIDROLAB · verificar densidad/producto'},
+  glasswool:{name:'Lana de vidrio',lambda:0.040,min:80,max:140,step:10,thickness:100,source:'Preset HIDROLAB · usar λ acreditada del producto'},
+  mineralwool:{name:'Lana mineral',lambda:0.039,min:80,max:140,step:10,thickness:100,source:'Preset HIDROLAB · usar λ acreditada del producto'},
+  gypsum:{name:'Yeso-cartón',lambda:0.25,min:12,max:12,step:1,thickness:12,source:'Preset HIDROLAB · verificar producto/densidad'},
+  plaster:{name:'Estuco / mortero',lambda:0.87,min:5,max:25,step:5,thickness:15,source:'Preset HIDROLAB · no asumir como valor acreditado'},
+  air:{name:'Cámara de aire',R:0.18,kind:'air',thickness:25,source:'NCh853:2021 · cámara no ventilada 25 mm · flujo horizontal'},
   gypsum_eps:{name:'Panel yeso-cartón + EPS (interior)',R:0.523,kind:'composite',thickness:30,product:'Volcapol 30 mm'},
-  custom:{name:'Material personalizado',lambda:0.20,min:1,max:300,step:1,thickness:20}
+  custom:{name:'Material personalizado',lambda:0.20,min:1,max:300,step:1,thickness:20,source:'Valor ingresado por usuario'}
 };
 const GYPSUM_EPS_PRODUCTS={
   'vol_20':{label:'Volcapol 20 mm · Yeso 10 + EPS 10',thickness:20,R:.281},
@@ -57,7 +57,7 @@ function scoreStyle(score){
 }
 function makeLayer(type,thickness){
   const m=MATERIALS[type]||MATERIALS.custom;
-  return{id:(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)),type,name:m.name,thickness:thickness??m.thickness,lambda:m.lambda??null,R:m.R??null,kind:m.kind||'solid'}
+  return{id:(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)),type,name:m.name,thickness:thickness??m.thickness,lambda:m.lambda??null,R:m.R??null,kind:m.kind||'solid',source:m.source||'Preset HIDROLAB'}
 }
 function loadTemplate(name){
   layers=(TEMPLATES[name]||TEMPLATES.custom).map(([t,e])=>makeLayer(t,e));
@@ -120,7 +120,7 @@ function renderLayers(){
       <div class="layer-main"><select class="layer-type">${materialOptions(l.type)}</select><span class="layer-position">${i===0?'EXTERIOR':i===layers.length-1?'INTERIOR':''}</span></div>
       <label>${air?'Espesor ref.':composite?'Espesor total':'Espesor'} [mm]<input class="layer-thickness" ${composite?'readonly':''} type="number" min="1" max="1000" step="${MATERIALS[l.type]?.step||1}" value="${l.thickness}"></label>
       <label>${air?'R cámara [m²K/W]':composite?'R producto [m²K/W]':'λ [W/mK]'}<input class="layer-prop" ${composite?'readonly':''} type="number" min=".001" step="${air?'.01':'.001'}" value="${air||composite?l.R:l.lambda}"></label>
-      <div class="layer-r"><span>R capa</span><b>${fmt(layerR(l),3)}</b></div>
+      <div class="layer-r"><span>R capa</span><b>${fmt(layerR(l),3)}</b></div><div class="layer-source"><span>Origen</span><small>${l.source||'Preset HIDROLAB'}</small></div>
       <div class="layer-actions"><button class="layer-up" type="button">↑</button><button class="layer-down" type="button">↓</button><button class="layer-delete" type="button">×</button></div>
     </div>`
   }).join('');
@@ -128,7 +128,7 @@ function renderLayers(){
     const id=row.dataset.id,get=()=>layers.find(l=>l.id===id);
     const cp=row.querySelector('.composite-product');
     if(cp)cp.onchange=e=>{const l=get(),p=GYPSUM_EPS_PRODUCTS[e.target.value];if(l&&p){l.thickness=p.thickness;l.R=p.R;l.product=p.label;renderLayers();render()}};
-    row.querySelector('.layer-type').onchange=e=>{const l=get(),m=MATERIALS[e.target.value];if(!l||!m)return;l.type=e.target.value;l.name=m.name;l.kind=m.kind||'solid';l.lambda=m.lambda??null;l.R=m.R??null;l.thickness=m.thickness;l.product=m.product||null;$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
+    row.querySelector('.layer-type').onchange=e=>{const l=get(),m=MATERIALS[e.target.value];if(!l||!m)return;l.type=e.target.value;l.name=m.name;l.kind=m.kind||'solid';l.lambda=m.lambda??null;l.R=m.R??null;l.thickness=m.thickness;l.product=m.product||null;l.source=m.source||'Preset HIDROLAB';$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
     row.querySelector('.layer-thickness').oninput=e=>{const l=get();if(l){l.thickness=+e.target.value;$('wallTemplate').value='custom';render()}};
     row.querySelector('.layer-prop').oninput=e=>{const l=get();if(l){if(l.kind==='air')l.R=+e.target.value;else l.lambda=+e.target.value;$('wallTemplate').value='custom';render()}};
     row.querySelector('.layer-delete').onclick=()=>{layers=layers.filter(l=>l.id!==id);$('wallTemplate').value='custom';renderLayers();render()};
@@ -199,14 +199,27 @@ window.HIDROLAB_RISK_REPORT=()=>{
     score:d.score,scoreLevel:st.level,persistence:{...d.persist},
     thermal:{rsi:R_SI,rse:R_SE,rLayers:d.rLayers,rTotal:d.rTotal,U:d.U},
     layers:layers.map((l,i)=>({order:i+1,position:i===0?'Exterior':i===layers.length-1?'Interior':'Intermedia',
-      name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind})),
+      name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind,source:l.source||'Preset HIDROLAB'})),
     vapor:{active:d.persist.mode==='manual',hours:v.hours,people:v.people,perPerson:v.perPerson,extra:v.extra,
       humanRate:v.humanRate,totalRate:v.totalRate,grams:v.grams,kg:v.kg,liters:v.liters}
   }
 };
 
+
+function riskTraceability(d){
+  const homogeneous=!layers.some(l=>['glasswool','mineralwool'].includes(l.type)) && $('wallTemplate').value!=='light_wall';
+  const uClass=homogeneous?'NORMATIVO / MÉTODO NCh853':'ESTIMACIÓN HIDROLAB';
+  const uText=homogeneous
+    ?'R = e/λ, Rtot = Rsi + ΣR + Rse y U = 1/Rtot son el método para capas homogéneas de NCh853:2021. La acreditación exige respaldar cada λ o la solución completa.'
+    :'La solución contiene entramados o posibles caminos térmicos paralelos. La suma 1D mostrada es orientativa y no constituye por sí sola un cálculo NCh853 completo de elemento heterogéneo.';
+  const normCond=`Para muro, Res. Ex. 1802/2025 usa Rsi = 0,13 y Rse = 0,04 m²K/W. Para acreditación de condensación exige NCh1973, Ti = 19 °C, HR interior hasta 75%, clima exterior oficial según emplazamiento y al menos sección de mayor y menor resistencia térmica.`;
+  if($('traceUClass')) $('traceUClass').textContent=uClass;
+  if($('traceUText')) $('traceUText').textContent=uText;
+  if($('traceCondText')) $('traceCondText').textContent=normCond;
+}
+
 function render(){
-  const d=data(),st=scoreStyle(d.score);
+  const d=data();riskTraceability(d),st=scoreStyle(d.score);
   if(inputMode==='measured'){$('tsSlider').min=Math.floor(d.d-5);$('tsSlider').max=Math.ceil(d.ta+5);$('tsSlider').value=d.ts;$('tsLabel').textContent=fmt(d.ts)+' °C';$('tsMinLabel').textContent=$('tsSlider').min+' °C';$('tsMaxLabel').textContent=$('tsSlider').max+' °C'}
   else{$('rLayers').textContent=fmt(d.rLayers,3);$('rTotal').textContent=fmt(d.rTotal,3);$('uCalculated').textContent=fmt(d.U,2);$('tsEstimated').textContent=fmt(d.ts,1)}
   $('rhs').textContent=fmt(d.rhs,0);$('dew').textContent=fmt(d.d);$('t80').textContent=fmt(d.t80);$('margin').textContent=fmt(d.ts-d.d);$('score').textContent=fmt(d.score,0);$('scoreLevel').textContent=`${st.level} · 0 = bajo · 100 = muy alto`;$('scoreBar').style.width=d.score+'%';$('scoreBar').style.background=st.color;$('score').style.color=st.color;

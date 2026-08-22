@@ -1,7 +1,18 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Riesgo de humedad superficial y moho</title><link href="styles.css" rel="stylesheet"/><link rel="stylesheet" href="modern-ui.css"><meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
 <header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero mini-hero"><div class="eyebrow">Humedad superficial · diagnóstico preventivo</div><h1>Evaluador de riesgo de humedad superficial persistente</h1><p>Calcula la humedad relativa junto a una superficie fría y muestra cuánto se acerca a zonas favorables para problemas de humedad y desarrollo biológico.</p></div></header>
-<main class="wrap main"><div class="calc-grid"><section class="card risk-input-card">
+<main class="wrap main"><div class="calc-grid">
+<section class="card full risk-trace-card">
+  <div class="section-head"><div><p class="kicker">Trazabilidad del cálculo</p><h2>¿Qué es normativo y qué es estimación HIDROLAB?</h2></div></div>
+  <div class="trace-grid">
+    <div class="trace-item normative"><span class="trace-pill">NORMATIVO / CHILE</span><b>Condensación superficial</b><p id="traceCondText">La OGUC exige acreditar ausencia de riesgo conforme a NCh1973 y condiciones MINVU.</p></div>
+    <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>HR superficial, presión de vapor y punto de rocío</b><p>Se calculan con relaciones psicrométricas. Son magnitudes físicas; no son por sí mismas una certificación normativa.</p></div>
+    <div class="trace-item estimate"><span class="trace-pill" id="traceUClass">—</span><b>Transmitancia del muro construido en pantalla</b><p id="traceUText">—</p></div>
+    <div class="trace-item estimate"><span class="trace-pill">ESTIMACIÓN HIDROLAB</span><b>Índice preventivo 0–100 y persistencia</b><p>La escala de colores, los puntos añadidos por horas de persistencia y el indicador 0–100 son criterios didácticos HIDROLAB; no corresponden a un índice definido por NCh1973 ni por la OGUC.</p></div>
+  </div>
+  <div class="normative-note"><b>Referencia reglamentaria:</b> la Res. Ex. 1802/2025 fija para el análisis reglamentario interior 19 °C y HR hasta 75%; el exterior depende del emplazamiento. También exige analizar al menos la sección de mayor resistencia y la de menor resistencia (puente térmico constructivo).</div>
+</section>
+<section class="card risk-input-card">
 <div class="section-head"><div><p class="kicker">01 · Datos de entrada</p><h2>Condiciones interiores y superficie del muro</h2></div></div>
 
 <div class="surface-mode" role="group" aria-label="Método de temperatura superficial">
@@ -80,11 +91,11 @@
     <details class="wall-method">
       <summary>Ver método de cálculo</summary>
       <p>Capas homogéneas: <code>R = e / λ</code>. Cámaras de aire: resistencia R directa. Luego: <code>Rtotal = Rsi + ΣRcapas + Rse</code> y <code>U = 1 / Rtotal</code>.</p>
-      <p>Este estimador usa <b>Rsi = 0,13 m²K/W</b> y <b>Rse = 0,04 m²K/W</b>. Las λ iniciales son orientativas y editables; para proyecto debe usarse el valor del producto real o el valor normativo aplicable.</p>
+      <p>Para <b>muros</b>, este estimador usa <b>Rsi = 0,13 m²K/W</b> y <b>Rse = 0,04 m²K/W</b>, coincidentes con el Anexo 2 de la Res. Ex. 1802/2025 y NCh853:2021 para flujo horizontal. <b>Hormigón armado normal: λ = 1,63 W/mK, ρ = 2400 kg/m³ (NCh853:2021).</b> Los demás valores iniciales deben revisarse según la fuente indicada en cada capa.</p>
     </details>
   </div>
   <div class="estimate-quality" id="estimateQuality">
-    <b>Estimación orientativa</b>
+    <b>Alcance del cálculo U</b>
     <span>El cálculo es unidimensional. En tabiquerías, montantes, fijaciones, encuentros y otros puentes térmicos pueden aumentar la transmitancia real respecto del valor calculado aquí.</span>
   </div>
 </div>

@@ -238,3 +238,14 @@ html[data-theme=dark] .source-contribution.has-moisture{background:rgba(33,168,1
 #ventTimeButtons{gap:6px}.vent-time-buttons button{min-width:58px}
 html[data-theme=dark] .heater-auto-result>div{background:var(--ui-panel-soft);border-color:var(--ui-border)}
 @media(max-width:760px){.heater-auto-result{grid-template-columns:1fr 1fr}}
+
+/* V8.2 · trazabilidad riesgo de humedad */
+.risk-trace-card{border-top:3px solid #4c9b70!important}
+.risk-trace-card .trace-grid{grid-template-columns:repeat(4,1fr)}
+.risk-trace-card .trace-item{min-height:150px}
+.layer-source{grid-column:1/-1;display:flex;gap:8px;align-items:center;padding:5px 8px;margin-top:3px;border-radius:7px;background:#f5f8f9}
+.layer-source span{font-size:.52rem;font-weight:900;color:#60747b;text-transform:uppercase}
+.layer-source small{font-size:.55rem;color:#36525d}
+.normative-note{margin-top:10px;padding:11px 13px;border-left:3px solid #4c9b70;border-radius:8px;background:#f3faf5;font-size:.62rem;line-height:1.55;color:#36574a}
+@media(max-width:1000px){.risk-trace-card .trace-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.risk-trace-card .trace-grid{grid-template-columns:1fr}}
