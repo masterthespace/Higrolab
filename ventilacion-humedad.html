@@ -15,7 +15,7 @@
     <nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav>
   </div>
   <div class="wrap hero mini-hero">
-    <div class="eyebrow">Ventilación · balance de vapor · V7.7 FINAL</div>
+    <div class="eyebrow">Ventilación · balance de vapor · V8.0 · trazabilidad técnica</div>
     <h1>Calculadora de ventilación y control de humedad</h1>
     <p>Visualiza cómo la vivienda genera humedad, cómo el aire exterior puede ayudar a evacuarla y cuánto cambia la HR interior cuando modificas el caudal de ventilación.</p>
   </div>
@@ -39,6 +39,10 @@
     <div class="field"><label>Volumen interior [m³]</label><input id="vol" type="number" min="1" step="1" value="144"></div>
   </div>
   <div class="volume-result"><span>Volumen usado en el cálculo</span><strong id="volOut">144,0</strong><em>m³</em></div>
+  <div class="norm-inputs">
+    <div class="field"><label>Superficie útil/piso de la vivienda [m²]</label><input id="floorArea" type="number" min="5" max="1000" step="1" value="60"><small>Requerido para Fmin del Manual CEV 2025.</small></div>
+    <div class="field"><label>Número de dormitorios</label><input id="bedrooms" type="number" min="0" max="20" step="1" value="3"><small>Para CEV: NP = dormitorios + 1.</small></div>
+  </div>
 
   <div class="section-divider"></div>
   <p class="kicker">Condiciones del aire</p>
@@ -140,9 +144,19 @@
 </section>
 
 
+<section class="card full trace-card">
+  <div class="section-head"><div><p class="kicker">Trazabilidad del cálculo</p><h2>¿De dónde sale cada resultado?</h2></div></div>
+  <div class="trace-grid">
+    <div class="trace-item normative"><span class="trace-pill">NORMATIVO / CEV</span><b>Fmin y exigencia de ventilación</b><p>Fmin se calcula con la Ecuación 16 del Anexo D del Manual CEV 2025. La OGUC exige para uso residencial una tasa no menor a las NCh 3308 y NCh 3309, según corresponda.</p></div>
+    <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>HR, humedad absoluta, punto de rocío y ACH</b><p>Relaciones psicrométricas y balance de masa. No constituyen por sí solas una certificación normativa.</p></div>
+    <div class="trace-item estimate"><span class="trace-pill">ESTIMACIÓN HIDROLAB</span><b>Caudal al abrir ventanas y efecto en minutos</b><p>Aproximación educativa: el caudal real depende de viento, presiones, orientación, geometría, obstáculos y estanqueidad.</p></div>
+  </div>
+  <p class="trace-current"><b>Referencia normativa vigente:</b> NCh3308:2024 y NCh3309:2022 fueron declaradas Normas Oficiales en 2025. Esta herramienta no reemplaza el Informe de acreditación exigido por la OGUC.</p>
+</section>
+
 <section class="card full airflow-card practical-vent-card">
   <div class="section-head">
-    <div><p class="kicker">03 · Estrategia de ventilación</p><h2>¿Cómo vas a ventilar realmente?</h2></div>
+    <div><p class="kicker">03 · Estrategia de ventilación</p><h2>¿Cómo vas a ventilar realmente?</h2><span class="calc-origin estimate">ESTIMACIÓN HIDROLAB</span></div>
     <span id="strategyBadge" class="drying-badge">—</span>
   </div>
 
@@ -374,7 +388,7 @@
 
 <section class="card full result-card">
   <div class="section-head">
-    <div><p class="kicker">04 · Resultado del escenario</p><h2>¿Qué efecto tendría esta ventilación?</h2></div>
+    <div><p class="kicker">04 · Resultado del escenario</p><h2>¿Qué efecto tendría esta ventilación?</h2><span class="calc-origin mixed">FÍSICO + ESTIMACIÓN</span></div>
     <span id="ventAdviceBadge" class="drying-badge">—</span>
   </div>
 
@@ -407,8 +421,21 @@
   <p class="note">*Modelo de mezcla perfecta, sin generación adicional de vapor durante el periodo de apertura. Es una estimación educativa y no una medición del caudal real.</p>
 </section>
 
+<section class="card full normative-card">
+  <div class="section-head"><div><p class="kicker">04B · Referencia normativa de ventilación</p><h2>Flujo mínimo higiénico CEV 2025</h2><span class="calc-origin normative">NORMATIVO / CEV</span></div><span id="cevStatusBadge" class="drying-badge">—</span></div>
+  <div class="norm-formula"><div><small>ECUACIÓN 16 · ANEXO D MANUAL CEV 2025</small><strong>Fmin = ((0,3 · AV + 2,5 · NP) · 3,6) / VV</strong></div><p><b>AV</b> = área de piso [m²] · <b>NP</b> = dormitorios + 1 · <b>VV</b> = volumen [m³].</p></div>
+  <div class="summary-grid norm-summary">
+    <div class="stat"><small>Personas CEV (NP)</small><strong id="cevNp">—</strong><em>personas</em></div>
+    <div class="stat"><small>Fmin CEV</small><strong id="cevFmin">—</strong><em>ren/h</em></div>
+    <div class="stat"><small>Caudal equivalente mínimo</small><strong id="cevQmin">—</strong><em>m³/h</em></div>
+    <div class="stat"><small>Caudal del escenario</small><strong id="cevQscenario">—</strong><em>m³/h</em></div>
+  </div>
+  <div id="cevStatusText" class="callout">—</div>
+  <div class="norm-scope"><b>Alcance</b><p>Compara el escenario con Fmin del Manual CEV 2025. No acredita por sí solo cumplimiento completo de NCh3308:2024/NCh3309:2022 ni sustituye memoria de cálculo, pérdidas de carga, documentación de equipos o el informe exigido por OGUC.</p></div>
+</section>
+
 <section class="card full drying-card">
-  <div class="section-head"><div><p class="kicker">05 · ¿Conviene ventilar ahora?</p><h2>¿Conviene ventilar con este aire exterior?</h2></div><span class="drying-badge" id="dryingBadge">—</span></div>
+  <div class="section-head"><div><p class="kicker">05 · ¿Conviene ventilar ahora?</p><h2>¿Conviene ventilar con este aire exterior?</h2><span class="calc-origin physical">FÍSICO + CRITERIO HIDROLAB</span></div><span class="drying-badge" id="dryingBadge">—</span></div>
   <div class="drying-explainer">
     <div><b>¿De qué depende?</b><span>No depende de la HR exterior por sí sola. HIDROLAB combina <strong>temperatura + HR</strong> para obtener humedad absoluta en g/m³.</span></div>
     <div class="drying-rule"><span id="dryingRuleText">—</span></div>

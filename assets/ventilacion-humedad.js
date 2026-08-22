@@ -234,8 +234,23 @@ function renderDewRisk(c){
 function renderWaterStory(c){
   const liters=c.gramsRemoved/1000,delta=Math.max(0,c.ah0-c.ah1);$('removedLiters').textContent=fmt(liters,3);$('removedGrams').textContent=`${fmt(c.gramsRemoved,0)} g`;$('ahBefore').textContent=`${fmt(c.ah0,2)} g/m³`;$('ahAfter').textContent=`${fmt(c.ah1,2)} g/m³`;$('ahDelta').textContent=`${fmt(delta,2)} g/m³`;$('bottleFill').style.height=`${Math.min(100,liters/1.2*100)}%`;$('waterStoryBadge').textContent=c.dehum?'AGUA CONDENSADA EN EL EQUIPO':'AGUA EVACUADA CON EL AIRE';$('waterStoryText').textContent=c.dehum?`En ${formatDuration()}, el deshumidificador podría condensar aproximadamente ${fmt(liters,2)} L de agua desde el aire.`:`Durante ${formatDuration()}, la estrategia podría evacuar aproximadamente ${fmt(c.gramsRemoved,0)} g de agua desde el aire, equivalentes a ${fmt(liters,3)} L.`
 }
+function cevReference(){
+  const AV=Math.max(1,+$('floorArea').value||1),bedrooms=Math.max(0,Math.round(+$('bedrooms').value||0)),NP=bedrooms+1,VV=volume(),
+    Fmin=((0.3*AV+2.5*NP)*3.6)/VV,Qmin=Fmin*VV,c=actionResult(),Qscenario=c.dehum?0:c.Q,ACHscenario=c.dehum?0:c.ach,ratio=Qmin>0?Qscenario/Qmin:0;
+  return{AV,bedrooms,NP,VV,Fmin,Qmin,Qscenario,ACHscenario,ratio,dehum:c.dehum}
+}
+function renderCevReference(){
+  const n=cevReference();$('cevNp').textContent=n.NP;$('cevFmin').textContent=fmt(n.Fmin,2);$('cevQmin').textContent=fmt(n.Qmin,0);$('cevQscenario').textContent=fmt(n.Qscenario,0);
+  let label='BAJO Fmin',cls='bad',txt='';
+  if(n.dehum){label='NO ES VENTILACIÓN';cls='mild';txt=`El deshumidificador reduce vapor, pero no renueva aire. El escenario aporta 0 m³/h frente a ${fmt(n.Qmin,0)} m³/h equivalentes de Fmin (${fmt(n.Fmin,2)} ren/h).`}
+  else if(n.ratio>=1){label='SUPERA Fmin';cls='great';txt=`El escenario (${fmt(n.Qscenario,0)} m³/h) iguala o supera el equivalente de Fmin (${fmt(n.Qmin,0)} m³/h). Si este caudal proviene de ventanas sigue siendo una estimación HIDROLAB y no acredita por sí solo cumplimiento normativo.`}
+  else{txt=`El escenario (${fmt(n.Qscenario,0)} m³/h) queda bajo el equivalente de Fmin (${fmt(n.Qmin,0)} m³/h). Faltan aproximadamente ${fmt(n.Qmin-n.Qscenario,0)} m³/h para alcanzar esta referencia.`}
+  $('cevStatusBadge').textContent=label;$('cevStatusBadge').className=`drying-badge ${cls}`;$('cevStatusText').className='callout '+(cls==='great'?'safe':cls==='mild'?'warn':'danger');$('cevStatusText').innerHTML=`<b>${txt}</b>`
+}
+
 function render(){
   renderSourceContributions();
+  setTimeout(renderCevReference,0);
   const vol=volume(),moist=moistureKgDay(),pf=practicalFlow(),c=actionResult(),dry=dryingData(c),advice=recommendation(c,dry,c),req=required(),reqAch=Number.isFinite(req)?req/vol:Infinity;
   $('volOut').textContent=fmt(vol,1);$('moistOut').textContent=fmt(moist,2);$('waterL').textContent=`${fmt(moist,1)} L`;$('waterFill').style.height=`${Math.min(100,moist/12*100)}%`;
   if(ventMode==='practical'&&!['mechanical','dehumidifier'].includes(strategy)){$('effectiveArea').textContent=fmt(pf.area,2);$('estimatedFlow').textContent=fmt(pf.flow,0);$('estimatedRange').textContent=`${fmt(pf.low,0)}–${fmt(pf.high,0)}`;$('openAch').textContent=fmt(pf.flow/vol,2)}
@@ -258,6 +273,7 @@ function reportData(){
     comboExtractorFlow:+$('comboExtractorFlow')?.value||0,
     dehumidifier:{capacity:+$('dehumCapacity').value||0,factor:+$('dehumFactor').value||0,tank:+$('dehumTank').value||0,effectiveLph:c.effectiveLph||0},
     result:{flow:c.Q,ach:c.ach,airChanges:c.airChanges,rhBefore:c.RH,rhAfter:c.rh1,reduction:c.reduction,gramsRemoved:c.gramsRemoved,litersRemoved:c.gramsRemoved/1000,ahBefore:c.ah0,ahAfter:c.ah1,ahExterior:c.aho},
+    cev:cevReference(),
     requiredFlow:req,requiredAch:Number.isFinite(req)?req/volume():Infinity,drying:dry,advice,dew
   }
 }
@@ -267,7 +283,7 @@ document.querySelectorAll('[data-volume-mode]').forEach(b=>b.onclick=()=>setVolu
 document.querySelectorAll('[data-moist-mode]').forEach(b=>b.onclick=()=>setMoistMode(b.dataset.moistMode));
 document.querySelectorAll('[data-vent-mode]').forEach(b=>b.onclick=()=>setVentMode(b.dataset.ventMode));
 document.querySelectorAll('[data-strategy]').forEach(b=>b.onclick=()=>setStrategy(b.dataset.strategy));
-['roomL','roomW','roomH','vol','ti','te','rhe','target','people','showers','cooking','laundry','dishwashing','plants','plantRate','pets','petRate','mopping','heaterType','heaterHours','heaterFuelRate','heaterWaterFactor','personHours','personRate','showerLiters','laundryLiters','moist',
+['roomL','roomW','roomH','vol','floorArea','bedrooms','ti','te','rhe','target','people','showers','cooking','laundry','dishwashing','plants','plantRate','pets','petRate','mopping','heaterType','heaterHours','heaterFuelRate','heaterWaterFactor','personHours','personRate','showerLiters','laundryLiters','moist',
 'win1W','win1H','win1Pct','win1WCross','win1HCross','win1PctCross','win2W','win2H','win2Pct','wdWinW','wdWinH','wdWinPct','doorW','doorH','doorPct',
 'ceWin1W','ceWin1H','ceWin1Pct','ceWin2W','ceWin2H','ceWin2Pct','comboExtractorFlow','windLevel','mechanicalFlow','flow','dehumCapacity','dehumFactor','dehumTank','surfaceTempRef']
 .forEach(id=>$(id)?.addEventListener('input',render));

@@ -359,7 +359,8 @@
       if(x.practicalFlow?.estimated)addRow(doc,b3,'Rango orientativo de caudal',`${fmtNum(x.practicalFlow.low,0)}–${fmtNum(x.practicalFlow.high,0)} m³/h`)
     }
     t3.append(b3);sec3.append(t3);
-    sec3.append(el(doc,'p','section-note','ACH = renovaciones de aire por hora. 1 ACH significa mover en una hora un volumen de aire equivalente al volumen completo del recinto.'));
+    sec3.append(el(doc,'p','section-note','ACH = renovaciones de aire por hora. 1 ACH significa mover en una hora un volumen de aire equivalente al volumen completo del recinto.'));const secN=addSection(doc,root,'3B. Referencia normativa / CEV 2025');const tn=el(doc,'table','kv'),bn=el(doc,'tbody'),n=x.cev||{};[
+['Superficie de piso AV',`${fmtNum(n.AV,1)} m²`],['Dormitorios',n.bedrooms],['Personas CEV NP',n.NP],['Volumen VV',`${fmtNum(n.VV,1)} m³`],['Fmin · Ecuación 16 Anexo D',`${fmtNum(n.Fmin,2)} ren/h`],['Caudal equivalente mínimo',`${fmtNum(n.Qmin,0)} m³/h`],['Caudal del escenario',`${fmtNum(n.Qscenario,0)} m³/h`],['Comparación',n.dehum?'Deshumidificador: no aporta ventilación':n.ratio>=1?'Escenario ≥ Fmin':'Escenario < Fmin']].forEach(r=>addRow(doc,bn,r[0],r[1]));tn.append(bn);secN.append(tn);secN.append(el(doc,'p','section-note','Fuente: Manual CEV 2025, Anexo D, Ecuación 16. La comparación no sustituye la acreditación completa exigida por OGUC/NCh3308/NCh3309. El caudal de aberturas es una estimación HIDROLAB.'));
 
     const sec4=addSection(doc,root,'4. Efecto estimado de la estrategia');
     const t4=el(doc,'table','kv'),b4=el(doc,'tbody');
