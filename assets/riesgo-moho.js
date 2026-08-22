@@ -150,12 +150,12 @@ function renderWallGraphic(d){
     return `<div class="wall-viz-layer" style="flex:${flex};background:${wallVizColor(l.type)}" title="${l.product||l.name}: ${fmt(mm,0)} mm · R ${fmt(layerR(l),3)}"><span>${i+1}</span><b>${l.product||l.name}</b><small>${fmt(mm,0)} mm</small></div>`
   }).join('');
   $('wallVizTe').textContent=fmt(d.te,1)+' °C';$('wallVizTi').textContent=fmt(d.ta,1)+' °C';
-  $('wallVizR').textContent=fmt(d.wall.rTotal,3)+' m²K/W';$('wallVizU').textContent=fmt(d.wall.U,2)+' W/m²K';$('wallVizTsi').textContent=fmt(d.ts,1)+' °C'
+  $('wallVizR').textContent=fmt(d.rTotal,3)+' m²K/W';$('wallVizU').textContent=fmt(d.U,2)+' W/m²K';$('wallVizTsi').textContent=fmt(d.ts,1)+' °C'
 }
 function renderDependencyFlow(d){
   const set=(id,val)=>{const e=$(id);if(e)e.textContent=val};
   set('flowTi',fmt(d.ta,1)+' °C');set('flowRh',fmt(d.rh,0)+' %');set('flowDew',fmt(d.d,1)+' °C');
-  set('flowLayers',layers.length+' capas');set('flowR',fmt(d.wall.rTotal,3));set('flowU',fmt(d.wall.U,2));
+  set('flowLayers',layers.length+' capas');set('flowR',fmt(d.rTotal,3));set('flowU',fmt(d.U,2));
   set('flowTsi',fmt(d.ts,1)+' °C');set('flowTsi2',fmt(d.ts,1));set('flowDew2',fmt(d.d,1));
   const margin=d.ts-d.d,box=$('flowRiskBox');
   let txt='Margen favorable',cls='good';
@@ -174,26 +174,106 @@ function draw(d){
   s+=`<polyline fill="none" stroke="#176d91" stroke-width="4" points="${pts.join(' ')}"/><circle cx="${sx(d.ts)}" cy="${sy(clamp(d.rhs,minY,maxY))}" r="7" fill="${st.color}" stroke="white" stroke-width="3"/><line x1="${sx(d.d)}" y1="${T}" x2="${sx(d.d)}" y2="${H-BT}" stroke="#c84b4b" stroke-dasharray="6 5"/><text x="${sx(d.d)+5}" y="${T+16}" font-size="11" fill="#b94444">Rocío ${fmt(d.d)}°C</text><text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">Temperatura superficial interior del muro (°C)</text><text x="16" y="${H/2}" transform="rotate(-90 16 ${H/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">HR superficial</text>`;$('chart').innerHTML=s
 }
 
+const PERSON_ACTIVITY_RATES={rest:45,light:60,moderate:90};
+const PERSON_ACTIVITY_LABELS={rest:'Reposo / sentado',light:'Actividad ligera',moderate:'Actividad moderada'};
+const PERSON_ACTION_LABELS={none:'Sin acción adicional',cooking:'Cocinando',shower:'Duchándose'};
+
+let vaporPersonState=[
+  {activity:'light',action:'none',actionAmount:1}
+];
+
+function syncVaporPersonState(){
+  const n=clamp(Math.round(+$('vaporPeople').value||0),0,8);
+  while(vaporPersonState.length<n)vaporPersonState.push({activity:'light',action:'none',actionAmount:1});
+  if(vaporPersonState.length>n)vaporPersonState=vaporPersonState.slice(0,n);
+}
+function renderVaporPersons(){
+  const host=$('vaporPersonRows');if(!host)return;
+  syncVaporPersonState();
+  if(!vaporPersonState.length){
+    host.innerHTML='<div class="vapor-no-people">Sin personas seleccionadas.</div>';
+    return;
+  }
+  host.innerHTML=vaporPersonState.map((p,i)=>{
+    const actionField=p.action==='cooking'
+      ?`<label><span>Tiempo cocinando</span><select class="vp-action-amount" data-i="${i}"><option value=".5"${p.actionAmount==.5?' selected':''}>30 min</option><option value="1"${p.actionAmount==1?' selected':''}>1 h</option><option value="2"${p.actionAmount==2?' selected':''}>2 h</option><option value="3"${p.actionAmount==3?' selected':''}>3 h</option></select></label>`
+      :p.action==='shower'
+      ?`<label><span>N.º de duchas</span><select class="vp-action-amount" data-i="${i}"><option value="1"${p.actionAmount==1?' selected':''}>1 ducha</option><option value="2"${p.actionAmount==2?' selected':''}>2 duchas</option></select></label>`
+      :`<div class="vp-action-empty"><span>Acción adicional</span><b>—</b></div>`;
+    return `<div class="vapor-person-card">
+      <div class="vapor-person-title"><span>${i+1}</span><b>Persona ${i+1}</b><small id="vpContribution${i}">—</small></div>
+      <div class="vapor-person-grid">
+        <label><span>Actividad durante el período</span>
+          <select class="vp-activity" data-i="${i}">
+            <option value="rest"${p.activity==='rest'?' selected':''}>Reposo / sentado</option>
+            <option value="light"${p.activity==='light'?' selected':''}>Actividad ligera</option>
+            <option value="moderate"${p.activity==='moderate'?' selected':''}>Actividad moderada</option>
+          </select>
+        </label>
+        <label><span>¿Qué está haciendo además?</span>
+          <select class="vp-action" data-i="${i}">
+            <option value="none"${p.action==='none'?' selected':''}>Nada adicional</option>
+            <option value="cooking"${p.action==='cooking'?' selected':''}>Cocinando</option>
+            <option value="shower"${p.action==='shower'?' selected':''}>Duchándose</option>
+          </select>
+        </label>
+        ${actionField}
+      </div>
+    </div>`
+  }).join('');
+
+  host.querySelectorAll('.vp-activity').forEach(el=>el.onchange=e=>{
+    const i=+e.target.dataset.i;vaporPersonState[i].activity=e.target.value;renderVaporEstimate()
+  });
+  host.querySelectorAll('.vp-action').forEach(el=>el.onchange=e=>{
+    const i=+e.target.dataset.i;vaporPersonState[i].action=e.target.value;vaporPersonState[i].actionAmount=1;renderVaporPersons();renderVaporEstimate()
+  });
+  host.querySelectorAll('.vp-action-amount').forEach(el=>el.onchange=e=>{
+    const i=+e.target.dataset.i;vaporPersonState[i].actionAmount=+e.target.value;renderVaporEstimate()
+  });
+}
 function vaporEstimate(){
   const hours=$('duration').value==='manual'?clamp(+$('durationHours').value||0,0,24):0;
-  const people=clamp(+$('vaporPeople').value||0,0,20);
-  const perPerson=clamp(+$('vaporActivity').value||60,0,200);
-  const sources=[
-    {id:'vaporCooking',label:'cocina',rate:500},
-    {id:'vaporShower',label:'ducha/baño húmedo',rate:700},
-    {id:'vaporLaundry',label:'ropa secándose',rate:200},
-    {id:'vaporHeater',label:'estufa sin evacuación',rate:300},
-    {id:'vaporPlantsPets',label:'plantas/mascotas',rate:50}
-  ].filter(s=>$(s.id)?.checked);
-  const humanRate=people*perPerson,extra=sources.reduce((a,s)=>a+s.rate,0),totalRate=humanRate+extra;
-  const grams=totalRate*hours,kg=grams/1000,liters=kg;
-  return{hours,people,perPerson,sources,extra,humanRate,totalRate,grams,kg,liters}
+  syncVaporPersonState();
+
+  const persons=vaporPersonState.map((p,i)=>{
+    const rate=PERSON_ACTIVITY_RATES[p.activity]||60;
+    const metabolicGrams=rate*hours;
+    let actionGrams=0,actionDescription='sin acción adicional';
+    if(p.action==='cooking'){
+      const actionHours=Math.min(hours,Math.max(0,+p.actionAmount||0));
+      actionGrams=600*actionHours;
+      actionDescription=`cocinando ${fmt(actionHours,1)} h`;
+    }else if(p.action==='shower'){
+      const showers=Math.max(0,+p.actionAmount||0);
+      actionGrams=660*showers;
+      actionDescription=`${fmt(showers,0)} ducha${showers===1?'':'s'}`;
+    }
+    return{index:i+1,activity:p.activity,activityLabel:PERSON_ACTIVITY_LABELS[p.activity],rate,metabolicGrams,
+      action:p.action,actionDescription,actionGrams,totalGrams:metabolicGrams+actionGrams}
+  });
+
+  const peopleGrams=persons.reduce((s,p)=>s+p.totalGrams,0);
+  const loads=Math.max(0,+$('vaporLaundryLoads').value||0);
+  const laundryGrams=loads*1800;
+
+  const heaterType=$('vaporHeaterQuick').value;
+  const heaterHours=Math.min(hours,clamp(+$('vaporHeaterHours').value||0,0,24));
+  let heaterGrams=0,heaterRate=0;
+  if(heaterType==='gas'){heaterRate=.22*1.60*1000;heaterGrams=heaterRate*heaterHours}
+  if(heaterType==='paraffin'){heaterRate=.20*1.25*1000;heaterGrams=heaterRate*heaterHours}
+
+  const grams=peopleGrams+laundryGrams+heaterGrams,kg=grams/1000,liters=kg;
+  return{hours,persons,peopleGrams,loads,laundryGrams,heaterType,heaterHours,heaterRate,heaterGrams,grams,kg,liters}
 }
 function renderVaporEstimate(){
   const card=$('vaporCard');if(!card)return;
+  renderVaporPersons();
   const manual=$('duration').value==='manual';
   const intro=$('vaporIntro'),state=$('vaporState');
   card.classList.toggle('vapor-active',manual);
+  $('vaporHeaterHoursWrap')?.classList.toggle('hidden',$('vaporHeaterQuick').value==='none');
+
   if(!manual){
     card.classList.remove('vapor-high');
     if(intro)intro.textContent='Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.';
@@ -202,16 +282,32 @@ function renderVaporEstimate(){
     $('vaporBreakdown').innerHTML='Selecciona <b>Ingresar horas manualmente</b> en Persistencia estimada.';
     return
   }
+
   const v=vaporEstimate(),high=v.hours>=10;
   card.classList.toggle('vapor-high',high);
-  if(intro)intro.textContent=high?'Período prolongado: visualiza cuánta agua equivalente se libera durante las horas indicadas.':'Estimación acumulada durante las horas manuales indicadas.';
+  if(intro)intro.textContent='Estimación acumulada: metabolismo de cada persona + acciones/eventos domésticos seleccionados.';
   if(state)state.textContent=high?'PERÍODO PROLONGADO':'CÁLCULO ACTIVO';
   $('vaporLiters').textContent=fmt(v.liters,2);
   $('vaporMass').textContent=`${fmt(v.kg,2)} kg de agua`;
   $('vaporTankLabel').textContent=`${fmt(v.liters,2)} L`;
   $('vaporFill').style.height=`${Math.min(100,v.liters/10*100)}%`;
-  const extras=v.sources.length?v.sources.map(s=>s.label).join(', '):'sin fuentes adicionales';
-  $('vaporBreakdown').innerHTML=`${fmt(v.hours,1)} h × (${v.people} pers. × ${fmt(v.perPerson,0)} g/h + ${fmt(v.extra,0)} g/h por ${extras}) = <b>${fmt(v.grams,0)} g</b> = <b>${fmt(v.liters,2)} L eq.</b>`;
+
+  v.persons.forEach((p,i)=>{
+    const el=$(`vpContribution${i}`);
+    if(el)el.textContent=`+${fmt(p.totalGrams/1000,2)} L`;
+  });
+
+  const peopleLines=v.persons.map(p=>
+    `<span><b>Persona ${p.index}</b>: ${p.activityLabel} = ${fmt(p.metabolicGrams/1000,2)} L`+
+    `${p.actionGrams>0?` + ${p.actionDescription} = ${fmt(p.actionGrams/1000,2)} L`:''}</span>`
+  ).join('');
+
+  const extras=[
+    v.laundryGrams>0?`<span><b>Ropa secándose:</b> ${fmt(v.loads,1)} carga(s) = ${fmt(v.laundryGrams/1000,2)} L</span>`:'',
+    v.heaterGrams>0?`<span><b>Estufa ${v.heaterType==='gas'?'a gas':'a parafina'}:</b> ${fmt(v.heaterHours,1)} h = ${fmt(v.heaterGrams/1000,2)} L</span>`:''
+  ].filter(Boolean).join('');
+
+  $('vaporBreakdown').innerHTML=`<div class="vapor-breakdown-list">${peopleLines||'<span>Sin aporte de personas.</span>'}${extras}</div><div class="vapor-total-line">Total liberado durante ${fmt(v.hours,1)} h: <b>${fmt(v.grams,0)} g = ${fmt(v.liters,2)} L eq.</b></div>`;
 }
 
 function syncPersistenceUI(){
@@ -237,8 +333,9 @@ window.HIDROLAB_RISK_REPORT=()=>{
     thermal:{rsi:R_SI,rse:R_SE,rLayers:d.rLayers,rTotal:d.rTotal,U:d.U},
     layers:layers.map((l,i)=>({order:i+1,position:i===0?'Exterior':i===layers.length-1?'Interior':'Intermedia',
       name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind,source:l.source||'Preset HIDROLAB'})),
-    vapor:{active:d.persist.mode==='manual',hours:v.hours,people:v.people,perPerson:v.perPerson,extra:v.extra,
-      humanRate:v.humanRate,totalRate:v.totalRate,grams:v.grams,kg:v.kg,liters:v.liters}
+    vapor:{active:d.persist.mode==='manual',hours:v.hours,persons:v.persons,peopleGrams:v.peopleGrams,
+      loads:v.loads,laundryGrams:v.laundryGrams,heaterType:v.heaterType,heaterHours:v.heaterHours,
+      heaterGrams:v.heaterGrams,grams:v.grams,kg:v.kg,liters:v.liters}
   }
 };
 
@@ -272,5 +369,7 @@ $('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};
 $('duration').addEventListener('change',()=>{syncPersistenceUI();render()});
 $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours').value||0,0,24);$('durationHoursSlider').value=h;syncPersistenceUI();render()});
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
-['vaporPeople','vaporActivity','vaporCooking','vaporShower','vaporLaundry','vaporHeater','vaporPlantsPets'].forEach(id=>$(id).addEventListener('input',renderVaporEstimate));
+$('vaporPeople').addEventListener('input',()=>{renderVaporPersons();renderVaporEstimate()});
+['vaporLaundryLoads','vaporHeaterQuick','vaporHeaterHours'].forEach(id=>$(id)?.addEventListener('input',renderVaporEstimate));
+$('vaporHeaterQuick')?.addEventListener('change',renderVaporEstimate);
 loadTemplate('eifs_concrete');syncPersistenceUI();render();

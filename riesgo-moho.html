@@ -161,7 +161,7 @@
 </section>
 <section class="card full vapor-context-card">
   <div class="section-head"><div><p class="kicker">03 · Carga de humedad del período</p><h2>¿Cuánto vapor se está liberando?</h2></div><span class="calc-origin estimate">CONTEXTO · NO CAMBIA HR AUTOMÁTICAMENTE</span></div>
-  <div class="vapor-context-note"><b>Qué significa:</b> esta sección cuantifica agua liberada por personas y actividades durante las horas seleccionadas. Sirve para entender la carga de humedad, pero no altera por sí sola el punto de rocío calculado con la HR medida/ingresada.</div>
+  <div class="vapor-context-note"><b>Qué significa:</b> esta sección cuantifica agua liberada por cada persona y por eventos domésticos durante el período. Las actividades continuas se multiplican por horas y las fuentes puntuales, como una ducha o una carga de ropa, se contabilizan como eventos. No altera por sí sola el punto de rocío calculado con la HR medida/ingresada.</div>
 <div id="vaporCard" class="vapor-card">
   <div class="vapor-card-head">
     <div><small>ESTIMADOR LÚDICO</small><h3>Vapor liberado durante el período</h3><p id="vaporIntro">Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.</p></div>
@@ -169,40 +169,62 @@
       <svg viewBox="0 0 48 48"><path d="M24 5S11 20 11 30a13 13 0 0 0 26 0C37 20 24 5 24 5Z"/><path d="M18 31c1 4 4 6 8 6"/></svg>
     </div>
   </div>
-  <div class="vapor-controls vapor-controls-simple">
-    <label>Personas presentes
-      <input id="vaporPeople" type="number" min="0" max="20" step="1" value="2">
-    </label>
-    <label>Actividad de las personas
-      <select id="vaporActivity">
-        <option value="45">Reposo / sentado</option>
-        <option value="60" selected>Actividad ligera</option>
-        <option value="90">Actividad moderada</option>
-      </select>
-    </label>
-  </div>
-  <div class="vapor-source-selector">
-    <span class="vapor-source-title">¿Qué ocurre durante ese período?</span>
-    <div class="vapor-source-chips">
-      <label><input id="vaporCooking" type="checkbox"><span>Cocinando</span></label>
-      <label><input id="vaporShower" type="checkbox"><span>Ducha / baño húmedo</span></label>
-      <label><input id="vaporLaundry" type="checkbox"><span>Ropa secándose</span></label>
-      <label><input id="vaporHeater" type="checkbox"><span>Estufa gas/parafina sin evacuación</span></label>
-      <label><input id="vaporPlantsPets" type="checkbox"><span>Plantas / mascotas</span></label>
+  <div class="vapor-people-setup">
+    <div class="field">
+      <label>Personas presentes durante el período</label>
+      <input id="vaporPeople" type="number" min="0" max="8" step="1" value="1">
+      <small>Cada persona puede tener una actividad y una acción distinta.</small>
     </div>
-    <small>HIDROLAB aplica tasas internas orientativas para evitar que el usuario tenga que inventar valores en g/h.</small>
   </div>
+
+  <div id="vaporPersonRows" class="vapor-person-rows"></div>
+
+  <div class="vapor-household">
+    <div class="vapor-household-head">
+      <b>Fuentes del hogar no ligadas a una persona</b>
+      <span>Se calculan como eventos/cargas, no como g/h durante todo el período.</span>
+    </div>
+    <div class="vapor-household-grid">
+      <label>
+        <span>Ropa secándose al interior</span>
+        <select id="vaporLaundryLoads">
+          <option value="0" selected>No</option>
+          <option value="0.5">Media carga</option>
+          <option value="1">1 carga</option>
+          <option value="2">2 cargas</option>
+        </select>
+        <small>1,8 L eq. por carga</small>
+      </label>
+      <label>
+        <span>Estufa sin evacuación</span>
+        <select id="vaporHeaterQuick">
+          <option value="none" selected>No</option>
+          <option value="gas">Gas licuado</option>
+          <option value="paraffin">Parafina / kerosene</option>
+        </select>
+        <small>Estimación rápida coherente con Ventilación y humedad</small>
+      </label>
+      <label id="vaporHeaterHoursWrap" class="hidden">
+        <span>Horas de estufa dentro del período</span>
+        <input id="vaporHeaterHours" type="number" min="0" max="24" step=".5" value="2">
+        <small>Se limita automáticamente a las horas analizadas.</small>
+      </label>
+    </div>
+  </div>
+
   <details class="vapor-assumptions">
-    <summary>Ver supuestos usados</summary>
+    <summary>Ver supuestos y relación con Ventilación y humedad</summary>
     <div class="vapor-assumption-grid">
-      <span>Actividad ligera: <b>60 g/h por persona</b></span>
-      <span>Cocina: <b>500 g/h</b></span>
-      <span>Ducha / baño húmedo: <b>700 g/h</b></span>
-      <span>Ropa secándose: <b>200 g/h</b></span>
-      <span>Estufa sin evacuación: <b>300 g/h</b></span>
-      <span>Plantas / mascotas: <b>50 g/h</b></span>
+      <span>Persona en reposo: <b>45 g/h</b></span>
+      <span>Actividad ligera: <b>60 g/h</b></span>
+      <span>Actividad moderada: <b>90 g/h</b></span>
+      <span>Ducha: <b>0,66 L por evento</b></span>
+      <span>Cocinar: <b>0,60 L/h de cocción</b></span>
+      <span>Ropa interior: <b>1,8 L por carga</b></span>
+      <span>Gas (rápido): <b>0,22 kg/h × 1,60 kg agua/kg</b></span>
+      <span>Parafina (rápido): <b>0,20 kg/h × 1,25 kg agua/kg</b></span>
     </div>
-    <p>Son valores orientativos HIDROLAB para una visualización acumulada. No constituyen valores normativos de NCh1973.</p>
+    <p>Personas, ducha y ropa usan los mismos supuestos base del módulo Ventilación y humedad. La cocción se expresa aquí por horas del evento para evitar multiplicarla por toda la persistencia. Estos valores son estimaciones educativas HIDROLAB, no límites normativos NCh1973.</p>
   </details>
   <div class="vapor-visual">
     <div class="vapor-tank"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
