@@ -174,17 +174,21 @@ function draw(d){
   s+=`<polyline fill="none" stroke="#176d91" stroke-width="4" points="${pts.join(' ')}"/><circle cx="${sx(d.ts)}" cy="${sy(clamp(d.rhs,minY,maxY))}" r="7" fill="${st.color}" stroke="white" stroke-width="3"/><line x1="${sx(d.d)}" y1="${T}" x2="${sx(d.d)}" y2="${H-BT}" stroke="#c84b4b" stroke-dasharray="6 5"/><text x="${sx(d.d)+5}" y="${T+16}" font-size="11" fill="#b94444">Rocío ${fmt(d.d)}°C</text><text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">Temperatura superficial interior del muro (°C)</text><text x="16" y="${H/2}" transform="rotate(-90 16 ${H/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">HR superficial</text>`;$('chart').innerHTML=s
 }
 
-const PERSON_ACTIVITY_RATES={rest:45,light:60,moderate:90};
-const PERSON_ACTIVITY_LABELS={rest:'Reposo / sentado',light:'Actividad ligera',moderate:'Actividad moderada'};
+const PERSON_ACTIVITY_RATES={sleep:32,tv:45,desk:50,light:60,housework:120,exercise:160,hardExercise:250};
+const PERSON_ACTIVITY_LABELS={
+  sleep:'Dormir',tv:'Ver TV / leer / descansar sentado',desk:'Trabajar sentado / computador',
+  light:'Actividad ligera de pie',housework:'Limpiar / ordenar la casa',
+  exercise:'Ejercicio moderado en casa',hardExercise:'Ejercicio intenso'
+};
 const PERSON_ACTION_LABELS={none:'Sin acción adicional',cooking:'Cocinando',shower:'Duchándose'};
 
 let vaporPersonState=[
-  {activity:'light',action:'none',actionAmount:1}
+  {activity:'tv',action:'none',actionAmount:1}
 ];
 
 function syncVaporPersonState(){
   const n=clamp(Math.round(+$('vaporPeople').value||0),0,8);
-  while(vaporPersonState.length<n)vaporPersonState.push({activity:'light',action:'none',actionAmount:1});
+  while(vaporPersonState.length<n)vaporPersonState.push({activity:'tv',action:'none',actionAmount:1});
   if(vaporPersonState.length>n)vaporPersonState=vaporPersonState.slice(0,n);
 }
 function renderVaporPersons(){
@@ -205,9 +209,13 @@ function renderVaporPersons(){
       <div class="vapor-person-grid">
         <label><span>Actividad durante el período</span>
           <select class="vp-activity" data-i="${i}">
-            <option value="rest"${p.activity==='rest'?' selected':''}>Reposo / sentado</option>
-            <option value="light"${p.activity==='light'?' selected':''}>Actividad ligera</option>
-            <option value="moderate"${p.activity==='moderate'?' selected':''}>Actividad moderada</option>
+            <option value="sleep"${p.activity==='sleep'?' selected':''}>Dormir</option>
+            <option value="tv"${p.activity==='tv'?' selected':''}>Ver TV / leer / descansar</option>
+            <option value="desk"${p.activity==='desk'?' selected':''}>Trabajar sentado / computador</option>
+            <option value="light"${p.activity==='light'?' selected':''}>Actividad ligera de pie</option>
+            <option value="housework"${p.activity==='housework'?' selected':''}>Limpiar / ordenar la casa</option>
+            <option value="exercise"${p.activity==='exercise'?' selected':''}>Ejercicio moderado en casa</option>
+            <option value="hardExercise"${p.activity==='hardExercise'?' selected':''}>Ejercicio intenso</option>
           </select>
         </label>
         <label><span>¿Qué está haciendo además?</span>
@@ -237,7 +245,7 @@ function vaporEstimate(){
   syncVaporPersonState();
 
   const persons=vaporPersonState.map((p,i)=>{
-    const rate=PERSON_ACTIVITY_RATES[p.activity]||60;
+    const rate=PERSON_ACTIVITY_RATES[p.activity]||45;
     const metabolicGrams=rate*hours;
     let actionGrams=0,actionDescription='sin acción adicional';
     if(p.action==='cooking'){
@@ -266,6 +274,71 @@ function vaporEstimate(){
   const grams=peopleGrams+laundryGrams+heaterGrams,kg=grams/1000,liters=kg;
   return{hours,persons,peopleGrams,loads,laundryGrams,heaterType,heaterHours,heaterRate,heaterGrams,grams,kg,liters}
 }
+
+function absHumidity(T,RH){
+  // g/m³ from vapor pressure in hPa
+  return 216.7*pv(T,clamp(RH,0.1,100))/(T+273.15);
+}
+function rhFromAbsHumidity(T,ah){
+  const e=Math.max(0,ah)*(T+273.15)/216.7;
+  return 100*e/ps(T);
+}
+function vaporImpactEstimate(v){
+  const enabled=!!$('vaporImpactEnabled')?.checked;
+  if(!enabled||!v.hours)return{enabled:false};
+  const Ti=+$('ta').value||18, RH0=clamp(+$('rh').value||70,1,100);
+  const V=clamp(+$('vaporRoomVolume').value||40,5,1000);
+  const ach=Math.max(0,+$('vaporVentMode').value||0);
+  const To=+$('vaporOutdoorT').value||0, RHo=clamp(+$('vaporOutdoorRH').value||80,1,100);
+  const c0=absHumidity(Ti,RH0), cout=absHumidity(To,RHo);
+  const G=v.hours>0?v.grams/v.hours:0; // g/h averaged across selected period
+  let cRaw;
+  if(ach<=0)cRaw=c0+v.grams/V;
+  else{
+    const e=Math.exp(-ach*v.hours);
+    cRaw=cout+(c0-cout)*e+(G/(ach*V))*(1-e);
+  }
+  const sat=absHumidity(Ti,100);
+  const excessG=Math.max(0,(cRaw-sat)*V);
+  const cFinal=Math.min(cRaw,sat);
+  const rhRaw=rhFromAbsHumidity(Ti,cRaw);
+  const rhFinal=Math.min(100,rhRaw);
+  const dew0=dew(Ti,RH0);
+  const dewFinal=dew(Ti,Math.min(99.999,Math.max(.1,rhFinal)));
+  return{enabled:true,Ti,RH0,V,ach,To,RHo,c0,cout,G,cRaw,cFinal,rhRaw,rhFinal,dew0,dewFinal,excessG,sat};
+}
+function renderVaporImpact(v){
+  const enabled=!!$('vaporImpactEnabled')?.checked;
+  $('vaporImpactControls')?.classList.toggle('hidden',!enabled);
+  $('vaporImpactResult')?.classList.toggle('hidden',!enabled);
+  $('vaporImpactMessage')?.classList.toggle('hidden',!enabled);
+  if(!enabled)return;
+  const x=vaporImpactEstimate(v);
+  if(!x.enabled){
+    $('vaporImpactMessage').innerHTML='<b>Selecciona horas manuales</b> para ejecutar la simulación.';
+    ['impactRh0','impactRh1','impactDew0','impactDew1','impactAirWater','impactCondensed'].forEach(id=>$(id).textContent='—');
+    return;
+  }
+  $('impactRh0').textContent=fmt(x.RH0,0);
+  $('impactRh1').textContent=fmt(x.rhFinal,0);
+  $('impactDew0').textContent=fmt(x.dew0,1);
+  $('impactDew1').textContent=fmt(x.dewFinal,1);
+  $('impactAirWater').textContent=fmt(x.cFinal,1);
+  $('impactCondensed').textContent=fmt(x.excessG,0);
+
+  const d=data(), tsi=d.ts;
+  const delta=x.rhFinal-x.RH0;
+  let state='estable', cls='good';
+  if(x.excessG>0){state='saturación / condensación potencial';cls='bad'}
+  else if(x.dewFinal>=tsi){state='riesgo de condensación sobre el muro';cls='bad'}
+  else if(x.rhFinal>=80){state='humedad interior muy alta';cls='warn'}
+  else if(delta>5){state='aumento relevante de HR';cls='warn'}
+  $('vaporImpactMessage').className='vapor-impact-message '+cls;
+  $('vaporImpactMessage').innerHTML=
+    `<b>${state}</b><span>Con ${fmt(v.liters,2)} L eq. liberados en ${fmt(v.hours,1)} h, la HR pasa de ${fmt(x.RH0,0)}% a ${fmt(x.rhFinal,0)}% en este escenario. `+
+    `El punto de rocío pasa de ${fmt(x.dew0,1)} °C a ${fmt(x.dewFinal,1)} °C. `+
+    `${x.ach>0?`Ventilación considerada: ${fmt(x.ach,2)} ACH; aire exterior ${fmt(x.To,1)} °C / ${fmt(x.RHo,0)}% HR.`:'No se consideró renovación de aire.'}</span>`;
+}
 function renderVaporEstimate(){
   const card=$('vaporCard');if(!card)return;
   renderVaporPersons();
@@ -280,6 +353,7 @@ function renderVaporEstimate(){
     if(state)state.textContent='ESPERANDO HORAS';
     $('vaporLiters').textContent='—';$('vaporMass').textContent='—';$('vaporTankLabel').textContent='0 L';$('vaporFill').style.height='0%';
     $('vaporBreakdown').innerHTML='Selecciona <b>Ingresar horas manualmente</b> en Persistencia estimada.';
+    renderVaporImpact({hours:0,grams:0,liters:0});
     return
   }
 
@@ -308,6 +382,7 @@ function renderVaporEstimate(){
   ].filter(Boolean).join('');
 
   $('vaporBreakdown').innerHTML=`<div class="vapor-breakdown-list">${peopleLines||'<span>Sin aporte de personas.</span>'}${extras}</div><div class="vapor-total-line">Total liberado durante ${fmt(v.hours,1)} h: <b>${fmt(v.grams,0)} g = ${fmt(v.liters,2)} L eq.</b></div>`;
+  renderVaporImpact(v);
 }
 
 function syncPersistenceUI(){
@@ -335,7 +410,7 @@ window.HIDROLAB_RISK_REPORT=()=>{
       name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind,source:l.source||'Preset HIDROLAB'})),
     vapor:{active:d.persist.mode==='manual',hours:v.hours,persons:v.persons,peopleGrams:v.peopleGrams,
       loads:v.loads,laundryGrams:v.laundryGrams,heaterType:v.heaterType,heaterHours:v.heaterHours,
-      heaterGrams:v.heaterGrams,grams:v.grams,kg:v.kg,liters:v.liters}
+      heaterGrams:v.heaterGrams,grams:v.grams,kg:v.kg,liters:v.liters,impact:vaporImpactEstimate(v)}
   }
 };
 
@@ -371,5 +446,9 @@ $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
 $('vaporPeople').addEventListener('input',()=>{renderVaporPersons();renderVaporEstimate()});
 ['vaporLaundryLoads','vaporHeaterQuick','vaporHeaterHours'].forEach(id=>$(id)?.addEventListener('input',renderVaporEstimate));
+['vaporImpactEnabled','vaporRoomVolume','vaporVentMode','vaporOutdoorT','vaporOutdoorRH'].forEach(id=>{
+  $(id)?.addEventListener('input',renderVaporEstimate);
+  $(id)?.addEventListener('change',renderVaporEstimate);
+});
 $('vaporHeaterQuick')?.addEventListener('change',renderVaporEstimate);
 loadTemplate('eifs_concrete');syncPersistenceUI();render();

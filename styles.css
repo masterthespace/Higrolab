@@ -377,3 +377,20 @@ html[data-theme=dark] .wall-stack{background:var(--ui-panel-solid);border-color:
 .vapor-breakdown-list{display:grid;gap:4px}.vapor-breakdown-list span{display:block}.vapor-total-line{margin-top:7px;padding-top:7px;border-top:1px solid #d8e3e6}
 html[data-theme=dark] .vapor-person-card,html[data-theme=dark] .vapor-household{background:var(--ui-panel-soft);border-color:var(--ui-border)}
 @media(max-width:760px){.vapor-person-grid,.vapor-household-grid{grid-template-columns:1fr}}
+
+/* V8.2.5 · balance de vapor y actividades cotidianas */
+.vapor-impact-panel{margin-top:12px;border:1px solid #cfe1e6;border-radius:13px;background:#f8fbfc;padding:12px}
+.vapor-impact-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.vapor-impact-head b{display:block;font-size:.72rem;color:#183f4b}.vapor-impact-head span{display:block;font-size:.57rem;color:#647980;margin-top:2px}
+.impact-switch{display:flex!important;align-items:center;gap:6px;border:1px solid #b9d8df;border-radius:999px;padding:6px 10px;background:white;cursor:pointer}
+.impact-switch input{accent-color:#008fb3}.impact-switch span{margin:0!important;font-weight:900!important;color:#17647a!important}
+.vapor-impact-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.vapor-impact-result{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}
+.vapor-impact-result>div{border:1px solid #d8e5e8;border-radius:10px;background:white;padding:8px}
+.vapor-impact-result small{display:block;font-size:.5rem;color:#657b84;min-height:24px}.vapor-impact-result strong{font-size:1rem;color:#083f50}.vapor-impact-result em{display:block;font-size:.5rem;color:#6c7f86;font-style:normal}
+.vapor-impact-message{margin-top:9px;border-radius:9px;padding:9px 10px;display:flex;gap:8px;align-items:flex-start;font-size:.58rem}
+.vapor-impact-message b{text-transform:uppercase;white-space:nowrap}.vapor-impact-message.good{background:#eaf6ef;border-left:4px solid #3ba36c}.vapor-impact-message.warn{background:#fff5df;border-left:4px solid #e5a52e}.vapor-impact-message.bad{background:#fde9e7;border-left:4px solid #d34e4e}
+.vapor-impact-method{margin-top:8px;font-size:.57rem;color:#586f77}.vapor-impact-method summary{font-weight:900;cursor:pointer}
+html[data-theme=dark] .vapor-impact-panel,html[data-theme=dark] .vapor-impact-result>div,html[data-theme=dark] .impact-switch{background:var(--ui-panel-soft);border-color:var(--ui-border)}
+@media(max-width:900px){.vapor-impact-controls{grid-template-columns:1fr 1fr}.vapor-impact-result{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.vapor-impact-controls{grid-template-columns:1fr}.vapor-impact-result{grid-template-columns:1fr 1fr}.vapor-impact-head{align-items:flex-start;flex-direction:column}}

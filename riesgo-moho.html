@@ -151,7 +151,7 @@
   </div>
   <div class="dep-context">
     <span class="dep-tag estimate">VAPOR GENERADO</span>
-    <p>El estimador lúdico muestra cuánta agua liberan personas y actividades durante un período. <b>No modifica automáticamente la HR interior ni el punto de rocío</b>, porque para hacerlo correctamente también habría que conocer volumen del recinto, ventilación, extracción y condiciones iniciales. Se muestra como contexto de carga de humedad, no como entrada directa al cálculo superficial.</p>
+    <p>El estimador cuantifica el agua liberada por personas y actividades. Con <b>Simular efecto sobre el ambiente</b>, HIDROLAB usa además volumen del recinto, ventilación y aire exterior para estimar cómo esa carga puede modificar la HR y el punto de rocío. La simulación es un balance simplificado de aire perfectamente mezclado y se mantiene separada del diagnóstico principal medido.</p>
   </div>
 </section>
 <section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIDROLAB</small>
@@ -226,6 +226,57 @@
     </div>
     <p>Personas, ducha y ropa usan los mismos supuestos base del módulo Ventilación y humedad. La cocción se expresa aquí por horas del evento para evitar multiplicarla por toda la persistencia. Estos valores son estimaciones educativas HIDROLAB, no límites normativos NCh1973.</p>
   </details>
+
+  <div class="vapor-impact-panel">
+    <div class="vapor-impact-head">
+      <div>
+        <b>Simular efecto del vapor sobre el ambiente</b>
+        <span>Conecta Ti + HR inicial + volumen + vapor + renovación de aire.</span>
+      </div>
+      <label class="impact-switch"><input id="vaporImpactEnabled" type="checkbox"><span>Activar</span></label>
+    </div>
+    <div id="vaporImpactControls" class="vapor-impact-controls hidden">
+      <div class="field">
+        <label>Volumen del recinto [m³]</label>
+        <input id="vaporRoomVolume" type="number" min="5" max="1000" step="1" value="40">
+        <small>Ej.: dormitorio 3 × 4 × 2,4 m ≈ 29 m³.</small>
+      </div>
+      <div class="field">
+        <label>Ventilación durante el período</label>
+        <select id="vaporVentMode">
+          <option value="0">Cerrado / sin renovación considerada</option>
+          <option value="0.25">Muy baja · 0,25 ACH</option>
+          <option value="0.5" selected>Baja · 0,50 ACH</option>
+          <option value="1">Moderada · 1,00 ACH</option>
+          <option value="2">Alta · 2,00 ACH</option>
+        </select>
+        <small>ACH = renovaciones del volumen de aire por hora. Valores de escenario, no caudales normativos.</small>
+      </div>
+      <div class="field">
+        <label>Temperatura exterior para ventilación [°C]</label>
+        <input id="vaporOutdoorT" type="number" step=".1" value="7">
+      </div>
+      <div class="field">
+        <label>HR exterior [%]</label>
+        <input id="vaporOutdoorRH" type="number" min="1" max="100" step="1" value="80">
+      </div>
+    </div>
+    <div id="vaporImpactResult" class="vapor-impact-result hidden">
+      <div><small>HR inicial</small><strong id="impactRh0">—</strong><em>%</em></div>
+      <div><small>HR final estimada</small><strong id="impactRh1">—</strong><em>%</em></div>
+      <div><small>Rocío inicial</small><strong id="impactDew0">—</strong><em>°C</em></div>
+      <div><small>Rocío final estimado</small><strong id="impactDew1">—</strong><em>°C</em></div>
+      <div><small>Agua que quedaría en aire</small><strong id="impactAirWater">—</strong><em>g/m³</em></div>
+      <div><small>Exceso sobre saturación</small><strong id="impactCondensed">—</strong><em>g</em></div>
+    </div>
+    <div id="vaporImpactMessage" class="vapor-impact-message hidden"></div>
+    <details class="vapor-impact-method">
+      <summary>Ver método de simulación</summary>
+      <p>Se usa un balance simplificado de humedad en un recinto perfectamente mezclado. Sin ventilación: humedad absoluta final = inicial + vapor generado / volumen. Con ventilación: se aplica un balance exponencial con el ACH seleccionado y la humedad absoluta exterior. La temperatura interior se mantiene constante durante el período.</p>
+      <p><b>Importante:</b> es una simulación educativa HIDROLAB. No sustituye un cálculo higrotérmico transitorio ni una verificación normativa.</p>
+    </details>
+  </div>
+
   <div class="vapor-visual">
     <div class="vapor-tank"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
     <div class="vapor-result">
