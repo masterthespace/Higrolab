@@ -283,12 +283,54 @@ function rhFromAbsHumidity(T,ah){
   const e=Math.max(0,ah)*(T+273.15)/216.7;
   return 100*e/ps(T);
 }
+
+function practicalVentilation(){
+  const mode=$('vaporVentPractical')?.value||'closed';
+  const V=clamp(+$('vaporRoomVolume')?.value||40,5,1000);
+  let ach=0, known=false, label='Recinto prácticamente cerrado', note='Sin renovación de aire considerada en la simulación.';
+  if(mode==='undercut'){
+    const w=clamp(+$('doorWidthCm')?.value||80,30,200), g=clamp(+$('doorGapCm')?.value||1,.1,10);
+    const area=w*g;
+    label='Puerta cerrada con holgura inferior';
+    note=`Área libre geométrica ≈ ${fmt(area,0)} cm². Es una vía de transferencia entre recintos, pero no permite deducir ACH sin diferencia de presión o caudal medido. Por seguridad de cálculo se mantiene ACH = 0.`;
+  }else if(mode==='ajar'){
+    label='Puerta entreabierta'; note='Mejora la transferencia con el resto de la vivienda, pero no garantiza renovación con aire exterior. ACH no asignado automáticamente.';
+  }else if(mode==='windowCrack'){
+    label='Ventana ligeramente abierta'; note='El caudal depende de viento, temperatura, geometría y apertura. ACH no asignado automáticamente.';
+  }else if(mode==='windowOpen'){
+    label='Ventana abierta'; note='Existe potencial de renovación exterior, pero sin geometría y fuerzas impulsoras no se asigna un ACH automático.';
+  }else if(mode==='cross'){
+    label='Ventilación cruzada'; note='Puede producir renovaciones altas, pero depende de aberturas, viento y presión. Usa “Personalizado” si dispones de ACH calculado/medido.';
+  }else if(mode==='extractor'){
+    const q=Math.max(0,+$('extractorFlow')?.value||0); ach=q/V; known=true; label='Extractor mecánico'; note=`${fmt(q,0)} m³/h ÷ ${fmt(V,0)} m³ = ${fmt(ach,2)} ACH.`;
+  }else if(mode==='custom'){
+    ach=clamp(+$('vaporCustomAch')?.value||0,0,20); known=true; label='ACH personalizado'; note=`Se usa ${fmt(ach,2)} ACH ingresado por el usuario.`;
+  }
+  return{mode,V,ach,known,label,note};
+}
+function renderPracticalVentilation(){
+  const x=practicalVentilation(), mode=x.mode;
+  $('doorGapFields')?.classList.toggle('hidden',mode!=='undercut');
+  $('extractorFields')?.classList.toggle('hidden',mode!=='extractor');
+  $('customAchFields')?.classList.toggle('hidden',mode!=='custom');
+  if($('doorGapArea')&&mode==='undercut'){
+    const a=(+$('doorWidthCm').value||80)*(+$('doorGapCm').value||1);
+    $('doorGapArea').textContent=`Área libre aproximada: ${fmt(a,0)} cm². No equivale por sí sola a un ACH.`;
+  }
+  if($('vaporVentMode'))$('vaporVentMode').value=String(x.ach);
+  if($('ventScenarioStatus')){
+    $('ventScenarioStatus').className='vent-scenario-status '+(x.known?'measured':'transfer');
+    $('ventScenarioStatus').innerHTML=`<b>${x.label}</b><span>${x.note}</span>`;
+  }
+}
 function vaporImpactEstimate(v){
   const enabled=!!$('vaporImpactEnabled')?.checked;
   if(!enabled||!v.hours)return{enabled:false};
   const Ti=+$('ta').value||18, RH0=clamp(+$('rh').value||70,1,100);
   const V=clamp(+$('vaporRoomVolume').value||40,5,1000);
-  const ach=Math.max(0,+$('vaporVentMode').value||0);
+  renderPracticalVentilation();
+  const pvx=practicalVentilation();
+  const ach=pvx.ach;
   const To=+$('vaporOutdoorT').value||0, RHo=clamp(+$('vaporOutdoorRH').value||80,1,100);
   const c0=absHumidity(Ti,RH0), cout=absHumidity(To,RHo);
   const G=v.hours>0?v.grams/v.hours:0; // g/h averaged across selected period
@@ -305,7 +347,7 @@ function vaporImpactEstimate(v){
   const rhFinal=Math.min(100,rhRaw);
   const dew0=dew(Ti,RH0);
   const dewFinal=dew(Ti,Math.min(99.999,Math.max(.1,rhFinal)));
-  return{enabled:true,Ti,RH0,V,ach,To,RHo,c0,cout,G,cRaw,cFinal,rhRaw,rhFinal,dew0,dewFinal,excessG,sat};
+  return{enabled:true,Ti,RH0,V,ach,To,RHo,c0,cout,G,cRaw,cFinal,rhRaw,rhFinal,dew0,dewFinal,excessG,sat,vent:pvx};
 }
 function renderVaporImpact(v){
   const enabled=!!$('vaporImpactEnabled')?.checked;
@@ -337,7 +379,7 @@ function renderVaporImpact(v){
   $('vaporImpactMessage').innerHTML=
     `<b>${state}</b><span>Con ${fmt(v.liters,2)} L eq. liberados en ${fmt(v.hours,1)} h, la HR pasa de ${fmt(x.RH0,0)}% a ${fmt(x.rhFinal,0)}% en este escenario. `+
     `El punto de rocío pasa de ${fmt(x.dew0,1)} °C a ${fmt(x.dewFinal,1)} °C. `+
-    `${x.ach>0?`Ventilación considerada: ${fmt(x.ach,2)} ACH; aire exterior ${fmt(x.To,1)} °C / ${fmt(x.RHo,0)}% HR.`:'No se consideró renovación de aire.'}</span>`;
+    `${x.ach>0?`Ventilación considerada: ${fmt(x.ach,2)} ACH; aire exterior ${fmt(x.To,1)} °C / ${fmt(x.RHo,0)}% HR.`:`${x.vent?.label||'Escenario'}: no se asignó ACH automáticamente; para el balance se usa 0 ACH.`}</span>`;
 }
 function renderVaporEstimate(){
   const card=$('vaporCard');if(!card)return;
@@ -446,7 +488,7 @@ $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
 $('vaporPeople').addEventListener('input',()=>{renderVaporPersons();renderVaporEstimate()});
 ['vaporLaundryLoads','vaporHeaterQuick','vaporHeaterHours'].forEach(id=>$(id)?.addEventListener('input',renderVaporEstimate));
-['vaporImpactEnabled','vaporRoomVolume','vaporVentMode','vaporOutdoorT','vaporOutdoorRH'].forEach(id=>{
+['vaporImpactEnabled','vaporRoomVolume','vaporVentMode','vaporOutdoorT','vaporOutdoorRH','vaporVentPractical','doorWidthCm','doorGapCm','extractorFlow','vaporCustomAch'].forEach(id=>{
   $(id)?.addEventListener('input',renderVaporEstimate);
   $(id)?.addEventListener('change',renderVaporEstimate);
 });

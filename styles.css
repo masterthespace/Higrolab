@@ -394,3 +394,12 @@ html[data-theme=dark] .vapor-person-card,html[data-theme=dark] .vapor-household{
 html[data-theme=dark] .vapor-impact-panel,html[data-theme=dark] .vapor-impact-result>div,html[data-theme=dark] .impact-switch{background:var(--ui-panel-soft);border-color:var(--ui-border)}
 @media(max-width:900px){.vapor-impact-controls{grid-template-columns:1fr 1fr}.vapor-impact-result{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.vapor-impact-controls{grid-template-columns:1fr}.vapor-impact-result{grid-template-columns:1fr 1fr}.vapor-impact-head{align-items:flex-start;flex-direction:column}}
+
+/* V8.2.6 · ventilación práctica sin inventar ACH */
+.vent-practical-field{grid-column:span 2}.vent-detail{background:#f5fafb;border:1px solid #d7e8eb;border-radius:10px;padding:8px}
+.mini-input-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:5px;align-items:center}.mini-input-row span{font-size:.52rem;color:#657b84}
+.vent-scenario-status{grid-column:1/-1;border-radius:10px;padding:9px 10px;display:flex;gap:8px;align-items:flex-start;font-size:.56rem}
+.vent-scenario-status b{white-space:nowrap}.vent-scenario-status span{line-height:1.45}
+.vent-scenario-status.transfer{background:#fff5df;border-left:4px solid #e5a52e}.vent-scenario-status.measured{background:#eaf6ef;border-left:4px solid #3ba36c}
+html[data-theme=dark] .vent-detail{background:var(--ui-panel-soft);border-color:var(--ui-border)}
+@media(max-width:600px){.vent-practical-field{grid-column:auto}.mini-input-row{grid-template-columns:1fr auto}}

@@ -241,17 +241,37 @@
         <input id="vaporRoomVolume" type="number" min="5" max="1000" step="1" value="40">
         <small>Ej.: dormitorio 3 × 4 × 2,4 m ≈ 29 m³.</small>
       </div>
-      <div class="field">
-        <label>Ventilación durante el período</label>
-        <select id="vaporVentMode">
-          <option value="0">Cerrado / sin renovación considerada</option>
-          <option value="0.25">Muy baja · 0,25 ACH</option>
-          <option value="0.5" selected>Baja · 0,50 ACH</option>
-          <option value="1">Moderada · 1,00 ACH</option>
-          <option value="2">Alta · 2,00 ACH</option>
+      <div class="field vent-practical-field">
+        <label>¿Cómo está ventilándose el recinto?</label>
+        <select id="vaporVentPractical">
+          <option value="closed">Recinto prácticamente cerrado</option>
+          <option value="undercut">Puerta cerrada con holgura inferior</option>
+          <option value="ajar">Puerta entreabierta</option>
+          <option value="windowCrack">Ventana ligeramente abierta</option>
+          <option value="windowOpen">Ventana abierta</option>
+          <option value="cross">Ventilación cruzada</option>
+          <option value="extractor">Extractor mecánico · conozco caudal</option>
+          <option value="custom">Personalizado · conozco ACH</option>
         </select>
-        <small>ACH = renovaciones del volumen de aire por hora. Valores de escenario, no caudales normativos.</small>
+        <small id="ventPracticalHelp">Selecciona una situación cotidiana. HIDROLAB solo asignará ACH cuando exista un supuesto defendible.</small>
       </div>
+      <div id="doorGapFields" class="field vent-detail hidden">
+        <label>Holgura inferior de puerta</label>
+        <div class="mini-input-row"><input id="doorWidthCm" type="number" min="30" max="200" step="1" value="80"><span>cm ancho</span><input id="doorGapCm" type="number" min="0.1" max="10" step="0.1" value="1"><span>cm holgura</span></div>
+        <small id="doorGapArea">Área libre aproximada: 80 cm².</small>
+      </div>
+      <div id="extractorFields" class="field vent-detail hidden">
+        <label>Caudal del extractor [m³/h]</label>
+        <input id="extractorFlow" type="number" min="1" max="2000" step="1" value="60">
+        <small>Se convierte a ACH = caudal / volumen del recinto.</small>
+      </div>
+      <div id="customAchFields" class="field vent-detail hidden">
+        <label>ACH medido o adoptado [1/h]</label>
+        <input id="vaporCustomAch" type="number" min="0" max="20" step="0.05" value="0.50">
+        <small>Usar cuando existe medición, cálculo o un escenario definido por el usuario.</small>
+      </div>
+      <input id="vaporVentMode" type="hidden" value="0">
+      <div id="ventScenarioStatus" class="vent-scenario-status"></div>
       <div class="field">
         <label>Temperatura exterior para ventilación [°C]</label>
         <input id="vaporOutdoorT" type="number" step=".1" value="7">
