@@ -325,9 +325,12 @@
         ['Cargas de ropa secada al interior',m.laundry],['Aporte por carga',`${fmtNum(m.laundryL,2)} L`],['Aporte secado de ropa',`${fmtNum(m.clothesL,2)} L/día`],
         ['Lavado de loza',`${fmtNum(m.dishL,2)} L/día`],['Plantas interiores',m.plants],['Aporte plantas',`${fmtNum(m.plantL,2)} L/día`],
         ['Mascotas / animales',m.pets],['Aporte mascotas',`${fmtNum(m.petL,2)} L/día`],['Limpieza húmeda',`${fmtNum(m.moppingL,2)} L/día`],
-        ['Estufa sin evacuación',m.heaterType==='none'?'No':m.heaterType==='gas'?'Gas':'Parafina'],
+        ['Estufa sin evacuación',m.heaterType==='none'?'No':m.heaterType==='gas'?'Gas licuado':'Parafina / kerosene'],
         ['Horas de estufa',m.heaterType==='none'?'—':`${fmtNum(m.heaterHours,1)} h/día`],
-        ['Consumo combustible',m.heaterType==='none'?'—':`${fmtNum(m.fuelRate,2)} kg/h`],
+        ['Modo de consumo',m.heaterType==='none'?'—':m.heaterMode==='unknown'?`No conocido · preset ${m.heaterPreset}`:m.heaterMode],
+        ['Consumo convertido',m.heaterType==='none'?'—':`${fmtNum(m.fuelRate,3)} kg/h`],
+        ['Combustible consumido al día',m.heaterType==='none'?'—':`${fmtNum(m.heaterDailyFuel,2)} kg/día`],
+        ['Factor de agua usado',m.heaterType==='none'?'—':`${fmtNum(m.waterFactor,2)} kg agua/kg combustible`],
         ['Aporte estufa',`${fmtNum(m.heaterL,2)} L eq./día`]
       ].forEach(r=>addRow(doc,b2,r[0],r[1]))
     }

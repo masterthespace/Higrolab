@@ -15,7 +15,7 @@
     <nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav>
   </div>
   <div class="wrap hero mini-hero">
-    <div class="eyebrow">Ventilación · balance de vapor · V8.0 · trazabilidad técnica</div>
+    <div class="eyebrow">Ventilación · balance de vapor · V8.1 · estufa práctica + tiempos ampliados</div>
     <h1>Calculadora de ventilación y control de humedad</h1>
     <p>Visualiza cómo la vivienda genera humedad, cómo el aire exterior puede ayudar a evacuarla y cuánto cambia la HR interior cuando modificas el caudal de ventilación.</p>
   </div>
@@ -111,12 +111,56 @@
       <div class="source-contribution"><span>Aporte estimado</span><b id="moppingContribution">+0,00 L/día</b></div></div>
     </div>
     <div id="heaterDetails" class="heater-details hidden">
-      <div class="heater-warning"><b>Combustión sin evacuación exterior</b><span>Además de vapor de agua, estos equipos requieren considerar ventilación y seguridad de combustión. HIDROLAB aquí solo cuantifica el aporte de humedad.</span></div>
-      <div class="form-grid three">
+      <div class="heater-warning"><b>Combustión sin evacuación exterior</b><span>Además de vapor de agua, estos equipos requieren ventilación segura. HIDROLAB aquí estima únicamente el aporte de humedad.</span></div>
+
+      <div class="form-grid">
         <div class="field"><label>Horas de uso al día</label><input id="heaterHours" type="number" min="0" max="24" step=".5" value="5"></div>
-        <div class="field"><label>Consumo de combustible [kg/h]</label><input id="heaterFuelRate" type="number" min="0" max="2" step=".01" value=".22"></div>
-        <div class="field"><label>Vapor producido [kg agua/kg combustible]</label><input id="heaterWaterFactor" type="number" min=".2" max="3" step=".1" value="1.0"><small>Valor simplificado editable.</small></div>
+        <div class="field"><label>¿Cómo conoces el consumo?</label>
+          <select id="heaterConsumptionMode">
+            <option value="gh" selected>Lo sé en g/h</option>
+            <option value="kgh">Lo sé en kg/h</option>
+            <option value="lh">Lo sé en L/h</option>
+            <option value="unknown">No conozco el consumo</option>
+          </select>
+        </div>
       </div>
+
+      <div id="heaterKnownConsumption" class="form-grid">
+        <div class="field"><label id="heaterConsumptionLabel">Consumo informado [g/h]</label><input id="heaterConsumptionValue" type="number" min="0" max="5000" step="10" value="220"></div>
+      </div>
+
+      <div id="heaterUnknownConsumption" class="hidden">
+        <div class="form-grid">
+          <div class="field"><label>Potencia / consumo aproximado</label>
+            <select id="heaterPreset">
+              <option value="low">Bajo</option>
+              <option value="medium" selected>Medio</option>
+              <option value="high">Alto</option>
+            </select>
+          </div>
+        </div>
+        <p class="note">Este modo usa un consumo orientativo HIDROLAB según combustible y nivel seleccionado. Se muestra como estimación, no como dato del fabricante.</p>
+      </div>
+
+      <div class="heater-auto-result">
+        <div><span>Consumo convertido</span><strong id="heaterKgHour">—</strong><small>kg/h</small></div>
+        <div><span>Factor agua automático</span><strong id="heaterAutoFactor">—</strong><small>kg agua/kg combustible</small></div>
+        <div><span>Combustible diario</span><strong id="heaterFuelDay">—</strong><small>kg/día</small></div>
+        <div class="primary"><span>Aporte de humedad</span><strong id="heaterWaterDay">—</strong><small>L eq./día</small></div>
+      </div>
+
+      <details class="heater-advanced">
+        <summary>Opciones avanzadas</summary>
+        <div class="form-grid">
+          <div class="field"><label>Usar factor manual de agua</label>
+            <select id="heaterFactorMode"><option value="auto" selected>Automático</option><option value="manual">Manual</option></select>
+          </div>
+          <div class="field"><label>Factor manual [kg agua/kg combustible]</label><input id="heaterWaterFactor" type="number" min=".2" max="3" step=".01" value="1.60" disabled></div>
+          <div class="field"><label>Densidad gas licuado líquido [kg/L]</label><input id="heaterDensityGas" type="number" min=".3" max=".8" step=".01" value=".54"></div>
+          <div class="field"><label>Densidad parafina/kerosene [kg/L]</label><input id="heaterDensityParaffin" type="number" min=".6" max="1" step=".01" value=".80"></div>
+        </div>
+        <p class="note">Factores automáticos usados por HIDROLAB: gas licuado 1,60 kg agua/kg combustible; parafina/kerosene 1,25 kg agua/kg combustible. Las densidades solo se usan cuando ingresas consumo en L/h.</p>
+      </details>
     </div>
   </div>
   <details class="source-assumptions">
