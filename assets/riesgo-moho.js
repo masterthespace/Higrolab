@@ -121,7 +121,7 @@ function renderLayers(){
       <label>${air?'Espesor ref.':composite?'Espesor total':'Espesor'} [mm]<input class="layer-thickness" ${composite?'readonly':''} type="number" min="1" max="1000" step="${MATERIALS[l.type]?.step||1}" value="${l.thickness}"></label>
       <label>${air?'R cámara [m²K/W]':composite?'R producto [m²K/W]':'λ [W/mK]'}<input class="layer-prop" ${composite?'readonly':''} type="number" min=".001" step="${air?'.01':'.001'}" value="${air||composite?l.R:l.lambda}"></label>
       <div class="layer-r"><span>R capa</span><b>${fmt(layerR(l),3)}</b></div><div class="layer-source"><span>Origen</span><small>${l.source||'Preset HIDROLAB'}</small></div>
-      <div class="layer-actions"><button class="layer-up" type="button">↑</button><button class="layer-down" type="button">↓</button><button class="layer-delete" type="button">×</button></div>
+      <div class="layer-actions"><button class="layer-up" type="button" title="Mover capa hacia arriba" aria-label="Mover capa hacia arriba"><span>↑</span></button><button class="layer-down" type="button" title="Mover capa hacia abajo" aria-label="Mover capa hacia abajo"><span>↓</span></button><button class="layer-delete" type="button" title="Eliminar capa" aria-label="Eliminar capa"><span>×</span></button></div>
     </div>`
   }).join('');
   host.querySelectorAll('.wall-layer').forEach(row=>{
@@ -129,8 +129,8 @@ function renderLayers(){
     const cp=row.querySelector('.composite-product');
     if(cp)cp.onchange=e=>{const l=get(),p=GYPSUM_EPS_PRODUCTS[e.target.value];if(l&&p){l.thickness=p.thickness;l.R=p.R;l.product=p.label;renderLayers();render()}};
     row.querySelector('.layer-type').onchange=e=>{const l=get(),m=MATERIALS[e.target.value];if(!l||!m)return;l.type=e.target.value;l.name=m.name;l.kind=m.kind||'solid';l.lambda=m.lambda??null;l.R=m.R??null;l.thickness=m.thickness;l.product=m.product||null;l.source=m.source||'Preset HIDROLAB';$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
-    row.querySelector('.layer-thickness').oninput=e=>{const l=get();if(l){l.thickness=+e.target.value;$('wallTemplate').value='custom';render()}};
-    row.querySelector('.layer-prop').oninput=e=>{const l=get();if(l){if(l.kind==='air')l.R=+e.target.value;else l.lambda=+e.target.value;$('wallTemplate').value='custom';render()}};
+    row.querySelector('.layer-thickness').oninput=e=>{const l=get();if(l){l.thickness=+e.target.value;$('wallTemplate').value='custom';const rb=row.querySelector('.layer-r b');if(rb)rb.textContent=fmt(layerR(l),3);render()}};
+    row.querySelector('.layer-prop').oninput=e=>{const l=get();if(l){if(l.kind==='air')l.R=+e.target.value;else l.lambda=+e.target.value;$('wallTemplate').value='custom';const rb=row.querySelector('.layer-r b');if(rb)rb.textContent=fmt(layerR(l),3);render()}};
     row.querySelector('.layer-delete').onclick=()=>{layers=layers.filter(l=>l.id!==id);$('wallTemplate').value='custom';renderLayers();render()};
     row.querySelector('.layer-up').onclick=()=>{const i=layers.findIndex(l=>l.id===id);if(i>0)[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderLayers();render()};
     row.querySelector('.layer-down').onclick=()=>{const i=layers.findIndex(l=>l.id===id);if(i>=0&&i<layers.length-1)[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderLayers();render()}
