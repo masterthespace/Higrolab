@@ -117,11 +117,41 @@
       <svg viewBox="0 0 48 48"><path d="M24 5S11 20 11 30a13 13 0 0 0 26 0C37 20 24 5 24 5Z"/><path d="M18 31c1 4 4 6 8 6"/></svg>
     </div>
   </div>
-  <div class="vapor-controls">
-    <label>Personas presentes<input id="vaporPeople" type="number" min="0" max="20" step="1" value="2"></label>
-    <label>Generación por persona [g/h]<input id="vaporPerPerson" type="number" min="0" max="500" step="5" value="60"></label>
-    <label>Otras fuentes [g/h]<input id="vaporExtra" type="number" min="0" max="5000" step="10" value="0"></label>
+  <div class="vapor-controls vapor-controls-simple">
+    <label>Personas presentes
+      <input id="vaporPeople" type="number" min="0" max="20" step="1" value="2">
+    </label>
+    <label>Actividad de las personas
+      <select id="vaporActivity">
+        <option value="45">Reposo / sentado</option>
+        <option value="60" selected>Actividad ligera</option>
+        <option value="90">Actividad moderada</option>
+      </select>
+    </label>
   </div>
+  <div class="vapor-source-selector">
+    <span class="vapor-source-title">¿Qué ocurre durante ese período?</span>
+    <div class="vapor-source-chips">
+      <label><input id="vaporCooking" type="checkbox"><span>Cocinando</span></label>
+      <label><input id="vaporShower" type="checkbox"><span>Ducha / baño húmedo</span></label>
+      <label><input id="vaporLaundry" type="checkbox"><span>Ropa secándose</span></label>
+      <label><input id="vaporHeater" type="checkbox"><span>Estufa gas/parafina sin evacuación</span></label>
+      <label><input id="vaporPlantsPets" type="checkbox"><span>Plantas / mascotas</span></label>
+    </div>
+    <small>HIDROLAB aplica tasas internas orientativas para evitar que el usuario tenga que inventar valores en g/h.</small>
+  </div>
+  <details class="vapor-assumptions">
+    <summary>Ver supuestos usados</summary>
+    <div class="vapor-assumption-grid">
+      <span>Actividad ligera: <b>60 g/h por persona</b></span>
+      <span>Cocina: <b>500 g/h</b></span>
+      <span>Ducha / baño húmedo: <b>700 g/h</b></span>
+      <span>Ropa secándose: <b>200 g/h</b></span>
+      <span>Estufa sin evacuación: <b>300 g/h</b></span>
+      <span>Plantas / mascotas: <b>50 g/h</b></span>
+    </div>
+    <p>Son valores orientativos HIDROLAB para una visualización acumulada. No constituyen valores normativos de NCh1973.</p>
+  </details>
   <div class="vapor-visual">
     <div class="vapor-tank"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
     <div class="vapor-result">

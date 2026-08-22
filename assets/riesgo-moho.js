@@ -147,11 +147,17 @@ function draw(d){
 function vaporEstimate(){
   const hours=$('duration').value==='manual'?clamp(+$('durationHours').value||0,0,24):0;
   const people=clamp(+$('vaporPeople').value||0,0,20);
-  const perPerson=clamp(+$('vaporPerPerson').value||0,0,500);
-  const extra=clamp(+$('vaporExtra').value||0,0,5000);
-  const humanRate=people*perPerson,totalRate=humanRate+extra;
-  const grams=totalRate*hours,kg=grams/1000,liters=kg; // 1 kg water ≈ 1 L liquid equivalent
-  return{hours,people,perPerson,extra,humanRate,totalRate,grams,kg,liters}
+  const perPerson=clamp(+$('vaporActivity').value||60,0,200);
+  const sources=[
+    {id:'vaporCooking',label:'cocina',rate:500},
+    {id:'vaporShower',label:'ducha/baño húmedo',rate:700},
+    {id:'vaporLaundry',label:'ropa secándose',rate:200},
+    {id:'vaporHeater',label:'estufa sin evacuación',rate:300},
+    {id:'vaporPlantsPets',label:'plantas/mascotas',rate:50}
+  ].filter(s=>$(s.id)?.checked);
+  const humanRate=people*perPerson,extra=sources.reduce((a,s)=>a+s.rate,0),totalRate=humanRate+extra;
+  const grams=totalRate*hours,kg=grams/1000,liters=kg;
+  return{hours,people,perPerson,sources,extra,humanRate,totalRate,grams,kg,liters}
 }
 function renderVaporEstimate(){
   const card=$('vaporCard');if(!card)return;
@@ -174,7 +180,8 @@ function renderVaporEstimate(){
   $('vaporMass').textContent=`${fmt(v.kg,2)} kg de agua`;
   $('vaporTankLabel').textContent=`${fmt(v.liters,2)} L`;
   $('vaporFill').style.height=`${Math.min(100,v.liters/10*100)}%`;
-  $('vaporBreakdown').innerHTML=`${fmt(v.hours,1)} h × (${v.people} pers. × ${fmt(v.perPerson,0)} g/h + ${fmt(v.extra,0)} g/h adicionales) = <b>${fmt(v.grams,0)} g</b> = <b>${fmt(v.liters,2)} L eq.</b>`;
+  const extras=v.sources.length?v.sources.map(s=>s.label).join(', '):'sin fuentes adicionales';
+  $('vaporBreakdown').innerHTML=`${fmt(v.hours,1)} h × (${v.people} pers. × ${fmt(v.perPerson,0)} g/h + ${fmt(v.extra,0)} g/h por ${extras}) = <b>${fmt(v.grams,0)} g</b> = <b>${fmt(v.liters,2)} L eq.</b>`;
 }
 
 function syncPersistenceUI(){
@@ -235,5 +242,5 @@ $('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};
 $('duration').addEventListener('change',()=>{syncPersistenceUI();render()});
 $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours').value||0,0,24);$('durationHoursSlider').value=h;syncPersistenceUI();render()});
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
-['vaporPeople','vaporPerPerson','vaporExtra'].forEach(id=>$(id).addEventListener('input',renderVaporEstimate));
+['vaporPeople','vaporActivity','vaporCooking','vaporShower','vaporLaundry','vaporHeater','vaporPlantsPets'].forEach(id=>$(id).addEventListener('input',renderVaporEstimate));
 loadTemplate('eifs_concrete');syncPersistenceUI();render();
