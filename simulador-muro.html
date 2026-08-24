@@ -55,7 +55,27 @@
 <option value="0.040">Lana de oveja · λ 0,040 · orientativo / verificar producto</option>
 <option value="0.032">XPS · λ 0,032 · orientativo / verificar producto</option>
 <option value="0.045">Fibra de madera · λ 0,045 · orientativo / verificar producto</option>
+<option value="custom">Personalizado · ingresar λ manualmente</option>
 </select></div>
+    <div id="customInsulationFields" class="custom-insulation-fields hidden">
+      <div class="field">
+        <label>Nombre del aislante personalizado</label>
+        <input id="customInsulationName" type="text" value="EPS 30 kg/m³" placeholder="Ej.: EPS 30 kg/m³">
+      </div>
+      <div class="field">
+        <label>Conductividad térmica λ [W/m·K]</label>
+        <input id="customInsulationLambda" type="number" min="0.005" max="1" step="0.0001" value="0.0350">
+        <small>Ingresa el λ declarado en ficha técnica, ensayo o fuente normativa aplicable.</small>
+      </div>
+      <div class="field custom-source-field">
+        <label>Origen del dato (opcional)</label>
+        <input id="customInsulationSource" type="text" placeholder="Ej.: ficha fabricante / ensayo / LOSCAT">
+      </div>
+      <div class="custom-insulation-note">
+        <b>Dato personalizado</b>
+        <span>HIDROLAB calculará con el λ ingresado, pero no lo clasificará automáticamente como normativo.</span>
+      </div>
+    </div>
     <div class="field"><label>Espesor de aislación: <b id="insLabel">50 mm</b></label><input class="range" id="insThickness" max="300" min="0" step="5" type="range" value="50"/><div class="split-labels"><span>0 mm</span><span>300 mm</span></div></div>
   </div>
 

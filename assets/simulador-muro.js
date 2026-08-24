@@ -311,6 +311,30 @@ function renderSupportStatus(c){
  <p class="support-note">La clasificación informa el respaldo de los datos; no elimina las herramientas didácticas ni convierte por sí sola el resultado en una acreditación reglamentaria.</p>`;
 }
 
+
+function selectedInsulationData(){
+  const sel=$('insulation');
+  if(!sel)return {lambda:.0384,name:'EPS 20 kg/m³',source:'LOSCAT'};
+  if(sel.value==='custom'){
+    const lambda=clamp(+$('customInsulationLambda')?.value||.035,.005,1);
+    return {
+      lambda,
+      name:$('customInsulationName')?.value.trim()||'Aislante personalizado',
+      source:$('customInsulationSource')?.value.trim()||'Dato ingresado por el usuario',
+      custom:true
+    };
+  }
+  return {
+    lambda:+sel.value,
+    name:sel.selectedOptions[0]?.textContent.split('·')[0].trim()||'Aislante',
+    source:sel.selectedOptions[0]?.textContent||'Biblioteca HIDROLAB',
+    custom:false
+  };
+}
+function syncCustomInsulationUI(){
+  const custom=$('insulation')?.value==='custom';
+  $('customInsulationFields')?.classList.toggle('hidden',!custom);
+}
 function minimumThicknessForZone(lambda){
   const z=$('thermalZone')?.value,lim=WALL_LIMITS_RESIDENTIAL[z];
   if(!z||!lim)return {ok:false,reason:'Primero selecciona una zona térmica en la sección 04.'};
@@ -324,7 +348,7 @@ function minimumThicknessForZone(lambda){
 let animationToken=0;
 function animateThickness(target){animationToken++;const token=animationToken;const range=$('insThickness');const start=+range.value,end=clamp(target,+range.min,+range.max);const duration=700,startTime=performance.now();function step(now){if(token!==animationToken)return;const p=clamp((now-startTime)/duration,0,1),ease=1-Math.pow(1-p,3);range.value=Math.round((start+(end-start)*ease)/5)*5;render();if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
 function findMinimum(){
-  const lambda=+$('insulation').value,box=$('minimumResult');
+  const insData=selectedInsulationData(),lambda=insData.lambda,box=$('minimumResult');
   const res=minimumGoal==='zone'?minimumThicknessForZone(lambda):minimumThickness(lambda,+$('targetMargin').value);
   if(!res.ok){box.className='minimum-result warning';box.querySelector('strong').textContent='No se puede calcular todavía';box.querySelector('span').textContent=res.reason;return}
   const rounded=Math.ceil(res.mm/5)*5;
@@ -339,12 +363,12 @@ function findMinimum(){
   }
   box.querySelector('strong').textContent=rounded+' mm';
   box.querySelector('span').textContent=minimumGoal==='zone'
-    ?`Espesor mínimo estimado de ${$('insulation').selectedOptions[0].textContent.split('·')[0].trim()} para alcanzar U ≤ ${fmt(res.limitU,2)} W/m²K en zona ${res.zone}.`
+    ?`Espesor mínimo estimado de ${selectedInsulationData().name} para alcanzar U ≤ ${fmt(res.limitU,2)} W/m²K en zona ${res.zone}.`
     :`Espesor mínimo estimado para que la superficie quede al menos +${fmt(+$('targetMargin').value,1)} °C sobre el punto de rocío.`;
   setImprovementMode('insulate');animateThickness(rounded);
 }
 function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt(effectiveLayerR(layers[i],i),3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);renderFrameLayerOptions();renderNormative(c);renderFrameDiagram(c);renderResistanceContribution(c);renderSupportStatus(c);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);if($('uExplain'))$('uExplain').textContent=`Por cada 1 m² de muro y cada 1 °C de diferencia, atraviesan aproximadamente ${fmt(c.U,2)} W en régimen estacionario.`;$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
-const insE=improvementMode==='original'?0:+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insR=(insE/1000)/(+$('insulation').value);const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);renderMinimumGoalInfo();$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
+const insE=improvementMode==='original'?0:+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insData=selectedInsulationData();const insR=(insE/1000)/insData.lambda;const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);renderMinimumGoalInfo();$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
 $('addLayer').addEventListener('click',()=>{layers.push({m:'Lana mineral',e:50,l:.04});renderRows();render()});$('presetBrick').addEventListener('click',()=>{layers=[{m:'Estuco cementicio',e:20,l:.87},{m:'Ladrillo cerámico',e:140,l:.72},{m:'Yeso-cartón',e:15,l:.25}];renderRows();render()});$('presetTimber').addEventListener('click',()=>{layers=[{m:'Yeso-cartón',e:15,l:.25},{m:'Lana mineral',e:90,l:.04},{m:'OSB',e:11,l:.13},{m:'Madera',e:20,l:.13}];renderRows();render()});['ti','te','rh','area','insulation','insThickness'].forEach(id=>$(id).addEventListener('input',render));
 function syncTargetMargin(source){
   const range=$('targetMargin'),num=$('targetMarginN');
@@ -368,7 +392,7 @@ window.HIDROLAB_WALL_REPORT=()=>{
     method:wallMethod,Ti:c.Ti,Te:c.Te,RH,area:c.area,Rt:c.Rt,U:c.U,Tsi:c.Tsi,q:c.q,loss:c.loss,dew,margin:c.Tsi-dew,
     rsi:RSI,rse:RSE,profileSvg:$('profile')?.outerHTML||'',layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],declaredR:l.declaredR||null,source:l.source||'',sourceClass:l.sourceClass||''})),
     frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value,RtUpper:c.nch853?.RtUpper,RtLower:c.nch853?.RtLower,RtMean:c.nch853?.RtMean,relError:c.nch853?.relError,valid:c.nch853?.valid}:null,
-    improvement:{material:$('insulation').options[$('insulation').selectedIndex]?.textContent||'',thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
+    improvement:{material:selectedInsulationData().name,lambda:selectedInsulationData().lambda,source:selectedInsulationData().source,custom:selectedInsulationData().custom,thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
     normative:{enabled:!!$('normEnabled')?.checked,zone,region:$('thermalRegion')?.value||'',commune:$('thermalCommune')?.selectedOptions?.[0]?.textContent||'',condition:$('thermalCondition')?.selectedOptions?.[0]?.textContent||'',limitU:lim.u,limitRt:lim.rt,pass:zone?c.U<=lim.u||c.Rt>=lim.rt:false}
   }
 };
@@ -378,4 +402,8 @@ $('methodFrame')?.addEventListener('click',()=>setWallMethod('frame'));
 $('normEnabled')?.addEventListener('change',render);
 $('thermalZone')?.addEventListener('change',render);
 renderChileThermalMap();initThermalLocationSelectors();
+$('insulation')?.addEventListener('change',()=>{syncCustomInsulationUI();render()});
+['customInsulationName','customInsulationLambda','customInsulationSource'].forEach(id=>$(id)?.addEventListener('input',render));
+syncCustomInsulationUI();
+syncCustomInsulationUI();
 renderRows();render();

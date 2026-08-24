@@ -535,3 +535,10 @@ html[data-theme=dark] .volume-mode-box,html[data-theme=dark] .volume-mode-tabs b
 .official-material-note{margin:8px 0 12px;padding:10px 12px;border:1px solid #cfe1e5;border-radius:10px;background:#f5fafb;display:flex;gap:8px;align-items:flex-start}
 .official-material-note b{font-size:.65rem;color:#164c5d;white-space:nowrap}.official-material-note span{font-size:.57rem;line-height:1.5;color:#536b74}
 @media(max-width:700px){.official-material-note{display:block}.official-material-note b{display:block;margin-bottom:4px}}
+
+/* V8.6.2 · aislante personalizado en comparador */
+.custom-insulation-fields{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:11px;border:1px solid #cfe1e5;border-radius:11px;background:#f7fbfc}
+.custom-insulation-fields .field{margin:0}.custom-insulation-note{grid-column:1/-1;padding:8px 10px;border-left:4px solid #d29a31;border-radius:8px;background:#fff7e7}
+.custom-insulation-note b,.custom-insulation-note span{display:block}.custom-insulation-note b{font-size:.62rem;color:#79560f}.custom-insulation-note span{font-size:.57rem;color:#6c624c;margin-top:2px;line-height:1.4}
+.custom-source-field{min-width:0}
+@media(max-width:800px){.custom-insulation-fields{grid-template-columns:1fr}}
