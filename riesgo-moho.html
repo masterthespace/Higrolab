@@ -121,194 +121,106 @@
   <div class="mold-zone" style="background:#fde9e7"><b>≥90%</b><small>Muy alta humedad</small></div>
 </div>
 </section>
-<section class="card full dependency-card">
-  <div class="section-head"><div><p class="kicker">Cómo se conectan los cálculos</p><h2>Del ambiente y el muro al riesgo superficial</h2></div></div>
-  <div class="dependency-flow">
-    <div class="dep-branch air-branch">
-      <span class="dep-tag physical">AIRE INTERIOR</span>
-      <div class="dep-node"><small>Temperatura interior</small><strong id="flowTi">— °C</strong></div>
-      <div class="dep-plus">+</div>
-      <div class="dep-node"><small>HR interior</small><strong id="flowRh">— %</strong></div>
-      <div class="dep-arrow">→</div>
-      <div class="dep-node output"><small>Punto de rocío</small><strong id="flowDew">— °C</strong><em>No depende del muro</em></div>
-    </div>
-    <div class="dep-branch wall-branch">
-      <span class="dep-tag normative">MURO</span>
-      <div class="dep-node"><small>Capas + espesores + λ</small><strong id="flowLayers">— capas</strong></div>
-      <div class="dep-arrow">→</div>
-      <div class="dep-node"><small>R total / U</small><strong><span id="flowR">—</span> / <span id="flowU">—</span></strong></div>
-      <div class="dep-arrow">→</div>
-      <div class="dep-node output"><small>T° superficial interior</small><strong id="flowTsi">— °C</strong><em>Sí depende del muro</em></div>
-    </div>
-    <div class="dep-converge">
-      <div class="dep-arrow down">↓</div>
-      <div class="dep-final" id="flowRiskBox">
-        <small>COMPARACIÓN CLAVE</small>
-        <strong><span id="flowTsi2">—</span> °C superficie vs <span id="flowDew2">—</span> °C rocío</strong>
-        <b id="flowRiskText">—</b>
-      </div>
-    </div>
-  </div>
-  <div class="dep-context">
-    <span class="dep-tag estimate">VAPOR GENERADO</span>
-    <p>El estimador cuantifica el agua liberada por personas y actividades. Con <b>Simular efecto sobre el ambiente</b>, HIDROLAB usa además volumen del recinto, ventilación y aire exterior para estimar cómo esa carga puede modificar la HR y el punto de rocío. La simulación es un balance simplificado de aire perfectamente mezclado y se mantiene separada del diagnóstico principal medido.</p>
-  </div>
-</section>
+
 <section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIDROLAB</small>
 <div class="metric-big score-metric"><strong id="score">—</strong><span id="scoreLevel">0 = bajo · 100 = muy alto</span></div>
 <div class="risk-scale"><span>BAJO</span><span>ATENCIÓN</span><span>ELEVADO</span><span>MUY ALTO</span></div>
 <div class="bar risk-bar"><span id="scoreBar"></span></div></div>
 </section>
-<section class="card full vapor-context-card">
-  <div class="section-head"><div><p class="kicker">03 · Carga de humedad del período</p><h2>¿Cuánto vapor se está liberando?</h2></div><span class="calc-origin estimate">CONTEXTO · NO CAMBIA HR AUTOMÁTICAMENTE</span></div>
-  <div class="vapor-context-note"><b>Qué significa:</b> esta sección cuantifica agua liberada por cada persona y por eventos domésticos durante el período. Las actividades continuas se multiplican por horas y las fuentes puntuales, como una ducha o una carga de ropa, se contabilizan como eventos. No altera por sí sola el punto de rocío calculado con la HR medida/ingresada.</div>
-<div id="vaporCard" class="vapor-card">
-  <div class="vapor-card-head">
-    <div><small>ESTIMADOR LÚDICO</small><h3>Vapor liberado durante el período</h3><p id="vaporIntro">Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.</p></div>
-    <div class="vapor-state" id="vaporState">ESPERANDO HORAS</div><div class="vapor-icon" aria-hidden="true">
-      <svg viewBox="0 0 48 48"><path d="M24 5S11 20 11 30a13 13 0 0 0 26 0C37 20 24 5 24 5Z"/><path d="M18 31c1 4 4 6 8 6"/></svg>
-    </div>
+<section class="card full moisture-wall-card">
+  <div class="section-head">
+    <div><p class="kicker">03 · Humedad del ambiente y muro</p><h2>¿Cuánta humedad contiene el aire y cómo se relaciona con el muro?</h2></div>
+    <span class="calc-origin physical">LECTURA INTERACTIVA</span>
   </div>
-  <div class="vapor-people-setup">
-    <div class="field">
-      <label>Personas presentes durante el período</label>
-      <input id="vaporPeople" type="number" min="0" max="8" step="1" value="1">
-      <small>Cada persona puede tener una actividad y una acción distinta.</small>
-    </div>
+  <div class="moisture-wall-intro">
+    <b>Lectura simple:</b> HIDROLAB toma la <b>temperatura interior y HR actuales</b>, calcula cuánta agua contiene el aire y la compara con su capacidad de saturación a esa misma temperatura. El muro usa exactamente las capas configuradas en “Arma tu muro”.
   </div>
 
-  <div id="vaporPersonRows" class="vapor-person-rows"></div>
-
-  <div class="vapor-household">
-    <div class="vapor-household-head">
-      <b>Fuentes del hogar no ligadas a una persona</b>
-      <span>Se calculan como eventos/cargas, no como g/h durante todo el período.</span>
-    </div>
-    <div class="vapor-household-grid">
-      <label>
-        <span>Ropa secándose al interior</span>
-        <select id="vaporLaundryLoads">
-          <option value="0" selected>No</option>
-          <option value="0.5">Media carga</option>
-          <option value="1">1 carga</option>
-          <option value="2">2 cargas</option>
-        </select>
-        <small>1,8 L eq. por carga</small>
-      </label>
-      <label>
-        <span>Estufa sin evacuación</span>
-        <select id="vaporHeaterQuick">
-          <option value="none" selected>No</option>
-          <option value="gas">Gas licuado</option>
-          <option value="paraffin">Parafina / kerosene</option>
-        </select>
-        <small>Estimación rápida coherente con Ventilación y humedad</small>
-      </label>
-      <label id="vaporHeaterHoursWrap" class="hidden">
-        <span>Horas de estufa dentro del período</span>
-        <input id="vaporHeaterHours" type="number" min="0" max="24" step=".5" value="2">
-        <small>Se limita automáticamente a las horas analizadas.</small>
-      </label>
-    </div>
-  </div>
-
-  <details class="vapor-assumptions">
-    <summary>Ver supuestos y relación con Ventilación y humedad</summary>
-    <div class="vapor-assumption-grid">
-      <span>Persona en reposo: <b>45 g/h</b></span>
-      <span>Actividad ligera: <b>60 g/h</b></span>
-      <span>Actividad moderada: <b>90 g/h</b></span>
-      <span>Ducha: <b>0,66 L por evento</b></span>
-      <span>Cocinar: <b>0,60 L/h de cocción</b></span>
-      <span>Ropa interior: <b>1,8 L por carga</b></span>
-      <span>Gas (rápido): <b>0,22 kg/h × 1,60 kg agua/kg</b></span>
-      <span>Parafina (rápido): <b>0,20 kg/h × 1,25 kg agua/kg</b></span>
-    </div>
-    <p>Personas, ducha y ropa usan los mismos supuestos base del módulo Ventilación y humedad. La cocción se expresa aquí por horas del evento para evitar multiplicarla por toda la persistencia. Estos valores son estimaciones educativas HIDROLAB, no límites normativos NCh1973.</p>
-  </details>
-
-  <div class="vapor-impact-panel">
-    <div class="vapor-impact-head">
-      <div>
-        <b>Simular efecto del vapor sobre el ambiente</b>
-        <span>Conecta Ti + HR inicial + volumen + vapor + renovación de aire.</span>
+  <div class="moisture-wall-grid">
+    <div class="thermal-wall-scene">
+      <div class="thermal-wall-head">
+        <div><b>Perfil térmico del muro</b><span>Interior → capas → exterior · esquema visual no a escala</span></div>
+        <div class="thermal-wall-key"><span class="dot dew"></span>Punto de rocío <b id="mwDew">— °C</b></div>
       </div>
-      <label class="impact-switch"><input id="vaporImpactEnabled" type="checkbox"><span>Activar</span></label>
+      <svg id="moistureWallSvg" class="moisture-wall-svg" viewBox="0 0 1000 390" role="img" aria-label="Perfil térmico del muro"></svg>
+      <div class="thermal-wall-footer">
+        <span>Interior <b id="mwTi">— °C</b></span>
+        <span>Superficie interior <b id="mwTsi">— °C</b></span>
+        <span>U <b id="mwU">— W/m²K</b></span>
+        <span>Exterior <b id="mwTe">— °C</b></span>
+      </div>
     </div>
-    <div id="vaporImpactControls" class="vapor-impact-controls hidden">
-      <div class="field">
+
+    <div class="air-water-panel">
+      <div class="air-water-head"><b>Agua contenida en el aire</b><span>Estado actual a Ti + HR ingresadas</span></div>
+      <div class="field compact-volume">
         <label>Volumen del recinto [m³]</label>
         <input id="vaporRoomVolume" type="number" min="5" max="1000" step="1" value="40">
-        <small>Ej.: dormitorio 3 × 4 × 2,4 m ≈ 29 m³.</small>
       </div>
-      <div class="field vent-practical-field">
-        <label>¿Cómo está ventilándose el recinto?</label>
-        <select id="vaporVentPractical">
-          <option value="closed">Recinto prácticamente cerrado</option>
-          <option value="undercut">Puerta cerrada con holgura inferior</option>
-          <option value="ajar">Puerta entreabierta</option>
-          <option value="windowCrack">Ventana ligeramente abierta</option>
-          <option value="windowOpen">Ventana abierta</option>
-          <option value="cross">Ventilación cruzada</option>
-          <option value="extractor">Extractor mecánico · conozco caudal</option>
-          <option value="custom">Personalizado · conozco ACH</option>
-        </select>
-        <small id="ventPracticalHelp">Selecciona una situación cotidiana. HIDROLAB solo asignará ACH cuando exista un supuesto defendible.</small>
+      <div class="air-water-gauge">
+        <div class="air-water-track"><div id="airWaterFill" class="air-water-fill"></div><span id="airWaterPercent">—%</span></div>
+        <div>
+          <small>Humedad absoluta actual</small><strong id="airWaterAh">— g/m³</strong>
+          <em id="airWaterState">—</em>
+        </div>
       </div>
-      <div id="doorGapFields" class="field vent-detail hidden">
-        <label>Holgura inferior de puerta</label>
-        <div class="mini-input-row"><input id="doorWidthCm" type="number" min="30" max="200" step="1" value="80"><span>cm ancho</span><input id="doorGapCm" type="number" min="0.1" max="10" step="0.1" value="1"><span>cm holgura</span></div>
-        <small id="doorGapArea">Área libre aproximada: 80 cm².</small>
+      <div class="air-water-stats">
+        <div><small>Agua actualmente en el aire</small><strong id="airWaterCurrent">—</strong><em>L eq.</em></div>
+        <div><small>Capacidad a saturación</small><strong id="airWaterCapacity">—</strong><em>L eq.</em></div>
+        <div><small>Margen antes de saturar</small><strong id="airWaterReserve">—</strong><em>L eq.</em></div>
+        <div><small>Punto de rocío actual</small><strong id="airWaterDew">—</strong><em>°C</em></div>
       </div>
-      <div id="extractorFields" class="field vent-detail hidden">
-        <label>Caudal del extractor [m³/h]</label>
-        <input id="extractorFlow" type="number" min="1" max="2000" step="1" value="60">
-        <small>Se convierte a ACH = caudal / volumen del recinto.</small>
-      </div>
-      <div id="customAchFields" class="field vent-detail hidden">
-        <label>ACH medido o adoptado [1/h]</label>
-        <input id="vaporCustomAch" type="number" min="0" max="20" step="0.05" value="0.50">
-        <small>Usar cuando existe medición, cálculo o un escenario definido por el usuario.</small>
-      </div>
-      <input id="vaporVentMode" type="hidden" value="0">
-      <div id="ventScenarioStatus" class="vent-scenario-status"></div>
-      <div class="field">
-        <label>Temperatura exterior para ventilación [°C]</label>
-        <input id="vaporOutdoorT" type="number" step=".1" value="7">
-      </div>
-      <div class="field">
-        <label>HR exterior [%]</label>
-        <input id="vaporOutdoorRH" type="number" min="1" max="100" step="1" value="80">
-      </div>
+      <div id="airWaterMessage" class="air-water-message">—</div>
     </div>
-    <div id="vaporImpactResult" class="vapor-impact-result hidden">
-      <div><small>HR inicial</small><strong id="impactRh0">—</strong><em>%</em></div>
-      <div><small>HR final estimada</small><strong id="impactRh1">—</strong><em>%</em></div>
-      <div><small>Rocío inicial</small><strong id="impactDew0">—</strong><em>°C</em></div>
-      <div><small>Rocío final estimado</small><strong id="impactDew1">—</strong><em>°C</em></div>
-      <div><small>Agua que quedaría en aire</small><strong id="impactAirWater">—</strong><em>g/m³</em></div>
-      <div><small>Exceso sobre saturación</small><strong id="impactCondensed">—</strong><em>g</em></div>
-    </div>
-    <div id="vaporImpactMessage" class="vapor-impact-message hidden"></div>
-    <details class="vapor-impact-method">
-      <summary>Ver método de simulación</summary>
-      <p>Se usa un balance simplificado de humedad en un recinto perfectamente mezclado. Sin ventilación: humedad absoluta final = inicial + vapor generado / volumen. Con ventilación: se aplica un balance exponencial con el ACH seleccionado y la humedad absoluta exterior. La temperatura interior se mantiene constante durante el período.</p>
-      <p><b>Importante:</b> es una simulación educativa HIDROLAB. No sustituye un cálculo higrotérmico transitorio ni una verificación normativa.</p>
-    </details>
   </div>
 
-  <div class="vapor-visual">
-    <div class="vapor-tank"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
-    <div class="vapor-result">
-      <span>Vapor liberado acumulado</span>
-      <strong id="vaporLiters">—</strong><em>L eq. agua</em>
-      <small id="vaporMass">— kg de agua</small>
+  <div id="vaporCard" class="vapor-card moisture-source-card">
+    <div class="vapor-card-head">
+      <div><small>CARGA DURANTE EL PERÍODO</small><h3>Vapor adicional generado</h3><p id="vaporIntro">Activa “Ingresar horas manualmente” para incorporar la producción de vapor durante ese período.</p></div>
+      <div class="vapor-state" id="vaporState">ESPERANDO HORAS</div>
     </div>
+
+    <details class="moisture-source-details">
+      <summary>Configurar personas y fuentes de humedad</summary>
+      <div class="vapor-people-setup">
+        <div class="field">
+          <label>Personas presentes durante el período</label>
+          <input id="vaporPeople" type="number" min="0" max="8" step="1" value="1">
+          <small>Cada persona puede tener una actividad y una acción distinta.</small>
+        </div>
+      </div>
+      <div id="vaporPersonRows" class="vapor-person-rows"></div>
+      <div class="vapor-household">
+        <div class="vapor-household-head"><b>Otras fuentes</b><span>Eventos o cargas domésticas.</span></div>
+        <div class="vapor-household-grid">
+          <label><span>Ropa secándose</span>
+            <select id="vaporLaundryLoads"><option value="0" selected>No</option><option value="0.5">Media carga</option><option value="1">1 carga</option><option value="2">2 cargas</option></select>
+            <small>1,8 L eq. por carga</small>
+          </label>
+          <label><span>Estufa sin evacuación</span>
+            <select id="vaporHeaterQuick"><option value="none" selected>No</option><option value="gas">Gas licuado</option><option value="paraffin">Parafina / kerosene</option></select>
+          </label>
+          <label id="vaporHeaterHoursWrap" class="hidden"><span>Horas de estufa</span><input id="vaporHeaterHours" type="number" min="0" max="24" step=".5" value="2"></label>
+        </div>
+      </div>
+    </details>
+
+    <div class="moisture-period-summary">
+      <div class="vapor-tank mini"><div id="vaporFill" class="vapor-fill"></div><span id="vaporTankLabel">0 L</span></div>
+      <div class="period-main">
+        <small>Vapor liberado durante el período</small>
+        <strong><span id="vaporLiters">—</span> <em>L eq. agua</em></strong>
+        <span id="vaporMass">— kg de agua</span>
+      </div>
+      <div class="period-impact">
+        <small>Comparado con el margen actual del aire</small>
+        <strong id="periodVsReserve">—</strong>
+        <span id="periodImpactText">—</span>
+      </div>
+    </div>
+    <div class="vapor-breakdown" id="vaporBreakdown">—</div>
+    <div class="vapor-disclaimer"><b>Importante:</b> vapor liberado no equivale necesariamente a vapor que queda acumulado. Ventilación, extracción, absorción de materiales y condensación pueden retirar parte de esa humedad.</div>
   </div>
-  <div class="vapor-breakdown" id="vaporBreakdown">—</div>
-  <div class="vapor-disclaimer">
-    <b>Importante:</b> es agua liberada acumulada, no agua necesariamente presente en el aire al mismo tiempo. Ventilación, extracción, absorción de materiales y condensación modifican la cantidad que permanece dentro del recinto.
-  </div>
-</div></section>
+</section>
 <section class="card full"><div class="section-head"><div><p class="kicker">04 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIDROLAB · Evaluación preventiva de humedad superficial</footer>
 <script defer="" src="assets/riesgo-moho.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>

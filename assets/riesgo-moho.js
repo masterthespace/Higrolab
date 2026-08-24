@@ -166,12 +166,125 @@ function renderDependencyFlow(d){
   if(box)box.className='dep-final '+cls
 }
 
+
+function wallInterfaceProfile(d){
+  const Ti=d.ta,Te=d.te,rt=Math.max(.0001,d.rTotal),q=(Ti-Te)/rt;
+  const rev=[...layers].reverse(); // interior -> exterior
+  const points=[{label:'Superficie interior',temp:Ti-q*R_SI,kind:'surface'}];
+  let t=points[0].temp;
+  rev.forEach((l,i)=>{
+    t-=q*layerR(l);
+    points.push({label:i===rev.length-1?'Superficie exterior':`Interfaz ${i+1}`,temp:t,kind:'interface',layer:l});
+  });
+  return{q,rev,points,tse:Te+q*R_SE};
+}
+function renderMoistureWall(d,v){
+  const svg=$('moistureWallSvg'); if(!svg)return;
+  const V=clamp(+$('vaporRoomVolume').value||40,5,1000);
+  const ah=absHumidity(d.ta,d.rh),sat=absHumidity(d.ta,100),currentG=ah*V,capacityG=sat*V,reserveG=Math.max(0,capacityG-currentG);
+  const pct=clamp(ah/sat*100,0,100),profile=wallInterfaceProfile(d),dewT=d.d;
+
+  $('mwDew').textContent=fmt(dewT,1)+' °C';$('mwTi').textContent=fmt(d.ta,1)+' °C';$('mwTsi').textContent=fmt(d.ts,1)+' °C';
+  $('mwU').textContent=fmt(d.U,2)+' W/m²K';$('mwTe').textContent=fmt(d.te,1)+' °C';
+  $('airWaterAh').textContent=fmt(ah,1)+' g/m³';$('airWaterCurrent').textContent=fmt(currentG/1000,2);
+  $('airWaterCapacity').textContent=fmt(capacityG/1000,2);$('airWaterReserve').textContent=fmt(reserveG/1000,2);
+  $('airWaterDew').textContent=fmt(dewT,1);$('airWaterPercent').textContent=fmt(pct,0)+'%';$('airWaterFill').style.width=pct+'%';$('airWaterPercent').parentElement.style.setProperty('--p',pct+'%');
+
+  let airState='Margen amplio',airCls='good';
+  if(d.rh>=80){airState='Carga de humedad alta';airCls='warn'}
+  if(d.rh>=95){airState='Muy cerca de saturación';airCls='bad'}
+  $('airWaterState').textContent=airState;
+  $('airWaterMessage').className='air-water-message '+airCls;
+  $('airWaterMessage').innerHTML=`A ${fmt(d.ta,1)} °C y ${fmt(d.rh,0)}% HR, el aire del recinto contiene aproximadamente <b>${fmt(currentG/1000,2)} L eq.</b> de agua en fase vapor. A la misma temperatura podría contener hasta <b>${fmt(capacityG/1000,2)} L eq.</b> antes de llegar a 100% HR.`;
+
+  if($('periodVsReserve')){
+    const gen=v?.grams||0,ratio=reserveG>0?gen/reserveG:Infinity;
+    $('periodVsReserve').textContent=gen>0?(ratio*100<999?fmt(ratio*100,0)+'% del margen':'>999% del margen'):'—';
+    let txt='Activa horas manuales para comparar la generación con el margen actual.';
+    if(gen>0&&ratio<.5)txt='La generación es menor que la mitad del margen de vapor disponible del aire.';
+    else if(gen>0&&ratio<1)txt='La generación consumiría una parte importante del margen si todo permaneciera en el aire.';
+    else if(gen>0)txt='La generación supera el margen actual del aire: sin extracción/ventilación, parte no podría mantenerse como vapor a esta temperatura.';
+    $('periodImpactText').textContent=txt;
+  }
+
+  // SVG wall, matching the reference: interior left, exterior right.
+  const W=1000,H=390,x0=185,x1=820,yTop=70,yBot=315;
+  const weights=profile.rev.map(l=>Math.max(.55,Math.min(4.5,(+l.thickness||10)/35)));
+  const sumW=weights.reduce((a,b)=>a+b,0);
+  let xs=[x0],acc=x0;
+  weights.forEach(w=>{acc+=(x1-x0)*w/sumW;xs.push(acc)});
+  const tMin=Math.min(d.te,...profile.points.map(p=>p.temp),dewT)-2;
+  const tMax=Math.max(d.ta,...profile.points.map(p=>p.temp),dewT)+2;
+  const sy=t=>yBot-(t-tMin)/(tMax-tMin)*(yBot-yTop);
+
+  let s=`<defs><linearGradient id="roomWarm" x1="0" x2="1"><stop offset="0" stop-color="#f4eadc"/><stop offset="1" stop-color="#fbf7f1"/></linearGradient><linearGradient id="outsideCold" x1="0" x2="1"><stop offset="0" stop-color="#eaf4f8"/><stop offset="1" stop-color="#d5e9f2"/></linearGradient><filter id="softShadow"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity=".12"/></filter></defs>`;
+  s+=`<rect x="20" y="35" width="${x0-35}" height="310" rx="16" fill="url(#roomWarm)"/><rect x="${x1+15}" y="35" width="${W-x1-35}" height="310" rx="16" fill="url(#outsideCold)"/>`;
+  s+=`<text x="50" y="70" font-size="15" font-weight="800" fill="#72583b">INTERIOR</text><text x="50" y="94" font-size="24" font-weight="900" fill="#573d24">${fmt(d.ta,1)} °C</text>`;
+  s+=`<text x="${x1+45}" y="70" font-size="15" font-weight="800" fill="#3e6b80">EXTERIOR</text><text x="${x1+45}" y="94" font-size="24" font-weight="900" fill="#26556b">${fmt(d.te,1)} °C</text>`;
+
+  profile.rev.forEach((l,i)=>{
+    const xa=xs[i],xb=xs[i+1],name=(l.product||l.name);
+    s+=`<rect x="${xa}" y="${yTop}" width="${xb-xa}" height="${yBot-yTop}" fill="${wallVizColor(l.type)}" stroke="#60747b" stroke-width="1" filter="url(#softShadow)"/>`;
+    if(xb-xa>55)s+=`<text x="${(xa+xb)/2}" y="${yBot-18}" text-anchor="middle" font-size="10" font-weight="800" fill="#2f4952">${name.length>16?name.slice(0,14)+'…':name}</text>`;
+  });
+
+  // Dew point reference
+  const dewY=sy(dewT);
+  s+=`<line x1="${x0-18}" y1="${dewY}" x2="${x1+18}" y2="${dewY}" stroke="#d65353" stroke-width="2" stroke-dasharray="8 6" opacity=".8"/>`;
+  s+=`<rect x="${x0+10}" y="${dewY-27}" width="142" height="22" rx="11" fill="#fff0f0"/><text x="${x0+20}" y="${dewY-12}" font-size="11" font-weight="800" fill="#b83e3e">Punto rocío ${fmt(dewT,1)} °C</text>`;
+
+  // Temperature path: interior air -> surface/interfaces -> exterior air
+  const pTemps=[{x:95,temp:d.ta,label:'Aire interior'},...profile.points.map((p,i)=>({x:xs[i],temp:p.temp,label:p.label})),{x:900,temp:d.te,label:'Aire exterior'}];
+  const poly=pTemps.map(p=>`${p.x},${sy(p.temp)}`).join(' ');
+  s+=`<polyline points="${poly}" fill="none" stroke="#7a2bc0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+  pTemps.forEach((p,i)=>{
+    const yy=sy(p.temp),isEdge=i===0||i===pTemps.length-1;
+    s+=`<circle cx="${p.x}" cy="${yy}" r="${isEdge?6:7}" fill="${isEdge?'#19789b':'#8b3bd1'}" stroke="white" stroke-width="3"/>`;
+    const labelY=i%2===0?yy-14:yy+24;
+    s+=`<text x="${p.x}" y="${labelY}" text-anchor="middle" font-size="${isEdge?12:11}" font-weight="900" fill="${isEdge?'#17617c':'#67309a'}">${fmt(p.temp,1)}°C</text>`;
+  });
+  s+=`<text x="${W/2}" y="372" text-anchor="middle" font-size="11" fill="#6a7d84">Perfil estacionario de temperatura · Rsi/Rse incluidos · esquema visual no a escala</text>`;
+  svg.innerHTML=s;
+}
 function draw(d){
-  const W=900,H=410,L=62,R=25,T=25,BT=52,minX=Math.min(-5,Math.floor(d.d-5),Math.floor(d.te-2)),maxX=Math.max(25,Math.ceil(d.ta+3)),minY=40,maxY=110,sx=x=>L+(x-minX)/(maxX-minX)*(W-L-R),sy=y=>T+(maxY-y)/(maxY-minY)*(H-T-BT);
-  let s=`<rect width="${W}" height="${H}" fill="#fbfcfc"/>`;[[40,70,'#e8f5ef'],[70,80,'#eef5dc'],[80,90,'#fff5db'],[90,100,'#fff0e5'],[100,110,'#fde8e8']].forEach(z=>s+=`<rect x="${L}" y="${sy(z[1])}" width="${W-L-R}" height="${sy(z[0])-sy(z[1])}" fill="${z[2]}"/>`);
-  [50,60,70,80,90,100].forEach(y=>s+=`<line x1="${L}" y1="${sy(y)}" x2="${W-R}" y2="${sy(y)}" stroke="#dfe7ea"/><text x="${L-9}" y="${sy(y)+4}" text-anchor="end" font-size="11" fill="#667983">${y}%</text>`);
-  let pts=[];for(let x=minX;x<=maxX;x+=.2)pts.push(`${sx(x)},${sy(clamp(100*d.p/ps(x),minY,maxY))}`);const st=scoreStyle(d.score);
-  s+=`<polyline fill="none" stroke="#176d91" stroke-width="4" points="${pts.join(' ')}"/><circle cx="${sx(d.ts)}" cy="${sy(clamp(d.rhs,minY,maxY))}" r="7" fill="${st.color}" stroke="white" stroke-width="3"/><line x1="${sx(d.d)}" y1="${T}" x2="${sx(d.d)}" y2="${H-BT}" stroke="#c84b4b" stroke-dasharray="6 5"/><text x="${sx(d.d)+5}" y="${T+16}" font-size="11" fill="#b94444">Rocío ${fmt(d.d)}°C</text><text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">Temperatura superficial interior del muro (°C)</text><text x="16" y="${H/2}" transform="rotate(-90 16 ${H/2})" text-anchor="middle" font-size="12" font-weight="700" fill="#52636c">HR superficial</text>`;$('chart').innerHTML=s
+  const W=900,H=410,L=64,R=28,T=30,BT=62;
+  const minX=Math.floor(Math.min(-5,d.d-5,d.te-2)/5)*5;
+  const maxX=Math.ceil(Math.max(25,d.ta+4,d.ts+4)/5)*5;
+  const minY=40,maxY=110;
+  const sx=x=>L+(x-minX)/(maxX-minX)*(W-L-R),sy=y=>T+(maxY-y)/(maxY-minY)*(H-T-BT);
+  let s=`<defs>
+    <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#19789b" stop-opacity=".18"/><stop offset="1" stop-color="#19789b" stop-opacity=".015"/></linearGradient>
+    <filter id="pointGlow"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#19789b" flood-opacity=".35"/></filter>
+  </defs><rect width="${W}" height="${H}" rx="18" fill="#fbfcfc"/>`;
+  [[40,70,'#e8f5ef'],[70,80,'#eef5dc'],[80,90,'#fff5db'],[90,100,'#fff0e5'],[100,110,'#fde8e8']].forEach(z=>s+=`<rect x="${L}" y="${sy(z[1])}" width="${W-L-R}" height="${sy(z[0])-sy(z[1])}" fill="${z[2]}"/>`);
+
+  [50,60,70,80,90,100].forEach(y=>s+=`<line x1="${L}" y1="${sy(y)}" x2="${W-R}" y2="${sy(y)}" stroke="#dce6e9"/><text x="${L-10}" y="${sy(y)+4}" text-anchor="end" font-size="11" fill="#687c84">${y}%</text>`);
+  for(let x=Math.ceil(minX/5)*5;x<=maxX;x+=5){
+    s+=`<line x1="${sx(x)}" y1="${T}" x2="${sx(x)}" y2="${H-BT}" stroke="#e6edef" stroke-width="1"/>`;
+    s+=`<line x1="${sx(x)}" y1="${H-BT}" x2="${sx(x)}" y2="${H-BT+7}" stroke="#6f8188" stroke-width="1.5"/>`;
+    s+=`<text x="${sx(x)}" y="${H-BT+25}" text-anchor="middle" font-size="12" font-weight="800" fill="#536a73">${x}°</text>`;
+  }
+
+  let pts=[];for(let x=minX;x<=maxX;x+=.15)pts.push([sx(x),sy(clamp(100*d.p/ps(x),minY,maxY))]);
+  const linePts=pts.map(p=>p.join(',')).join(' ');
+  const areaPts=`${sx(minX)},${sy(minY)} ${linePts} ${sx(maxX)},${sy(minY)}`;
+  const st=scoreStyle(d.score);
+  s+=`<polygon points="${areaPts}" fill="url(#curveFill)"/><polyline fill="none" stroke="#176f94" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" points="${linePts}"/>`;
+
+  // Dew point marker
+  s+=`<line x1="${sx(d.d)}" y1="${T}" x2="${sx(d.d)}" y2="${H-BT}" stroke="#d65353" stroke-width="2" stroke-dasharray="7 6"/>`;
+  s+=`<rect x="${Math.min(W-145,sx(d.d)+7)}" y="${T+8}" width="128" height="25" rx="12" fill="#fff0f0"/><text x="${Math.min(W-138,sx(d.d)+15)}" y="${T+25}" font-size="11" font-weight="800" fill="#b83f3f">Rocío ${fmt(d.d,1)}°C</text>`;
+
+  // Current surface marker + vertical guide + label
+  const px=sx(d.ts),py=sy(clamp(d.rhs,minY,maxY));
+  s+=`<line x1="${px}" y1="${py}" x2="${px}" y2="${H-BT}" stroke="${st.color}" stroke-width="1.5" stroke-dasharray="4 5" opacity=".75"/>`;
+  s+=`<circle cx="${px}" cy="${py}" r="10" fill="white" stroke="${st.color}" stroke-width="5" filter="url(#pointGlow)"/>`;
+  const bx=Math.max(L+5,Math.min(W-R-165,px-75)),by=Math.max(T+42,py-62);
+  s+=`<rect x="${bx}" y="${by}" width="150" height="46" rx="12" fill="white" stroke="#cadce1"/><text x="${bx+12}" y="${by+18}" font-size="10" fill="#6b7e85">SUPERFICIE ACTUAL</text><text x="${bx+12}" y="${by+36}" font-size="14" font-weight="900" fill="#173f4d">${fmt(d.ts,1)}°C · ${fmt(d.rhs,0)}% HR</text>`;
+
+  s+=`<text x="${W/2}" y="${H-10}" text-anchor="middle" font-size="12" font-weight="800" fill="#455e68">Temperatura superficial interior del muro (°C)</text>`;
+  s+=`<text x="18" y="${H/2}" transform="rotate(-90 18 ${H/2})" text-anchor="middle" font-size="12" font-weight="800" fill="#455e68">HR superficial</text>`;
+  $('chart').innerHTML=s;
 }
 
 const PERSON_ACTIVITY_RATES={sleep:32,tv:45,desk:50,light:60,housework:120,exercise:160,hardExercise:250};
@@ -386,45 +499,33 @@ function renderVaporEstimate(){
   renderVaporPersons();
   const manual=$('duration').value==='manual';
   const intro=$('vaporIntro'),state=$('vaporState');
-  card.classList.toggle('vapor-active',manual);
   $('vaporHeaterHoursWrap')?.classList.toggle('hidden',$('vaporHeaterQuick').value==='none');
 
   if(!manual){
-    card.classList.remove('vapor-high');
-    if(intro)intro.textContent='Activa “Ingresar horas manualmente” para calcular la humedad liberada durante ese período.';
+    if(intro)intro.textContent='Activa “Ingresar horas manualmente” para incorporar la producción de vapor durante ese período.';
     if(state)state.textContent='ESPERANDO HORAS';
     $('vaporLiters').textContent='—';$('vaporMass').textContent='—';$('vaporTankLabel').textContent='0 L';$('vaporFill').style.height='0%';
     $('vaporBreakdown').innerHTML='Selecciona <b>Ingresar horas manualmente</b> en Persistencia estimada.';
-    renderVaporImpact({hours:0,grams:0,liters:0});
-    return
+    renderMoistureWall(data(),{hours:0,grams:0,liters:0});
+    return;
   }
 
-  const v=vaporEstimate(),high=v.hours>=10;
-  card.classList.toggle('vapor-high',high);
-  if(intro)intro.textContent='Estimación acumulada: metabolismo de cada persona + acciones/eventos domésticos seleccionados.';
-  if(state)state.textContent=high?'PERÍODO PROLONGADO':'CÁLCULO ACTIVO';
+  const v=vaporEstimate();
+  if(intro)intro.textContent='Producción acumulada durante las horas seleccionadas. Se compara con la capacidad actual del aire, sin asumir que todo queda retenido.';
+  if(state)state.textContent=v.hours>=10?'PERÍODO PROLONGADO':'CÁLCULO ACTIVO';
   $('vaporLiters').textContent=fmt(v.liters,2);
   $('vaporMass').textContent=`${fmt(v.kg,2)} kg de agua`;
   $('vaporTankLabel').textContent=`${fmt(v.liters,2)} L`;
-  $('vaporFill').style.height=`${Math.min(100,v.liters/10*100)}%`;
+  $('vaporFill').style.height=`${Math.min(100,v.liters/5*100)}%`;
 
-  v.persons.forEach((p,i)=>{
-    const el=$(`vpContribution${i}`);
-    if(el)el.textContent=`+${fmt(p.totalGrams/1000,2)} L`;
-  });
-
-  const peopleLines=v.persons.map(p=>
-    `<span><b>Persona ${p.index}</b>: ${p.activityLabel} = ${fmt(p.metabolicGrams/1000,2)} L`+
-    `${p.actionGrams>0?` + ${p.actionDescription} = ${fmt(p.actionGrams/1000,2)} L`:''}</span>`
-  ).join('');
-
+  v.persons.forEach((p,i)=>{const el=$(`vpContribution${i}`);if(el)el.textContent=`+${fmt(p.totalGrams/1000,2)} L`});
+  const peopleLines=v.persons.map(p=>`<span><b>Persona ${p.index}</b>: ${p.activityLabel} = ${fmt(p.metabolicGrams/1000,2)} L${p.actionGrams>0?` + ${p.actionDescription} = ${fmt(p.actionGrams/1000,2)} L`:''}</span>`).join('');
   const extras=[
     v.laundryGrams>0?`<span><b>Ropa secándose:</b> ${fmt(v.loads,1)} carga(s) = ${fmt(v.laundryGrams/1000,2)} L</span>`:'',
     v.heaterGrams>0?`<span><b>Estufa ${v.heaterType==='gas'?'a gas':'a parafina'}:</b> ${fmt(v.heaterHours,1)} h = ${fmt(v.heaterGrams/1000,2)} L</span>`:''
   ].filter(Boolean).join('');
-
   $('vaporBreakdown').innerHTML=`<div class="vapor-breakdown-list">${peopleLines||'<span>Sin aporte de personas.</span>'}${extras}</div><div class="vapor-total-line">Total liberado durante ${fmt(v.hours,1)} h: <b>${fmt(v.grams,0)} g = ${fmt(v.liters,2)} L eq.</b></div>`;
-  renderVaporImpact(v);
+  renderMoistureWall(data(),v);
 }
 
 function syncPersistenceUI(){
@@ -470,7 +571,7 @@ function riskTraceability(d){
 }
 
 function render(){
-  const d=data();riskTraceability(d);renderWallGraphic(d);renderDependencyFlow(d),st=scoreStyle(d.score);
+  const d=data();riskTraceability(d);renderWallGraphic(d);st=scoreStyle(d.score);
   if(inputMode==='measured'){$('tsSlider').min=Math.floor(d.d-5);$('tsSlider').max=Math.ceil(d.ta+5);$('tsSlider').value=d.ts;$('tsLabel').textContent=fmt(d.ts)+' °C';$('tsMinLabel').textContent=$('tsSlider').min+' °C';$('tsMaxLabel').textContent=$('tsSlider').max+' °C'}
   else{$('rLayers').textContent=fmt(d.rLayers,3);$('rTotal').textContent=fmt(d.rTotal,3);$('uCalculated').textContent=fmt(d.U,2);$('tsEstimated').textContent=fmt(d.ts,1)}
   $('rhs').textContent=fmt(d.rhs,0);$('dew').textContent=fmt(d.d);$('t80').textContent=fmt(d.t80);$('margin').textContent=fmt(d.ts-d.d);$('score').textContent=fmt(d.score,0);$('scoreLevel').textContent=`${st.level} · 0 = bajo · 100 = muy alto`;$('scoreBar').style.width=d.score+'%';$('scoreBar').style.background=st.color;$('score').style.color=st.color;
