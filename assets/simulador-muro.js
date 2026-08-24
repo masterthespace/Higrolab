@@ -1,15 +1,106 @@
 'use strict';
 const A=17.62,B=243.12,RSE=.04,RSI=.13;
-const materials={"Estuco cementicio":0.87,"Hormigón":1.75,"Ladrillo cerámico":0.72,"Bloque AAC":0.16,"Yeso-cartón":0.25,"OSB":0.13,"Madera":0.13,"Lana mineral":0.04,"EPS":0.036,"XPS":0.032,"Poliuretano":0.025,"Fibra de madera":0.045};
-let layers=[{m:'Estuco cementicio',e:20,l:.87},{m:'Ladrillo cerámico',e:140,l:.72},{m:'Yeso-cartón',e:15,l:.25}];
+const materialLibrary={
+  "Estuco cementicio":{lambda:.87,source:"Orientativo HIDROLAB · verificar mortero/producto",class:"estimate"},
+  "Hormigón armado":{lambda:1.63,source:"NCh853:2021 · hormigón armado normal · ρ≈2400 kg/m³",class:"normative"},
+  "Ladrillo cerámico":{lambda:.72,source:"Orientativo HIDROLAB · depende de pieza y configuración",class:"estimate"},
+  "Bloque AAC":{lambda:.16,source:"Orientativo HIDROLAB · usar ficha del fabricante",class:"estimate"},
+  "Yeso-cartón":{lambda:.25,source:"Orientativo HIDROLAB · verificar densidad/producto",class:"estimate"},
+  "OSB":{lambda:.13,source:"Orientativo HIDROLAB · verificar densidad/producto",class:"estimate"},
+  "Madera":{lambda:.13,source:"Orientativo HIDROLAB · depende de especie y humedad",class:"estimate"},
+  "Lana mineral":{lambda:.040,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
+  "Lana de vidrio":{lambda:.040,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
+  "EPS":{lambda:.038,source:"Orientativo HIDROLAB · usar λ declarada según densidad/producto",class:"estimate"},
+  "XPS":{lambda:.032,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
+  "Poliuretano":{lambda:.025,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
+  "Fibra de madera":{lambda:.045,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"}
+};
+const materials=Object.fromEntries(Object.entries(materialLibrary).map(([k,v])=>[k,v.lambda]));
+let layers=[
+  {m:'Estuco cementicio',e:20,l:.87,source:materialLibrary['Estuco cementicio'].source,sourceClass:'estimate'},
+  {m:'Ladrillo cerámico',e:140,l:.72,source:materialLibrary['Ladrillo cerámico'].source,sourceClass:'estimate'},
+  {m:'Yeso-cartón',e:15,l:.25,source:materialLibrary['Yeso-cartón'].source,sourceClass:'estimate'}
+];
+let wallMethod='homogeneous';
 const $=id=>document.getElementById(id);const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));const fmt=(n,d=2)=>Number.isFinite(n)?n.toFixed(d).replace('.',','):'—';
 function satPressure(T){return 6.112*Math.exp((A*T)/(B+T))}
 function dewPoint(T,RH){const g=Math.log(clamp(RH,1,100)/100)+(A*T)/(B+T);return B*g/(A-g)}
 function surfaceRH(Tair,RHair,Tsurface){const pv=(clamp(RHair,1,100)/100)*satPressure(Tair);return 100*pv/satPressure(Tsurface)}
-function calc(extraR=0){const Ti=+$('ti').value,Te=+$('te').value,area=Math.max(0,+$('area').value||0);const layerR=layers.map(x=>(x.e/1000)/Math.max(.001,x.l));const Rt=RSE+RSI+layerR.reduce((a,b)=>a+b,0)+extraR;const U=1/Rt;const q=(Ti-Te)/Rt;const Tsi=Ti-q*RSI;const loss=U*area*Math.abs(Ti-Te);return {Ti,Te,area,layerR,Rt,U,q,Tsi,loss}}
+function effectiveLayerR(layer,index){
+  const base=(layer.e/1000)/Math.max(.001,layer.l);
+  if(wallMethod!=='frame')return base;
+  const selected=+$('frameLayer')?.value;
+  if(index!==selected)return base;
+  const f=clamp((+$('studFraction')?.value||15)/100,.01,.5);
+  const ls=Math.max(.001,+$('studLambda')?.value||.13);
+  const lf=Math.max(.001,layer.l);
+  const lambdaEq=(1-f)*lf+f*ls;
+  return (layer.e/1000)/lambdaEq;
+}
+function calc(extraR=0){
+  const Ti=+$('ti').value,Te=+$('te').value,area=Math.max(0,+$('area').value||0);
+  const layerR=layers.map((x,i)=>effectiveLayerR(x,i));
+  const Rt=RSE+RSI+layerR.reduce((a,b)=>a+b,0)+extraR;
+  const U=1/Rt,q=(Ti-Te)/Rt,Tsi=Ti-q*RSI,loss=U*area*Math.abs(Ti-Te);
+  return {Ti,Te,area,layerR,Rt,U,q,Tsi,loss}
+}
 function materialOptions(selected){return Object.keys(materials).map(m=>`<option ${m===selected?'selected':''}>${m}</option>`).join('')+`<option ${selected==='Personalizado'?'selected':''}>Personalizado</option>`}
-function renderRows(){const tb=$('layers');tb.innerHTML='';layers.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><select class="mat" data-i="${i}">${materialOptions(x.m)}</select></td><td><input class="thick" data-i="${i}" type="number" min="1" step="1" value="${x.e}"></td><td><input class="lambda" data-i="${i}" type="number" min="0.001" step="0.001" value="${x.l}"></td><td class="rval">${fmt((x.e/1000)/x.l,3)}</td><td><div class="row-actions"><button class="up" data-i="${i}" title="Subir">↑</button><button class="down" data-i="${i}" title="Bajar">↓</button><button class="del" data-i="${i}" title="Eliminar">×</button></div></td>`;tb.appendChild(tr)});bindRows()}
-function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value])layers[i].l=materials[el.value];renderRows();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].m='Personalizado';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
+function renderRows(){normalizeLayerSources();const tb=$('layers');tb.innerHTML='';layers.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><select class="mat" data-i="${i}">${materialOptions(x.m)}</select></td><td><input class="thick" data-i="${i}" type="number" min="1" step="1" value="${x.e}"></td><td><input class="lambda" data-i="${i}" type="number" min="0.001" step="0.001" value="${x.l}"></td><td class="rval">${fmt(effectiveLayerR(x,i),3)}</td><td><span class="material-source ${x.sourceClass||'estimate'}">${x.source||'Valor personalizado por usuario'}</span></td><td><div class="row-actions"><button class="up" data-i="${i}" title="Subir">↑</button><button class="down" data-i="${i}" title="Bajar">↓</button><button class="del" data-i="${i}" title="Eliminar">×</button></div></td>`;tb.appendChild(tr)});bindRows()}
+function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value]){layers[i].l=materials[el.value];layers[i].source=materialLibrary[el.value]?.source||'Biblioteca HIDROLAB';layers[i].sourceClass=materialLibrary[el.value]?.class||'estimate'}renderRows();renderFrameLayerOptions();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].m='Personalizado';layers[+el.dataset.i].source='Valor personalizado por usuario';layers[+el.dataset.i].sourceClass='custom';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
+
+function normalizeLayerSources(){
+  layers.forEach(l=>{
+    if(!l.source){
+      const meta=materialLibrary[l.m];
+      l.source=meta?.source||'Valor personalizado por usuario';
+      l.sourceClass=meta?.class||'custom';
+    }
+  })
+}
+function renderFrameLayerOptions(){
+  const sel=$('frameLayer');if(!sel)return;
+  const prev=sel.value;
+  sel.innerHTML=layers.map((l,i)=>`<option value="${i}">${i+1}. ${l.m} · ${l.e} mm</option>`).join('');
+  if([...sel.options].some(o=>o.value===prev))sel.value=prev;
+}
+function setWallMethod(mode){
+  wallMethod=mode==='frame'?'frame':'homogeneous';
+  $('methodHomogeneous')?.classList.toggle('active',wallMethod==='homogeneous');
+  $('methodFrame')?.classList.toggle('active',wallMethod==='frame');
+  $('frameControls')?.classList.toggle('hidden',wallMethod!=='frame');
+  render();
+}
+const WALL_LIMITS_RESIDENTIAL={
+ A:{u:2.10,rt:.48},B:{u:.80,rt:1.25},C:{u:.80,rt:1.25},D:{u:.60,rt:1.67},
+ E:{u:.60,rt:1.67},F:{u:.45,rt:2.22},G:{u:.40,rt:2.50},H:{u:.30,rt:3.33},I:{u:.35,rt:2.86}
+};
+function renderNormative(c){
+  const enabled=!!$('normEnabled')?.checked;
+  $('normControls')?.classList.toggle('hidden',!enabled);
+  const box=$('normResult');if(!box)return;
+  if(!enabled){
+    box.className='norm-result disabled';
+    box.innerHTML='<small>COMPARACIÓN DESACTIVADA</small><strong>Selecciona una zona para comparar</strong><span>El cálculo U del muro sigue funcionando sin esta opción.</span>';
+    return;
+  }
+  const z=$('thermalZone').value,lim=WALL_LIMITS_RESIDENTIAL[z],okU=c.U<=lim.u+1e-9,okRt=c.Rt>=lim.rt-1e-9,ok=okU||okRt;
+  const marginU=lim.u-c.U,marginRt=c.Rt-lim.rt;
+  box.className='norm-result '+(ok?'pass':'fail');
+  box.innerHTML=`<small>ZONA ${z} · MURO PERIMETRAL RESIDENCIAL</small>
+    <strong>${ok?'Bajo el límite térmico seleccionado':'Sobre el límite térmico seleccionado'}</strong>
+    <div class="norm-values"><span>Tu muro <b>U ${fmt(c.U,2)}</b></span><span>Límite <b>U ≤ ${fmt(lim.u,2)}</b></span><span>Rt <b>${fmt(c.Rt,2)}</b></span><span>Mínimo <b>Rt ≥ ${fmt(lim.rt,2)}</b></span></div>
+    <em>${ok?`Margen U: ${fmt(Math.abs(marginU),2)} W/m²K · margen Rt: ${fmt(Math.max(0,marginRt),2)} m²K/W`:`Falta reducir U aproximadamente ${fmt(Math.abs(marginU),2)} W/m²K.`}</em>
+    <p>Comparación del parámetro U/Rt solamente. No equivale a una declaración de cumplimiento integral del proyecto.</p>`;
+}
+function renderResistanceContribution(c){
+  const host=$('resistanceContribution');if(!host)return;
+  const layerTotal=Math.max(.0001,c.layerR.reduce((a,b)=>a+b,0));
+  host.innerHTML=layers.map((l,i)=>{
+    const r=c.layerR[i],pct=r/layerTotal*100;
+    const note=wallMethod==='frame'&&i===+$('frameLayer')?.value?' · entramado corregido':'';
+    return `<div class="r-contrib-row"><div><b>${l.m}</b><span>${fmt(r,3)} m²K/W${note}</span></div><div class="r-contrib-bar"><i style="width:${Math.max(2,pct)}%"></i></div><strong>${fmt(pct,0)}%</strong></div>`
+  }).join('')+`<div class="r-contrib-note">Porcentaje calculado sobre la suma de resistencias de las capas, sin incluir Rsi/Rse.</div>`;
+}
 function stackHtml(addInsulation=false){const insE=addInsulation?+$('insThickness').value:0;const insName=$('insulation').options[$('insulation').selectedIndex]?.textContent.split('·')[0].trim()||'Aislación';const all=addInsulation&&insE>0?[{m:insName,e:insE,l:+$('insulation').value,ins:true},...layers]:layers.map(x=>({...x}));const total=Math.max(1,all.reduce((a,x)=>a+x.e,0));return all.map((x,i)=>{const hue=[195,35,25,210,45,100,65,160][i%8];const w=Math.max(7,x.e/total*100);return `<div class="layer-block${x.ins?' insulation-highlight':''}" title="${x.m} · ${x.e} mm" style="width:${w}%;background:hsl(${hue} 38% 78%)"><span>${x.m} · ${x.e}mm</span></div>`}).join('')}
 function renderStack(){if($('stack'))$('stack').innerHTML=stackHtml(false);if($('stackCurrent'))$('stackCurrent').innerHTML=stackHtml(false);if($('stackImproved'))$('stackImproved').innerHTML=stackHtml(true)}
 function riskFor(ts,dew,rhs){const m=ts-dew;if(m<=0)return ['Condensación superficial posible','danger'];if(m<2)return ['Margen crítico respecto del rocío','warn'];if(rhs>=80)return ['HR superficial elevada','warn'];return ['Margen favorable','safe']}
@@ -69,7 +160,7 @@ function minimumThickness(lambda,targetMargin){const c=calc(),dew=dewPoint(c.Ti,
 let animationToken=0;
 function animateThickness(target){animationToken++;const token=animationToken;const range=$('insThickness');const start=+range.value,end=clamp(target,+range.min,+range.max);const duration=700,startTime=performance.now();function step(now){if(token!==animationToken)return;const p=clamp((now-startTime)/duration,0,1),ease=1-Math.pow(1-p,3);range.value=Math.round((start+(end-start)*ease)/5)*5;render();if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
 function findMinimum(){const lambda=+$('insulation').value,targetMargin=+$('targetMargin').value,res=minimumThickness(lambda,targetMargin),box=$('minimumResult');if(!res.ok){box.className='minimum-result warning';box.querySelector('strong').textContent='Objetivo no alcanzable';box.querySelector('span').textContent=res.reason;return}const rounded=Math.ceil(res.mm/5)*5;if(rounded>+$('insThickness').max){box.className='minimum-result warning';box.querySelector('strong').textContent='> '+$('insThickness').max+' mm';box.querySelector('span').textContent=`Se estiman ${fmt(res.mm,0)} mm para lograr +${fmt(targetMargin,1)} °C. Amplía el rango o revisa la solución constructiva.`;return}box.className='minimum-result success';box.querySelector('strong').textContent=rounded+' mm';box.querySelector('span').textContent=`Espesor estimado para mantener la superficie al menos +${fmt(targetMargin,1)} °C sobre el punto de rocío. Se moverá el simulador a ese valor.`;animateThickness(rounded)}
-function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt((layers[i].e/1000)/layers[i].l,3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
+function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt(effectiveLayerR(layers[i],i),3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);renderFrameLayerOptions();renderNormative(c);renderResistanceContribution(c);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);if($('uExplain'))$('uExplain').textContent=`Por cada 1 m² de muro y cada 1 °C de diferencia, atraviesan aproximadamente ${fmt(c.U,2)} W en régimen estacionario.`;$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
 const insE=+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insR=(insE/1000)/(+$('insulation').value);const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
 $('addLayer').addEventListener('click',()=>{layers.push({m:'Lana mineral',e:50,l:.04});renderRows();render()});$('presetBrick').addEventListener('click',()=>{layers=[{m:'Estuco cementicio',e:20,l:.87},{m:'Ladrillo cerámico',e:140,l:.72},{m:'Yeso-cartón',e:15,l:.25}];renderRows();render()});$('presetTimber').addEventListener('click',()=>{layers=[{m:'Yeso-cartón',e:15,l:.25},{m:'Lana mineral',e:90,l:.04},{m:'OSB',e:11,l:.13},{m:'Madera',e:20,l:.13}];renderRows();render()});['ti','te','rh','area','insulation','insThickness'].forEach(id=>$(id).addEventListener('input',render));
 function syncTargetMargin(source){
@@ -81,4 +172,22 @@ function syncTargetMargin(source){
 }
 $('targetMargin').addEventListener('input',()=>syncTargetMargin('range'));
 $('targetMarginN').addEventListener('input',()=>syncTargetMargin('number'));
-$('findMinimum').addEventListener('click',findMinimum);syncTargetMargin('range');renderRows();render();
+$('findMinimum').addEventListener('click',findMinimum);syncTargetMargin('range');
+
+window.HIDROLAB_WALL_REPORT=()=>{
+  const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),zone=$('thermalZone')?.value||'F',lim=WALL_LIMITS_RESIDENTIAL[zone];
+  const insE=+$('insThickness').value||0,insL=+$('insulation').value||.038,n=calc(insE>0?(insE/1000)/insL:0);
+  return{
+    method:wallMethod,Ti:c.Ti,Te:c.Te,RH,area:c.area,Rt:c.Rt,U:c.U,Tsi:c.Tsi,q:c.q,loss:c.loss,dew,margin:c.Tsi-dew,
+    rsi:RSI,rse:RSE,layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],source:l.source||'',sourceClass:l.sourceClass||''})),
+    frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value}:null,
+    improvement:{material:$('insulation').options[$('insulation').selectedIndex]?.textContent||'',thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
+    normative:{enabled:!!$('normEnabled')?.checked,zone,limitU:lim.u,limitRt:lim.rt,pass:c.U<=lim.u||c.Rt>=lim.rt}
+  }
+};
+$('methodHomogeneous')?.addEventListener('click',()=>setWallMethod('homogeneous'));
+$('methodFrame')?.addEventListener('click',()=>setWallMethod('frame'));
+['frameLayer','studFraction','studLambda','thermalZone'].forEach(id=>$(id)?.addEventListener('input',render));
+$('normEnabled')?.addEventListener('change',render);
+$('thermalZone')?.addEventListener('change',render);
+renderRows();render();

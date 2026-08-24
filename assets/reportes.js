@@ -506,6 +506,58 @@
     return true
   }
 
+
+  function addWallUDetailedReport(doc,root){
+    if(current!=='simulador-muro.html' || typeof window.HIDROLAB_WALL_REPORT!=='function') return false;
+    let x;try{x=window.HIDROLAB_WALL_REPORT()}catch(e){console.error(e);return false}
+    if(!x)return false;
+
+    const s1=addSection(doc,root,'1. Resultado térmico del muro');
+    const t1=el(doc,'table','kv'),b1=el(doc,'tbody');
+    [
+      ['Método',x.method==='frame'?'Entramado simplificado HIDROLAB':'Capas homogéneas 1D'],
+      ['Temperatura interior',`${fmtNum(x.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.Te,1)} °C`],
+      ['HR interior',`${fmtNum(x.RH,0)} %`],['Área de muro',`${fmtNum(x.area,1)} m²`],
+      ['Rsi',`${fmtNum(x.rsi,2)} m²K/W`],['Rse',`${fmtNum(x.rse,2)} m²K/W`],
+      ['Resistencia total Rt',`${fmtNum(x.Rt,3)} m²K/W`],['Transmitancia U',`${fmtNum(x.U,3)} W/m²K`],
+      ['Temperatura superficial interior',`${fmtNum(x.Tsi,1)} °C`],['Flujo térmico',`${fmtNum(x.q,1)} W/m²`],
+      ['Pérdida térmica instantánea',`${fmtNum(x.loss,0)} W`],['Punto de rocío',`${fmtNum(x.dew,1)} °C`],
+      ['Margen superficial al rocío',`${fmtNum(x.margin,1)} °C`]
+    ].forEach(r=>addRow(doc,b1,r[0],r[1]));t1.append(b1);s1.append(t1);
+
+    const s2=addSection(doc,root,'2. Composición configurada por el usuario');
+    const visual=el(doc,'div','risk-wall-visual');
+    const ex=el(doc,'div','risk-wall-side cold');ex.innerHTML=`<small>EXTERIOR</small><b>${fmtNum(x.Te,1)} °C</b>`;visual.append(ex);
+    const stack=el(doc,'div','risk-wall-stack');
+    (x.layers||[]).forEach(l=>{const d=el(doc,'div','risk-wall-layer');d.style.flex=String(Math.max(.55,Math.min(4.5,l.thickness/35)));d.innerHTML=`<b>${l.name}</b><span>${fmtNum(l.thickness,0)} mm</span><small>R ${fmtNum(l.R,3)}</small>`;stack.append(d)});
+    visual.append(stack);
+    const inn=el(doc,'div','risk-wall-side warm');inn.innerHTML=`<small>INTERIOR</small><b>${fmtNum(x.Ti,1)} °C</b>`;visual.append(inn);s2.append(visual);
+
+    const t2=el(doc,'table','data-table'),h=el(doc,'tr');
+    ['#','Material','Espesor','λ','R capa','Origen'].forEach(v=>h.append(el(doc,'th','',v)));t2.append(h);
+    (x.layers||[]).forEach(l=>{const tr=el(doc,'tr');[l.order,l.name,`${fmtNum(l.thickness,1)} mm`,`${fmtNum(l.lambda,3)} W/mK`,`${fmtNum(l.R,3)} m²K/W`,l.source||'—'].forEach(v=>tr.append(el(doc,'td','',v)));t2.append(tr)});s2.append(t2);
+    if(x.frame)s2.append(el(doc,'p','section-note',`Entramado simplificado: capa ${x.frame.layer}, fracción de montantes ${fmtNum(x.frame.studFraction,0)} %, λ montante ${fmtNum(x.frame.studLambda,2)} W/mK. Esta corrección es didáctica y no reemplaza una memoria formal de elemento heterogéneo.`));
+
+    const s3=addSection(doc,root,'3. Simulación de aislación');
+    const t3=el(doc,'table','kv'),b3=el(doc,'tbody');
+    [['Aislante propuesto',x.improvement.material],['Espesor propuesto',`${fmtNum(x.improvement.thickness,0)} mm`],
+     ['U mejorada',`${fmtNum(x.improvement.U,3)} W/m²K`],['Rt mejorada',`${fmtNum(x.improvement.Rt,3)} m²K/W`],
+     ['T° superficial mejorada',`${fmtNum(x.improvement.Tsi,1)} °C`],['Pérdida instantánea mejorada',`${fmtNum(x.improvement.loss,0)} W`]]
+     .forEach(r=>addRow(doc,b3,r[0],r[1]));t3.append(b3);s3.append(t3);
+
+    const s4=addSection(doc,root,'4. Comparación reglamentaria opcional');
+    if(x.normative.enabled){
+      const ok=x.normative.pass;
+      s4.append(el(doc,'div',ok?'vapor-pdf-highlight':'obs',`Zona ${x.normative.zone}: U calculada ${fmtNum(x.U,2)} W/m²K vs U máxima ${fmtNum(x.normative.limitU,2)} W/m²K · Rt ${fmtNum(x.Rt,2)} vs Rt mínima ${fmtNum(x.normative.limitRt,2)} m²K/W.`));
+      s4.append(el(doc,'p','section-note',`${ok?'El parámetro U/Rt queda bajo/sobre el umbral térmico seleccionado según corresponda.':'El parámetro U/Rt no alcanza el umbral seleccionado.'} Esta comparación no constituye una declaración de cumplimiento integral del proyecto.`));
+    }else s4.append(el(doc,'p','section-note','La comparación por zona térmica no fue activada por el usuario.'));
+
+    const s5=addSection(doc,root,'5. Alcance técnico');
+    s5.append(el(doc,'p','section-note','Para capas homogéneas, HIDROLAB calcula R=e/λ, suma Rsi + ΣR + Rse y obtiene U=1/Rt. La pérdida térmica instantánea se estima como U·A·|Ti−Te| bajo régimen estacionario.'));
+    s5.append(el(doc,'p','section-note','Los valores λ identificados como orientativos deben sustituirse por propiedades respaldadas por producto, ensayo, listado oficial o fuente normativa aplicable antes de utilizar el resultado como memoria técnica. Los puentes térmicos, encuentros, fijaciones y discontinuidades pueden modificar el desempeño real.'));
+    return true
+  }
+
   function buildReport(){
     const w=window.open('','_blank');
     if(!w){ alert('El navegador bloqueó la ventana del informe. Habilita ventanas emergentes para HIDROLAB y vuelve a intentarlo.'); return; }
@@ -553,20 +605,22 @@
     const isSolar=current==='simulador-solar.html';
     const isRisk=current==='riesgo-moho.html';
     const isVent=current==='ventilacion-humedad.html';
+    const isWall=current==='simulador-muro.html';
     const inputs=collectInputs();
-    if(inputs.length && !isSolar && !isRisk && !isVent){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
+    if(inputs.length && !isSolar && !isRisk && !isVent && !isWall){ const sec=addSection(d,body,'Datos de entrada'); const t=el(d,'table','kv'),tb=el(d,'tbody'); inputs.forEach(r=>addRow(d,tb,r[0],r[1])); t.append(tb); sec.append(t); }
 
     const solarAdded=addSolarDetailedReport(d,body);
     const riskAdded=addRiskMoistureDetailedReport(d,body);
     const ventAdded=addVentilationDetailedReport(d,body);
+    const wallAdded=addWallUDetailedReport(d,body);
 
-    const results=(isSolar||isRisk||isVent)?[]:collectResults();
+    const results=(isSolar||isRisk||isVent||isWall)?[]:collectResults();
     if(results.length){ const sec=addSection(d,body,'Resultados de la simulación'); const g=el(d,'div','results-grid'); results.forEach(([a,b])=>{const c=el(d,'div','result'); c.append(el(d,'div','rlabel',a),el(d,'div','rvalue',b||a)); g.append(c)}); sec.append(g); }
 
-    const svgs=isSolar?[]:$$('main svg').filter(s=>s.getBoundingClientRect().width>50 && s.getBoundingClientRect().height>40).slice(0,3);
+    const svgs=(isSolar||isWall)?[]:$$('main svg').filter(s=>s.getBoundingClientRect().width>50 && s.getBoundingClientRect().height>40).slice(0,3);
     if(svgs.length){ const sec=addSection(d,body,'Gráficos y visualizaciones'); svgs.forEach(s=>{const box=el(d,'div','chart'); box.append(safeSvgClone(s,d)); sec.append(box)}); }
 
-    const tables=isSolar?[]:collectTables();
+    const tables=(isSolar||isWall)?[]:collectTables();
     tables.forEach((rows,idx)=>{
       const sec=addSection(d,body,tables.length>1?`Tabla de resultados ${idx+1}`:'Tabla de resultados');
       const t=el(d,'table','data-table');
