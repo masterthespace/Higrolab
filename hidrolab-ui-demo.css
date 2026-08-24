@@ -23,3 +23,91 @@ footer{max-width:1280px;margin:auto;padding:25px 28px 40px;display:flex;justify-
   color:#061014;
   border-bottom:1px solid color-mix(in srgb,var(--accent) 70%,#000);
 }
+
+/* ============================================================
+   HIDROLAB BETA 1 · TEMA OSCURO TÉCNICO MÁS SUAVE
+   ============================================================ */
+:root{
+  --bg:#162126;
+  --panel:#1c2a31;
+  --panel2:#22323a;
+  --line:#344850;
+  --line2:#445a64;
+  --text:#edf4f5;
+  --muted:#a8b9bf;
+  --accent:#69c6d6;
+  --accent2:#3995aa;
+  --good:#70bd87;
+  --warn:#ddb45a;
+  --bad:#df7068;
+  --violet:#a797df;
+  --sun:#f0c25c;
+}
+:root.light{--bg:#162126;--panel:#1c2a31;--panel2:#22323a;--line:#344850;--line2:#445a64;--text:#edf4f5;--muted:#a8b9bf;--accent:#69c6d6;--accent2:#3995aa}
+
+/* Legibilidad general del frontend */
+body{font-size:17px}
+.logo small{font-size:11px}
+.bar nav a{font-size:14px}
+.overline{font-size:12px}
+.lead{font-size:18px}
+.metric-strip .symbol{font-size:12px}
+.metric-strip small{font-size:12px}
+.metric-strip b{font-size:23px}
+.discipline p{font-size:12px}
+.discipline b{font-size:18px}
+.principles p{font-size:14px}
+.principles b{font-size:12px}
+.tool-row p{font-size:12px;line-height:1.45}
+.tool-row b{font-size:15px}
+.tool-row>strong{font-size:12px}
+.tool-signal span{font-size:10px}
+.palette-item small{font-size:12px}
+.palette-help{font-size:11px}
+
+/* Preview de casa 3D */
+.product-preview{border:1px solid var(--line2);background:var(--panel);box-shadow:0 24px 70px rgba(5,10,12,.26)}
+.preview-top,.preview-bottom{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;font:11px var(--mono);color:var(--muted)}
+.preview-top{border-bottom:1px solid var(--line)}
+.preview-bottom{border-top:1px solid var(--line)}
+.preview-top b{color:var(--text);font-size:11px}
+.house-preview-stage{position:relative;min-height:430px;overflow:hidden;background:
+  radial-gradient(circle at 72% 18%,rgba(240,194,92,.10),transparent 22%),
+  linear-gradient(180deg,#1d2e36 0%,#1c2a31 65%,#18252b 100%)}
+.orientation-chip{position:absolute;left:18px;top:18px;width:50px;height:50px;border:1px solid var(--line2);background:rgba(28,42,49,.86);display:flex;align-items:center;justify-content:center;gap:3px;z-index:5}
+.orientation-chip b{font:800 15px var(--mono);color:var(--accent)}
+.orientation-chip span{font-size:18px}
+.sun-preview{position:absolute;right:25px;top:20px;display:flex;align-items:center;gap:8px;color:var(--muted);font:11px var(--mono);z-index:5}
+.sun-preview i{width:23px;height:23px;border-radius:50%;background:var(--sun);box-shadow:0 0 30px rgba(240,194,92,.25)}
+.house3d-wrap{position:absolute;left:50%;top:49%;width:330px;height:250px;transform:translate(-50%,-50%);perspective:850px}
+.house3d{position:absolute;left:50%;top:54%;width:230px;height:155px;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(-13deg) rotateY(-28deg);transition:transform .18s linear}
+.h-base{position:absolute;left:5px;top:40px;width:210px;height:120px;background:#30454e;transform:translateZ(0);box-shadow:0 20px 40px rgba(0,0,0,.18)}
+.h-wall{position:absolute;background:#d8dde0;border:1px solid #879aa2;backface-visibility:hidden}
+.h-front{left:5px;top:40px;width:210px;height:120px;transform:translateZ(62px)}
+.h-side{right:-57px;top:40px;width:120px;height:120px;transform:rotateY(90deg) translateZ(59px);transform-origin:center}
+.h-roof{position:absolute;top:-4px;width:130px;height:220px;background:#637982;border:1px solid #8fa0a6}
+.roof-a{left:46px;transform:rotateX(90deg) rotateZ(28deg) translateZ(56px)}
+.roof-b{left:47px;transform:rotateX(90deg) rotateZ(-28deg) translateZ(56px)}
+.h-window{position:absolute;width:44px;height:38px;background:#6ba5b7;border:4px solid #edf4f5;box-shadow:inset 0 0 18px rgba(10,20,25,.25)}
+.w1{left:24px;top:35px}.w2{left:82px;top:35px}.h-door{position:absolute;right:24px;bottom:0;width:42px;height:72px;background:#806b5e;border:3px solid #d4d9da}
+.side-window{left:35px;top:36px}
+.h-shadow{position:absolute;left:150px;top:148px;width:150px;height:55px;background:rgba(0,0,0,.22);filter:blur(10px);transform:rotateX(90deg) translateZ(-12px)}
+.preview-readout{position:absolute;left:18px;right:18px;bottom:15px;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(25,38,44,.88);border:1px solid var(--line2);backdrop-filter:blur(8px)}
+.preview-readout>div{padding:10px 12px;border-right:1px solid var(--line)}
+.preview-readout>div:last-child{border:0}
+.preview-readout small{display:block;font:10px var(--mono);color:var(--muted)}
+.preview-readout strong{display:block;font:700 15px var(--mono);margin-top:4px}
+.preview-controls{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.preview-controls label span{font-size:12px;color:var(--muted)}
+.preview-controls button{height:38px;padding:0 13px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:4px;cursor:pointer}
+.violet-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--violet);margin-right:5px}
+@media(max-width:560px){
+ .house-preview-stage{min-height:370px}
+ .house3d-wrap{transform:translate(-50%,-50%) scale(.84)}
+ .preview-readout{grid-template-columns:1fr}
+ .preview-readout>div{border-right:0;border-bottom:1px solid var(--line);padding:6px 9px}
+ .preview-readout>div:last-child{border-bottom:0}
+ .preview-controls{grid-template-columns:1fr}
+}
+
+#themeBtn{display:none!important}

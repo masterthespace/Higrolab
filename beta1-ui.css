@@ -1,0 +1,48 @@
+/* HIDROLAB BETA 1 · tema común para módulos públicos */
+:root{
+ --beta-bg:#162126;--beta-panel:#1c2a31;--beta-panel2:#22323a;--beta-line:#344850;--beta-line2:#445a64;
+ --beta-text:#edf4f5;--beta-muted:#a8b9bf;--beta-accent:#69c6d6;--beta-good:#70bd87;--beta-warn:#ddb45a;--beta-bad:#df7068;
+}
+html,body{background:var(--beta-bg)!important;color:var(--beta-text)!important}
+body{font-size:17px!important}
+.top,.topbar,.app-header,header.top{background:linear-gradient(180deg,#1a2930,#162126)!important;border-color:var(--beta-line)!important}
+.card,.panel,.interactive-panel,.compare-card,.opening-card,.wall-method-card,.air-to-wall-card,.thermal-wall-scene,.air-water-panel,.norm-result,.zone-map-card,.zone-selector-card{
+ background:var(--beta-panel)!important;border-color:var(--beta-line)!important;color:var(--beta-text)!important;box-shadow:none!important
+}
+input,select,textarea,button{
+ font-size:16px!important
+}
+input,select,textarea{
+ background:#22323a!important;color:var(--beta-text)!important;border-color:#445a64!important
+}
+button,.btn{
+ min-height:42px;
+}
+label,.field label{font-size:.72rem!important;color:#d9e5e8!important}
+small,.note,.method-note,.section-note,.field small,.help,.hint,.kicker,.calc-origin,.tool-tag,.trace-pill{
+ font-size:.64rem!important;line-height:1.45!important
+}
+p{line-height:1.58}
+h1{font-size:clamp(2rem,4vw,3.8rem)!important}
+h2{font-size:clamp(1.25rem,2vw,1.65rem)!important}
+h3{font-size:1rem!important}
+.stat small,.summary-grid small,.metric small,.air-water-stats small,.thermal-wall-footer,.legend-row,.split-labels,.material-source{
+ font-size:.64rem!important
+}
+.stat strong,.summary-grid strong,.metric strong{
+ font-size:1.15rem!important;font-variant-numeric:tabular-nums
+}
+table{font-size:.76rem!important}
+th{font-size:.68rem!important}
+td{font-size:.74rem!important}
+.navlinks a,.nav a{font-size:.78rem!important}
+.brand{font-size:1rem!important}
+.brand:after{content:"BETA 1";font:700 .56rem ui-monospace,monospace;color:var(--beta-accent);margin-left:9px;border-left:1px solid var(--beta-line2);padding-left:9px;letter-spacing:.08em}
+.footer,footer{color:var(--beta-muted)!important;border-color:var(--beta-line)!important}
+a{color:inherit}
+.callout,.method-warning,.air-water-message,.air-to-wall-message,.dominant-advice{font-size:.7rem!important}
+@media(max-width:700px){
+ body{font-size:16px!important}
+ small,.note,.method-note,.section-note,.field small,.help,.hint{font-size:.68rem!important}
+ label,.field label{font-size:.76rem!important}
+}
