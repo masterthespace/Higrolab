@@ -7,10 +7,10 @@
 <div class="section-divider"></div><div class="table-shell"><table class="data-table"><thead><tr><th>Material</th><th>Espesor mm</th><th>λ W/m·K</th><th>R m²K/W</th><th>Origen</th><th></th></tr></thead><tbody id="layers"></tbody></table></div>
 <div class="action-row"><button class="btn btn-dark btn-small" id="addLayer">+ Agregar capa</button><button class="btn btn-outline btn-small" id="presetBrick">Muro ladrillo</button><button class="btn btn-outline btn-small" id="presetTimber">Tabique liviano</button></div><p class="note">Cada material indica ahora el origen del valor λ. Los valores marcados como <b>orientativos</b> deben reemplazarse por el dato del producto, ensayo o fuente normativa aplicable antes de usar el resultado como memoria técnica.</p>
 <div class="wall-method-card">
-  <div class="section-head compact-head"><div><p class="kicker">Método de cálculo</p><h3>Capas homogéneas y entramados</h3></div><span class="calc-origin normative">NCh853 / criterio técnico</span></div>
+  <div class="section-head compact-head"><div><p class="kicker">Método de cálculo</p><h3>Tipo de muro y continuidad de sus capas</h3></div><span class="calc-origin normative">NCh853 / criterio técnico</span></div>
   <div class="wall-method-tabs">
-    <button id="methodHomogeneous" type="button" class="active">Capas homogéneas 1D</button>
-    <button id="methodFrame" type="button">Entramado simplificado</button>
+    <button id="methodHomogeneous" type="button" class="active">Solo capas continuas</button>
+    <button id="methodFrame" type="button">Incluye entramado (montantes + aislante)</button>
   </div>
   <div id="frameControls" class="frame-controls hidden">
     <div class="form-grid">
@@ -18,7 +18,7 @@
       <div class="field"><label>Fracción de montantes [%]</label><input id="studFraction" type="number" min="1" max="50" step="1" value="15"></div>
       <div class="field"><label>λ montante [W/m·K]</label><input id="studLambda" type="number" min=".03" max="5" step=".01" value=".13"></div>
     </div>
-    <div class="method-warning"><b>Estimación de entramado:</b> HIDROLAB pondera el camino aislante y el camino del montante en la capa seleccionada. Sirve para visualizar el efecto del puente repetitivo, pero no reemplaza el procedimiento completo exigible para una solución heterogénea.</div>
+    <div class="method-warning"><b>¿Qué cambia?</b> En una capa continua el calor atraviesa el mismo material en toda la superficie. En un entramado existen dos caminos paralelos: aislante y montantes. HIDROLAB combina ambos por su fracción de superficie. No reemplaza un análisis 2D de encuentros o fijaciones.<div id="frameDiagram" class="frame-diagram"></div></div>
   </div>
 </div>
 </section>
@@ -65,30 +65,18 @@
 </div>
 </section>
 <section class="card full" id="normativa-muro">
-  <div class="section-head">
-    <div><p class="kicker">04 · Comparación reglamentaria opcional</p><h2>Compara el muro con una zona térmica</h2></div>
-    <span class="calc-origin normative">OGUC art. 4.1.10 · uso residencial</span>
-  </div>
-  <div class="norm-compare-layout">
-    <div class="norm-controls">
-      <label class="norm-toggle"><input id="normEnabled" type="checkbox"><span>Activar comparación</span></label>
-      <div id="normControls" class="hidden">
-        <div class="field"><label>Zona térmica</label>
-          <select id="thermalZone">
-            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-            <option value="E">E</option><option value="F" selected>F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option>
-          </select>
-        </div>
-        <p class="note">La comparación usa el límite de <b>muro perimetral residencial</b> de la tabla vigente. Es una comparación del valor U/Rt, no una declaración de cumplimiento integral del proyecto.</p>
-      </div>
-    </div>
-    <div id="normResult" class="norm-result disabled">
-      <small>COMPARACIÓN DESACTIVADA</small>
-      <strong>Selecciona una zona para comparar</strong>
-      <span>El cálculo U del muro sigue funcionando sin esta opción.</span>
-    </div>
-  </div>
-</section>
+<div class="section-head"><div><p class="kicker">04 · Comparación reglamentaria opcional</p><h2>¿Cómo se comporta tu muro en su zona térmica?</h2></div><span class="calc-origin normative">OGUC art. 4.1.10 · vigente</span></div>
+<div class="thermal-zone-explorer">
+<div class="zone-map-card"><div class="zone-map-head"><div><b>Zonificación térmica de Chile</b><span>9 zonas A–I · selector didáctico</span></div><small>MINVU · vigente desde nov. 2025</small></div>
+<svg id="chileThermalMap" viewBox="0 0 300 760" class="chile-thermal-map"></svg><div id="zoneMapLegend" class="zone-map-legend"></div>
+<p class="zone-map-note">Mapa esquemático. Algunas comunas cambian de zona por altitud, longitud u otra condición territorial; para memoria técnica debe confirmarse con la tabla/plano oficial MINVU.</p></div>
+<div class="zone-selector-card"><label class="norm-toggle"><input id="normEnabled" type="checkbox" checked><span>Comparar mi muro</span></label><div id="normControls">
+<div class="field"><label>Buscar comuna</label><input id="communeSearch" type="search" placeholder="Ej.: Santiago, Temuco, Arica…"><div id="communeSuggestions" class="commune-suggestions"></div></div>
+<div id="communeSelection" class="commune-selection"><small>También puedes elegir una zona directamente en el mapa.</small></div>
+<div class="field"><label>Zona térmica seleccionada</label><select id="thermalZone"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option selected>F</option><option>G</option><option>H</option><option>I</option></select></div>
+<div id="zoneConditionBox" class="zone-condition-box hidden"></div></div>
+<div id="normResult" class="norm-result disabled"></div><div class="norm-scale"><span class="good">CUMPLE CON MARGEN</span><span class="near">CERCA DEL LÍMITE</span><span class="bad">NO CUMPLE U/RT</span></div>
+<p class="note">Evalúa únicamente U/Rt del muro frente al límite de la zona seleccionada; no constituye acreditación reglamentaria integral.</p></div></div></section>
 <section class="card full" id="perfil"><div class="section-head"><div><p class="kicker">05 · Perfil térmico</p><h2>Temperatura a través del elemento</h2></div><span class="note">Modelo 1D estacionario simplificado · temperaturas indicadas en cada punto</span></div><div class="chart-wrap"><svg aria-label="Perfil de temperatura a través del muro" class="chart-svg" id="profile" viewbox="0 0 900 400"></svg></div><div class="house-strip" style="margin-top:14px"><div class="house-part" style="--c:#3a93c5"><small>Punto de rocío interior</small><b id="dew">—</b></div><div class="house-part" style="--c:#75ad39"><small>Margen superficial</small><b id="dewMargin">—</b></div><div class="house-part" style="--c:#c29027"><small>Flujo térmico q</small><b id="q">—</b></div><div class="house-part" style="--c:#7d8990"><small>Espesor total</small><b id="totalThickness">—</b></div></div></section>
 <section class="card full wall-traceability">
   <div class="section-head"><div><p class="kicker">06 · Trazabilidad técnica</p><h2>Qué representa cada resultado</h2></div></div>

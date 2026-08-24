@@ -1,0 +1,1 @@
+Entramado por caminos paralelos; selector/mapa didáctico de zonas; búsqueda inicial de comunas con advertencias territoriales; semáforo verde/amarillo/rojo U-Rt. La fuente oficial debe confirmarse para comunas condicionadas por altitud/longitud.
