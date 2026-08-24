@@ -7,7 +7,7 @@
 <div class="section-divider"></div><div class="table-shell"><table class="data-table"><thead><tr><th>Material</th><th>Espesor mm</th><th>λ W/m·K</th><th>R m²K/W</th><th>Origen</th><th></th></tr></thead><tbody id="layers"></tbody></table></div>
 <div class="action-row"><button class="btn btn-dark btn-small" id="addLayer">+ Agregar capa</button><button class="btn btn-outline btn-small" id="presetBrick">Muro ladrillo</button><button class="btn btn-outline btn-small" id="presetTimber">Tabique liviano</button></div><p class="note">Cada material indica ahora el origen del valor λ. Los valores marcados como <b>orientativos</b> deben reemplazarse por el dato del producto, ensayo o fuente normativa aplicable antes de usar el resultado como memoria técnica.</p>
 <div class="wall-method-card">
-  <div class="section-head compact-head"><div><p class="kicker">Método de cálculo</p><h3>Tipo de muro y continuidad de sus capas</h3></div><span class="calc-origin normative">NCh853 / criterio técnico</span></div>
+  <div class="section-head compact-head"><div><p class="kicker">Método de cálculo</p><h3>Tipo de muro y continuidad de sus capas</h3></div><span class="calc-origin normative">NCh853 · método térmico</span></div>
   <div class="wall-method-tabs">
     <button id="methodHomogeneous" type="button" class="active">Solo capas continuas</button>
     <button id="methodFrame" type="button">Incluye entramado (montantes + aislante)</button>
@@ -18,7 +18,7 @@
       <div class="field"><label>Fracción de montantes [%]</label><input id="studFraction" type="number" min="1" max="50" step="1" value="15"></div>
       <div class="field"><label>λ montante [W/m·K]</label><input id="studLambda" type="number" min=".03" max="5" step=".01" value=".13"></div>
     </div>
-    <div class="method-warning"><b>¿Qué cambia?</b> En una capa continua el calor atraviesa el mismo material en toda la superficie. En un entramado existen dos caminos paralelos: aislante y montantes. HIDROLAB combina ambos por su fracción de superficie. No reemplaza un análisis 2D de encuentros o fijaciones.<div id="frameDiagram" class="frame-diagram"></div></div>
+    <div class="method-warning"><b>¿Qué cambia?</b> En una capa continua el calor atraviesa el mismo material en toda la superficie. En un entramado existen dos caminos paralelos: aislante y montantes. HIDROLAB calcula los límites inferior y superior de Rt, obtiene su promedio y comprueba el error relativo. Si el error supera 20%, avisa que para acreditación corresponde aplicar el método detallado NCh853 u otra alternativa admitida. La lectura sigue siendo gráfica y simple.<div id="frameDiagram" class="frame-diagram"></div></div>
   </div>
 </div>
 </section>
@@ -30,7 +30,7 @@
 <div class="section-divider"></div><p class="kicker">Representación del muro</p><div class="material-stack" id="stack"></div><div class="legend-row"><span>Exterior ←</span><span>→ Interior</span></div>
 <div class="section-divider"></div>
 <div class="section-head compact-head"><div><p class="kicker">Lectura didáctica</p><h3>¿Qué capa aporta la resistencia térmica?</h3></div></div>
-<div id="resistanceContribution" class="resistance-contribution"></div>
+<div id="resistanceContribution" class="resistance-contribution"></div><div class="support-status-card"><div class="section-head compact-head"><div><p class="kicker">Respaldo del resultado</p><h3>¿Qué tan normativo es este cálculo?</h3></div><span class="tool-tag new">Transparente</span></div><div id="supportStatus"></div></div>
 </section>
 <section class="card full" id="mejora">
   <div class="section-head">
@@ -121,7 +121,7 @@
 <section class="card full wall-traceability">
   <div class="section-head"><div><p class="kicker">06 · Trazabilidad técnica</p><h2>Qué representa cada resultado</h2></div></div>
   <div class="trace-grid">
-    <div class="trace-item normative"><span class="trace-pill">MÉTODO TÉRMICO</span><b>R, Rt y U</b><p>Para capas homogéneas se usa R=e/λ y U=1/Rt con resistencias superficiales. Para entramados, HIDROLAB marca expresamente la corrección como estimación simplificada.</p></div>
+    <div class="trace-item normative"><span class="trace-pill">MÉTODO TÉRMICO</span><b>R, Rt y U</b><p>Para capas continuas se usa R=e/λ y U=1/Rt con resistencias superficiales. En entramados se calculan límites inferior y superior de Rt, su promedio y el error relativo; si supera 20%, HIDROLAB advierte que se requiere el método detallado.</p></div>
     <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>Pérdida térmica</b><p>Q̇ = U · A · |Ti − Te|. Es una potencia instantánea en régimen estacionario; no equivale a consumo mensual.</p></div>
     <div class="trace-item estimate"><span class="trace-pill">DATOS DE MATERIALES</span><b>λ de biblioteca</b><p>Los valores con etiqueta “orientativo” sirven para simulación. Para memoria técnica debe utilizarse el valor respaldado por producto, ensayo, listado oficial o fuente normativa aplicable.</p></div>
     <div class="trace-item normative"><span class="trace-pill">COMPARACIÓN OGUC</span><b>U máxima / Rt mínima</b><p>La comparación opcional evalúa solo el parámetro térmico del muro para la zona seleccionada. No sustituye la acreditación reglamentaria completa.</p></div>

@@ -46,9 +46,42 @@ function calcPath(replaceIndex=null,replaceLambda=null,extraR=0){
  const Rt=RSE+RSI+rs.reduce((a,b)=>a+b,0)+extraR;return {Rt,U:1/Rt,layerR:rs}
 }
 function calc(extraR=0){
- const Ti=+$('ti').value,Te=+$('te').value,area=Math.max(0,+$('area').value||0);let base=calcPath(null,null,extraR),Rt=base.Rt,U=base.U,layerR=base.layerR,paths=null;
- if(wallMethod==='frame'&&layers.length){const idx=clamp(+$('frameLayer')?.value||0,0,layers.length-1),f=clamp((+$('studFraction')?.value||15)/100,.01,.5),ls=Math.max(.001,+$('studLambda')?.value||.13),ins=calcPath(null,null,extraR),stud=calcPath(idx,ls,extraR);U=(1-f)*ins.U+f*stud.U;Rt=1/U;paths={index:idx,insulationFraction:1-f,studFraction:f,Uins:ins.U,Ustud:stud.U,Rins:ins.Rt,Rstud:stud.Rt}}
- const q=(Ti-Te)*U,Tsi=Ti-q*RSI,loss=U*area*Math.abs(Ti-Te);return {Ti,Te,area,layerR,Rt,U,q,Tsi,loss,paths}
+ const Ti=+$('ti').value,Te=+$('te').value,area=Math.max(0,+$('area').value||0);
+ let base=calcPath(null,null,extraR),Rt=base.Rt,U=base.U,layerR=base.layerR,paths=null,nch853=null;
+ if(wallMethod==='frame'&&layers.length){
+   const idx=clamp(+$('frameLayer')?.value||0,0,layers.length-1);
+   const fStud=clamp((+$('studFraction')?.value||15)/100,.01,.5),fIns=1-fStud;
+   const studLambda=Math.max(.001,+$('studLambda')?.value||.13);
+   const ins=calcPath(null,null,extraR),stud=calcPath(idx,studLambda,extraR);
+
+   // NCh853 / método combinado para un elemento con una capa heterogénea repetitiva:
+   // límite superior: caminos completos en paralelo.
+   const RtUpper=1/(fIns/ins.Rt+fStud/stud.Rt);
+
+   // límite inferior: la capa heterogénea se reemplaza por su resistencia equivalente
+   // de conductancias en paralelo; las capas continuas permanecen en serie.
+   const rIns=ins.layerR[idx],rStud=stud.layerR[idx];
+   const rHetLower=1/(fIns/rIns+fStud/rStud);
+   const continuous=ins.layerR.reduce((s,r,i)=>s+(i===idx?0:r),0);
+   const RtLower=RSI+RSE+continuous+rHetLower+extraR;
+
+   Rt=(RtUpper+RtLower)/2;
+   U=1/Rt;
+   const relError=Math.abs(RtUpper-RtLower)/(2*Rt)*100;
+   const valid=relError<=20+1e-9;
+
+   // Para el perfil 1D didáctico se distribuye Rt del cuerpo del muro según
+   // las resistencias equivalentes inferiores, de modo que el perfil cierre con Rt calculada.
+   const lowerRs=ins.layerR.map((r,i)=>i===idx?rHetLower:r);
+   const lowerSum=Math.max(.000001,lowerRs.reduce((a,b)=>a+b,0));
+   const targetBody=Math.max(.000001,Rt-RSI-RSE);
+   layerR=lowerRs.map(r=>r/lowerSum*targetBody);
+
+   paths={index:idx,insulationFraction:fIns,studFraction:fStud,Uins:ins.U,Ustud:stud.U,Rins:ins.Rt,Rstud:stud.Rt};
+   nch853={RtUpper,RtLower,RtMean:Rt,relError,valid,rHetLower,scope:'una capa heterogénea repetitiva'};
+ }
+ const q=(Ti-Te)*U,Tsi=Ti-q*RSI,loss=U*area*Math.abs(Ti-Te);
+ return {Ti,Te,area,layerR,Rt,U,q,Tsi,loss,paths,nch853}
 }
 function materialOptions(selected){return Object.keys(materials).map(m=>`<option ${m===selected?'selected':''}>${m}</option>`).join('')+`<option ${selected==='Personalizado'?'selected':''}>Personalizado</option>`}
 function renderRows(){normalizeLayerSources();const tb=$('layers');tb.innerHTML='';layers.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><select class="mat" data-i="${i}">${materialOptions(x.m)}</select></td><td><input class="thick" data-i="${i}" type="number" min="1" step="1" value="${x.e}"></td><td><input class="lambda" data-i="${i}" type="number" min="0.001" step="0.001" value="${x.l}"></td><td class="rval">${fmt(effectiveLayerR(x,i),3)}</td><td><span class="material-source ${x.sourceClass||'estimate'}">${x.source||'Valor personalizado por usuario'}</span></td><td><div class="row-actions"><button class="up" data-i="${i}" title="Subir">↑</button><button class="down" data-i="${i}" title="Bajar">↓</button><button class="del" data-i="${i}" title="Eliminar">×</button></div></td>`;tb.appendChild(tr)});bindRows()}
@@ -91,8 +124,12 @@ function renderNormative(c){
  box.className='norm-result '+cls;box.innerHTML=`<small>ZONA ${z} · MURO RESIDENCIAL</small><strong>${state}</strong><div class="norm-gauge"><i style="width:${Math.min(100,ratio*100)}%"></i><b>U ${fmt(c.U,2)}</b><em>máx. ${fmt(lim.u,2)} W/m²K</em></div><div class="norm-values"><span>Tu muro <b>U ${fmt(c.U,2)}</b></span><span>Máximo zona ${z} <b>${fmt(lim.u,2)}</b></span><span>Rt muro <b>${fmt(c.Rt,2)}</b></span><span>Rt mínimo <b>${fmt(lim.rt,2)}</b></span></div><p>${detail}</p><em>Evaluación exclusiva de U/Rt.</em>`
 }
 function renderFrameDiagram(c){
- const h=$('frameDiagram');if(!h||wallMethod!=='frame')return;const idx=+$('frameLayer')?.value||0,f=clamp(+$('studFraction')?.value||15,1,50),p=c.paths;
- h.innerHTML=`<div class="frame-paths"><div class="path insulation"><small>${100-f}% DEL PAÑO</small><b>Camino por aislante</b><span>U camino ${p?fmt(p.Uins,2):'—'} W/m²K</span></div><div class="parallel-sign">+</div><div class="path stud"><small>${f}% DEL PAÑO</small><b>Camino por montante</b><span>U camino ${p?fmt(p.Ustud,2):'—'} W/m²K</span></div></div><div class="frame-result">→ <b>U equivalente ${fmt(c.U,2)} W/m²K</b></div>`
+ const h=$('frameDiagram');if(!h||wallMethod!=='frame')return;
+ const f=clamp(+$('studFraction')?.value||15,1,50),p=c.paths,n=c.nch853;
+ const state=n?.valid?'VALIDACIÓN ≤ 20%':'REQUIERE MÉTODO DETALLADO';
+ h.innerHTML=`<div class="frame-paths"><div class="path insulation"><small>${100-f}% DEL PAÑO</small><b>Camino por aislante</b><span>Rt camino ${p?fmt(p.Rins,3):'—'} m²K/W</span></div><div class="parallel-sign">+</div><div class="path stud"><small>${f}% DEL PAÑO</small><b>Camino por montante</b><span>Rt camino ${p?fmt(p.Rstud,3):'—'} m²K/W</span></div></div>
+ <div class="nch853-mini ${n?.valid?'ok':'warn'}"><div><small>LÍMITE INFERIOR</small><b>${n?fmt(n.RtLower,3):'—'}</b></div><div><small>LÍMITE SUPERIOR</small><b>${n?fmt(n.RtUpper,3):'—'}</b></div><div><small>Rt PROMEDIO</small><b>${n?fmt(n.RtMean,3):'—'}</b></div><div><small>ERROR RELATIVO</small><b>${n?fmt(n.relError,1):'—'}%</b></div></div>
+ <div class="frame-result ${n?.valid?'norm-ok':'norm-warn'}"><span>${state}</span><b>U resultante ${fmt(c.U,2)} W/m²K</b><small>${n?.valid?'El método combinado queda dentro del criterio de validez.':'El error supera 20%; para acreditación corresponde método detallado NCh853 u otra vía admitida.'}</small></div>`
 }
 
 const ZONE_COLORS={A:'#e6c84d',B:'#e5a24a',C:'#d67b49',D:'#7bbd6d',E:'#54a88a',F:'#4d9fc0',G:'#557fc0',H:'#7465b3',I:'#87568f'};
@@ -253,6 +290,20 @@ function renderDewGauge(c,n,dew,rhOld,rhNew){const lo=Math.min(dew-4,c.Tsi-2,n.T
     :`${msg}. Con ${$('insThickness').value} mm: ${describeMargin(marginNew)}. La superficie aumenta ${fmt(n.Tsi-c.Tsi,1)} °C respecto del muro actual.`}
 function minimumThickness(lambda,targetMargin){const c=calc(),dew=dewPoint(c.Ti,+$('rh').value),target=dew+targetMargin;if(target>=c.Ti-.05)return {ok:false,reason:'El margen solicitado alcanza o supera prácticamente la temperatura interior y no es alcanzable con este modelo.'};if(c.Tsi>=target)return {ok:true,mm:0,target,dew};const denominator=c.Ti-target;if(denominator<=0)return {ok:false,reason:'Objetivo térmico no alcanzable.'};const requiredRt=Math.abs(c.Ti-c.Te)*RSI/denominator;const extraR=Math.max(0,requiredRt-c.Rt);const mm=extraR*lambda*1000;return Number.isFinite(mm)?{ok:true,mm,target,dew}:{ok:false,reason:'No fue posible determinar el espesor.'}}
 
+function renderSupportStatus(c){
+ const host=$('supportStatus');if(!host)return;
+ const counts={normative:0,product:0,estimate:0,custom:0};
+ layers.forEach(l=>{counts[l.sourceClass]!==undefined?counts[l.sourceClass]++:counts.estimate++});
+ const method=wallMethod==='homogeneous'
+   ?{cls:'normative',title:'Método térmico · base normativa',text:'Capas continuas: R=e/λ, suma de resistencias y U=1/Rt.'}
+   :(c.nch853?.valid
+      ?{cls:'normative',title:'Entramado · método combinado válido',text:`Límites inferior/superior y promedio. Error relativo ${fmt(c.nch853.relError,1)}% ≤ 20%.`}
+      :{cls:'estimate',title:'Entramado · requiere verificación detallada',text:`Error relativo ${fmt(c.nch853?.relError||0,1)}%. Si supera 20%, no debe usarse este resultado como acreditación formal.`});
+ host.innerHTML=`<div class="support-main ${method.cls}"><span>${method.cls==='normative'?'RESPALDO NORMATIVO':'REVISIÓN NECESARIA'}</span><b>${method.title}</b><p>${method.text}</p></div>
+ <div class="support-chips"><span class="normative"><b>${counts.normative}</b> materiales con fuente normativa</span><span class="product"><b>${counts.product}</b> productos con R declarado</span><span class="estimate"><b>${counts.estimate}</b> valores orientativos</span><span class="custom"><b>${counts.custom}</b> personalizados</span></div>
+ <p class="support-note">La clasificación informa el respaldo de los datos; no elimina las herramientas didácticas ni convierte por sí sola el resultado en una acreditación reglamentaria.</p>`;
+}
+
 function minimumThicknessForZone(lambda){
   const z=$('thermalZone')?.value,lim=WALL_LIMITS_RESIDENTIAL[z];
   if(!z||!lim)return {ok:false,reason:'Primero selecciona una zona térmica en la sección 04.'};
@@ -285,7 +336,7 @@ function findMinimum(){
     :`Espesor mínimo estimado para que la superficie quede al menos +${fmt(+$('targetMargin').value,1)} °C sobre el punto de rocío.`;
   setImprovementMode('insulate');animateThickness(rounded);
 }
-function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt(effectiveLayerR(layers[i],i),3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);renderFrameLayerOptions();renderNormative(c);renderFrameDiagram(c);renderResistanceContribution(c);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);if($('uExplain'))$('uExplain').textContent=`Por cada 1 m² de muro y cada 1 °C de diferencia, atraviesan aproximadamente ${fmt(c.U,2)} W en régimen estacionario.`;$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
+function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt(effectiveLayerR(layers[i],i),3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);renderFrameLayerOptions();renderNormative(c);renderFrameDiagram(c);renderResistanceContribution(c);renderSupportStatus(c);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);if($('uExplain'))$('uExplain').textContent=`Por cada 1 m² de muro y cada 1 °C de diferencia, atraviesan aproximadamente ${fmt(c.U,2)} W en régimen estacionario.`;$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
 const insE=improvementMode==='original'?0:+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insR=(insE/1000)/(+$('insulation').value);const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);renderMinimumGoalInfo();$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
 $('addLayer').addEventListener('click',()=>{layers.push({m:'Lana mineral',e:50,l:.04});renderRows();render()});$('presetBrick').addEventListener('click',()=>{layers=[{m:'Estuco cementicio',e:20,l:.87},{m:'Ladrillo cerámico',e:140,l:.72},{m:'Yeso-cartón',e:15,l:.25}];renderRows();render()});$('presetTimber').addEventListener('click',()=>{layers=[{m:'Yeso-cartón',e:15,l:.25},{m:'Lana mineral',e:90,l:.04},{m:'OSB',e:11,l:.13},{m:'Madera',e:20,l:.13}];renderRows();render()});['ti','te','rh','area','insulation','insThickness'].forEach(id=>$(id).addEventListener('input',render));
 function syncTargetMargin(source){
@@ -309,7 +360,7 @@ window.HIDROLAB_WALL_REPORT=()=>{
   return{
     method:wallMethod,Ti:c.Ti,Te:c.Te,RH,area:c.area,Rt:c.Rt,U:c.U,Tsi:c.Tsi,q:c.q,loss:c.loss,dew,margin:c.Tsi-dew,
     rsi:RSI,rse:RSE,profileSvg:$('profile')?.outerHTML||'',layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],declaredR:l.declaredR||null,source:l.source||'',sourceClass:l.sourceClass||''})),
-    frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value}:null,
+    frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value,RtUpper:c.nch853?.RtUpper,RtLower:c.nch853?.RtLower,RtMean:c.nch853?.RtMean,relError:c.nch853?.relError,valid:c.nch853?.valid}:null,
     improvement:{material:$('insulation').options[$('insulation').selectedIndex]?.textContent||'',thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
     normative:{enabled:!!$('normEnabled')?.checked,zone,region:$('thermalRegion')?.value||'',commune:$('thermalCommune')?.selectedOptions?.[0]?.textContent||'',condition:$('thermalCondition')?.selectedOptions?.[0]?.textContent||'',limitU:lim.u,limitRt:lim.rt,pass:zone?c.U<=lim.u||c.Rt>=lim.rt:false}
   }

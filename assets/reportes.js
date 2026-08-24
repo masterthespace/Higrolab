@@ -515,7 +515,7 @@
     const s1=addSection(doc,root,'1. Resultado térmico del muro');
     const t1=el(doc,'table','kv'),b1=el(doc,'tbody');
     [
-      ['Método',x.method==='frame'?'Entramado simplificado HIDROLAB':'Capas homogéneas 1D'],
+      ['Método',x.method==='frame'?'Entramado · método combinado NCh853':'Capas continuas · R=e/λ y U=1/Rt'],
       ['Temperatura interior',`${fmtNum(x.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.Te,1)} °C`],
       ['HR interior',`${fmtNum(x.RH,0)} %`],['Área de muro',`${fmtNum(x.area,1)} m²`],
       ['Rsi',`${fmtNum(x.rsi,2)} m²K/W`],['Rse',`${fmtNum(x.rse,2)} m²K/W`],
@@ -541,7 +541,12 @@
     const t2=el(doc,'table','data-table'),h=el(doc,'tr');
     ['#','Material','Espesor','λ','R capa','Origen'].forEach(v=>h.append(el(doc,'th','',v)));t2.append(h);
     (x.layers||[]).forEach(l=>{const tr=el(doc,'tr');[l.order,l.name,`${fmtNum(l.thickness,1)} mm`,`${fmtNum(l.lambda,3)} W/mK`,`${fmtNum(l.R,3)} m²K/W`,l.source||'—'].forEach(v=>tr.append(el(doc,'td','',v)));t2.append(tr)});s2.append(t2);
-    if(x.frame)s2.append(el(doc,'p','section-note',`Entramado simplificado: capa ${x.frame.layer}, fracción de montantes ${fmtNum(x.frame.studFraction,0)} %, λ montante ${fmtNum(x.frame.studLambda,2)} W/mK. Esta corrección es didáctica y no reemplaza una memoria formal de elemento heterogéneo.`));
+    if(x.frame){
+      const ft=el(doc,'table','kv');
+      [['Capa heterogénea',String(x.frame.layer)],['Fracción de montantes',`${fmtNum(x.frame.studFraction,0)} %`],['λ montante',`${fmtNum(x.frame.studLambda,3)} W/mK`],['Rt límite inferior',`${fmtNum(x.frame.RtLower,3)} m²K/W`],['Rt límite superior',`${fmtNum(x.frame.RtUpper,3)} m²K/W`],['Rt promedio',`${fmtNum(x.frame.RtMean,3)} m²K/W`],['Error relativo',`${fmtNum(x.frame.relError,1)} %`],['Validez del método combinado',x.frame.valid?'VÁLIDO · error ≤ 20%':'NO VÁLIDO · requiere método detallado / alternativa admitida']].forEach(r=>addRow(doc,ft,r[0],r[1]));
+      s2.append(ft);
+      s2.append(el(doc,'p','section-note','El informe conserva la lectura didáctica del entramado, pero muestra además la comprobación de validez del método combinado para que el usuario pueda distinguir simulación, cálculo y acreditación.'));
+    }
 
     const s3=addSection(doc,root,'3. Simulación de aislación');
     const t3=el(doc,'table','kv'),b3=el(doc,'tbody');
@@ -559,7 +564,7 @@
 
     const s5=addSection(doc,root,'5. Alcance técnico');
     s5.append(el(doc,'p','section-note','Base de cálculo térmico: para capas homogéneas HIDROLAB aplica R=e/λ, Rt=Rsi+ΣR+Rse y U=1/Rt, con Rsi=0,13 y Rse=0,04 m²K/W para muro vertical. La pérdida instantánea se estima como U·A·|Ti−Te| en régimen estacionario.'));
-    s5.append(el(doc,'p','section-note','Criterio CEV/MINVU: el valor U debe representar la solución constructiva completa. Cuando existen montantes u otros caminos térmicos paralelos, éstos deben incorporarse al U de la solución conforme a NCh853 oficializada por MINVU; el modo entramado de HIDROLAB es una aproximación didáctica por caminos paralelos y no sustituye la memoria formal.'));
+    s5.append(el(doc,'p','section-note','Criterio CEV/MINVU: el valor U debe representar la solución constructiva completa. Cuando existen montantes u otros caminos térmicos paralelos, éstos deben incorporarse al U de la solución conforme a NCh853 oficializada por MINVU; para el entramado repetitivo configurado, HIDROLAB aplica límites inferior y superior de Rt, promedio y control de error relativo. Si el error supera 20%, el propio informe lo marca como no válido para esta vía y remite al método detallado NCh853 u otra alternativa admitida.'));
     s5.append(el(doc,'p','section-note','Comparación OGUC art. 4.1.10 vigente: el módulo contrasta U/Rt del muro con los límites de las zonas térmicas A–I. El cumplimiento integral requiere además las demás verificaciones reglamentarias aplicables, incluida condensación superficial/intersticial.'));
     s5.append(el(doc,'p','section-note','Trazabilidad de materiales: los λ marcados como orientativos deben sustituirse por valores respaldados por NCh853, ensayo válido, ficha acreditable o Listado Oficial MINVU antes de usar el resultado como memoria técnica. En paneles compuestos con R declarado, HIDROLAB utiliza ese R mientras el usuario no altere su configuración.'));
     return true

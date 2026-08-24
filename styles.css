@@ -512,3 +512,21 @@ html[data-theme=dark] .volume-mode-box,html[data-theme=dark] .volume-mode-tabs b
 .chile-thermal-map{height:650px!important;margin-top:8px}.zone-ribbon{cursor:pointer}.zone-ribbon rect{transition:opacity .15s ease,transform .15s ease}.zone-ribbon:hover rect,.zone-ribbon.selected rect{opacity:.25}.zone-ribbon:hover,.zone-ribbon.selected{filter:none!important;transform:none!important}.zone-letter-big{font-size:25px!important;font-weight:950!important;fill:#fff!important}.zone-title-big{font-size:16px!important;font-weight:900!important;fill:#254d5a!important}.zone-subtitle-big{font-size:12px!important;font-weight:700!important;fill:#58727b!important}.zone-click-hint{font-size:11px!important;font-weight:800!important;fill:#688089!important}.zone-map-legend{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}.zone-map-legend button{display:flex;align-items:center;gap:6px;justify-content:center;padding:8px!important;font-size:.66rem!important}.zone-map-legend button b{font-size:.78rem}.zone-map-legend button span{font-size:.58rem}
 .zone-map-note{font-size:.62rem!important;line-height:1.5!important}.zone-map-head b{font-size:.82rem!important}.zone-map-head span,.zone-map-head small{font-size:.6rem!important}
 @media(max-width:850px){.compare-mode-tabs,.minimum-goal-tabs{grid-template-columns:1fr}.chile-thermal-map{height:560px!important}}
+
+/* V8.5 · lectura normativa sin perder interacción */
+.nch853-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.nch853-mini>div{padding:8px;border:1px solid #d7e4e7;border-radius:9px;background:#fff}
+.nch853-mini small{display:block;font-size:.5rem;font-weight:900;color:#647981;letter-spacing:.04em}
+.nch853-mini b{display:block;margin-top:3px;font-size:.72rem;color:#183f4d}
+.nch853-mini.ok>div{border-color:#cfe4d7;background:#f7fcf8}.nch853-mini.warn>div{border-color:#ead6a5;background:#fffaf0}
+.frame-result{margin-top:8px;padding:9px 10px;border-radius:9px;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:center}
+.frame-result span{font-size:.52rem;font-weight:950;letter-spacing:.04em}.frame-result b{font-size:.68rem}.frame-result small{grid-column:1/-1;font-size:.55rem;line-height:1.45}
+.frame-result.norm-ok{background:#eaf7ef;color:#236842}.frame-result.norm-warn{background:#fff3db;color:#80580d}
+.support-status-card{margin-top:14px;border-top:1px solid #dfe8ea;padding-top:12px}
+.support-main{padding:11px 12px;border-radius:11px;border-left:5px solid #4f98aa;background:#f4f9fa}
+.support-main.normative{border-left-color:#4c9b70;background:#f1faf4}.support-main.estimate{border-left-color:#d39a2e;background:#fff8e9}
+.support-main span{font-size:.52rem;font-weight:950;letter-spacing:.06em}.support-main b{display:block;font-size:.76rem;margin:4px 0}.support-main p{margin:0;font-size:.6rem;line-height:1.5;color:#49616b}
+.support-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.support-chips span{padding:6px 8px;border-radius:999px;font-size:.54rem;font-weight:800;background:#edf3f4;color:#425d67}
+.support-chips .normative{background:#e4f3e9;color:#216c45}.support-chips .product{background:#e6f2fa;color:#1e6280}.support-chips .estimate{background:#fff1d9;color:#8b5b0a}.support-chips .custom{background:#eee9fa;color:#62489a}
+.support-note{font-size:.55rem!important;color:#687c84!important;margin:7px 2px 0!important}
+@media(max-width:700px){.nch853-mini{grid-template-columns:1fr 1fr}.frame-result{grid-template-columns:1fr}.frame-result small{grid-column:1}.support-chips{display:grid;grid-template-columns:1fr 1fr}}
