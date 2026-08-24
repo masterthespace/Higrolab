@@ -71,9 +71,12 @@
 <svg id="chileThermalMap" viewBox="0 0 300 760" class="chile-thermal-map"></svg><div id="zoneMapLegend" class="zone-map-legend"></div>
 <p class="zone-map-note">Mapa esquemático. Algunas comunas cambian de zona por altitud, longitud u otra condición territorial; para memoria técnica debe confirmarse con la tabla/plano oficial MINVU.</p></div>
 <div class="zone-selector-card"><label class="norm-toggle"><input id="normEnabled" type="checkbox" checked><span>Comparar mi muro</span></label><div id="normControls">
-<div class="field"><label>Buscar comuna</label><input id="communeSearch" type="search" placeholder="Ej.: Santiago, Temuco, Arica…"><div id="communeSuggestions" class="commune-suggestions"></div></div>
-<div id="communeSelection" class="commune-selection"><small>También puedes elegir una zona directamente en el mapa.</small></div>
-<div class="field"><label>Zona térmica seleccionada</label><select id="thermalZone"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option selected>F</option><option>G</option><option>H</option><option>I</option></select></div>
+<div class="zone-location-grid">
+  <div class="field"><label>Región</label><select id="thermalRegion"><option value="">Selecciona región</option></select></div>
+  <div class="field"><label>Comuna</label><select id="thermalCommune" disabled><option value="">Selecciona comuna</option></select></div>
+</div>
+<div id="communeSelection" class="commune-selection"><small>Selecciona primero la región y luego la comuna. HIDROLAB consultará la tabla térmica oficial incorporada.</small></div>
+<div class="field"><label>Zona térmica seleccionada</label><select id="thermalZone"><option value="">Selecciona zona</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option></select></div>
 <div id="zoneConditionBox" class="zone-condition-box hidden"></div></div>
 <div id="normResult" class="norm-result disabled"></div><div class="norm-scale"><span class="good">CUMPLE CON MARGEN</span><span class="near">CERCA DEL LÍMITE</span><span class="bad">NO CUMPLE U/RT</span></div>
 <p class="note">Evalúa únicamente U/Rt del muro frente al límite de la zona seleccionada; no constituye acreditación reglamentaria integral.</p></div></div></section>
@@ -88,4 +91,4 @@
   </div>
 </section>
 </div></main><footer class="wrap footer">HIDROLAB · Simulador educativo de transmitancia y temperatura superficial</footer>
-<script defer="" src="assets/simulador-muro.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>
+<script src="assets/comunas-chile.js"></script><script src="assets/thermal-zones-chile.js"></script><script defer="" src="assets/simulador-muro.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>

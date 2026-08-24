@@ -62,3 +62,7 @@
 .image-actions button:hover:not(:disabled){background:#fff0f0;border-color:#c77f7f}
 .image-actions button:disabled{opacity:.42;cursor:not-allowed}
 .image-help{margin-top:6px}
+
+/* V8.3.2 · legibilidad Solar Studio */
+.solar-app,.solar-app label,.solar-app input,.solar-app select,.solar-app button,.panel,.panel label,.panel input,.panel select,.panel button{font-size:.78rem!important}
+.panel h3{font-size:.88rem!important}.panel small,.solar-app small{font-size:.68rem!important;line-height:1.35!important}

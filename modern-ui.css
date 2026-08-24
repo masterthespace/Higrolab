@@ -286,3 +286,36 @@ html[data-theme="dark"] .footer{color:#78909a}
 @media(max-width:900px){
   .bento .comfort,.bento .ventilation{grid-column:auto}
 }
+
+/* V8.3.2 · LEGIBILIDAD GLOBAL HIDROLAB
+   Aumenta la tipografía funcional en todos los módulos sin alterar títulos principales. */
+html{font-size:16px!important}
+body{font-size:16px!important;line-height:1.5!important}
+body p,body li,body .note,body .section-note,body .helper,body .hint,body .description,body .subtitle,body .sub,
+body .callout,body .obs,body .method-warning,body .norm-result p,body .zone-map-note{font-size:.79rem!important;line-height:1.5!important}
+body small,body .small,body .micro,body .meta,body .eyebrow,body .kicker,body .trace-pill,body .calc-origin,
+body .metric small,body .house-part small,body .result-card small,body .panel small{font-size:.70rem!important;line-height:1.35!important}
+body label,body th,body td,body input,body select,body textarea,body button{font-size:.84rem!important;line-height:1.3!important}
+body input,body select,body textarea{min-height:38px!important}
+body button{min-height:34px}
+body .card h2,body section h2{font-size:1.25rem!important;line-height:1.18!important}
+body .card h3,body section h3,body .panel h3{font-size:1rem!important;line-height:1.25!important}
+body .metric b,body .result-card b,body .house-part b{font-size:1rem!important}
+body nav a,body .nav a,body .top-nav a{font-size:.78rem!important}
+body .table-wrap th,body .table-wrap td,body table th,body table td{font-size:.76rem!important}
+body .material-source{font-size:.68rem!important;line-height:1.35!important;max-width:260px!important}
+body .trace-item p{font-size:.76rem!important}
+body .trace-item b{font-size:.88rem!important}
+
+/* Módulos compactos / técnicos */
+body .panel label,body .panel input,body .panel select,body .panel button,
+body .toolbar button,body .tabs button,body .tab,body .tool-btn,body .control-row label{font-size:.78rem!important}
+body .panel .grid2 label,body .panel .grid3 label{font-size:.74rem!important}
+body .status,body .badge,body .pill{font-size:.68rem!important}
+
+@media(max-width:700px){
+  html{font-size:16px!important}
+  body label,body input,body select,body textarea,body button{font-size:.90rem!important}
+  body p,body .note,body .section-note{font-size:.84rem!important}
+  body small,body .kicker,body .eyebrow{font-size:.73rem!important}
+}

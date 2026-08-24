@@ -1,0 +1,11 @@
+# HIDROLAB V8.3.2
+- Aumento global de legibilidad tipográfica en todos los módulos mediante modern-ui.css.
+- Aumentados textos auxiliares, labels, tablas, botones, inputs, selectores, notas, badges y microtextos.
+- Refuerzo específico para Solar Studio, que carga CSS propio después del tema global.
+- Comparación térmica de muro: reemplazada búsqueda libre por Región -> Comuna.
+- Base territorial usa las 346 comunas del mismo dataset del Simulador Solar.
+- La zona térmica se cruza con TABLA-ZT_REGIONES_PROVINCIAS-Y-COMUNAS oficial MINVU incorporada al proyecto.
+- Comunas con más de una zona por altitud/meridiano muestran un tercer selector de condición territorial; no se asigna una zona arbitraria.
+- Peñaflor queda Región Metropolitana de Santiago -> Peñaflor -> Zona D.
+- El mapa sigue disponible como selección manual/didáctica.
+- PDF del Simulador de muro + U incorpora región, comuna y condición territorial cuando fueron seleccionadas.

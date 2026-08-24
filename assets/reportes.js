@@ -548,7 +548,7 @@
     const s4=addSection(doc,root,'4. Comparación reglamentaria opcional');
     if(x.normative.enabled){
       const ok=x.normative.pass;
-      s4.append(el(doc,'div',ok?'vapor-pdf-highlight':'obs',`Zona ${x.normative.zone}: U calculada ${fmtNum(x.U,2)} W/m²K vs U máxima ${fmtNum(x.normative.limitU,2)} W/m²K · Rt ${fmtNum(x.Rt,2)} vs Rt mínima ${fmtNum(x.normative.limitRt,2)} m²K/W.`));
+      const location=[x.normative.region,x.normative.commune].filter(Boolean).join(' · ');s4.append(el(doc,'div',ok?'vapor-pdf-highlight':'obs',`${location?location+' · ':''}Zona ${x.normative.zone}: U calculada ${fmtNum(x.U,2)} W/m²K vs U máxima ${fmtNum(x.normative.limitU,2)} W/m²K · Rt ${fmtNum(x.Rt,2)} vs Rt mínima ${fmtNum(x.normative.limitRt,2)} m²K/W.`));if(x.normative.condition)s4.append(el(doc,'p','section-note',`Condición territorial seleccionada: ${x.normative.condition}.`));
       s4.append(el(doc,'p','section-note',`${ok?'El parámetro U/Rt queda bajo/sobre el umbral térmico seleccionado según corresponda.':'El parámetro U/Rt no alcanza el umbral seleccionado.'} Esta comparación no constituye una declaración de cumplimiento integral del proyecto.`));
     }else s4.append(el(doc,'p','section-note','La comparación por zona térmica no fue activada por el usuario.'));
 

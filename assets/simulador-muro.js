@@ -70,7 +70,7 @@ const COMMUNE_ZONES=[['Arica','A','<1.100 msnm; sectores altos cambian de zona']
 function renderNormative(c){
  const enabled=!!$('normEnabled')?.checked;$('normControls')?.classList.toggle('hidden',!enabled);const box=$('normResult');if(!box)return;
  if(!enabled){box.className='norm-result disabled';box.innerHTML='<small>COMPARACIÓN DESACTIVADA</small><strong>Actívala para evaluar el muro</strong>';return}
- const z=$('thermalZone').value,lim=WALL_LIMITS_RESIDENTIAL[z],ratio=c.U/lim.u,pass=c.U<=lim.u+1e-9;let state,cls,detail;
+ const z=$('thermalZone').value;if(!z||!WALL_LIMITS_RESIDENTIAL[z]){box.className='norm-result disabled';box.innerHTML='<small>ZONA TÉRMICA PENDIENTE</small><strong>Selecciona Región → Comuna, o elige una zona en el mapa</strong><span>HIDROLAB realizará la comparación cuando exista una zona definida.</span>';return}const lim=WALL_LIMITS_RESIDENTIAL[z],ratio=c.U/lim.u,pass=c.U<=lim.u+1e-9;let state,cls,detail;
  if(!pass){state='NO CUMPLE EL PARÁMETRO U/RT DE LA ZONA';cls='fail';detail=`La U excede el máximo en ${fmt(c.U-lim.u,2)} W/m²K.`}
  else if(ratio>=.90){state='CUMPLE, PERO ESTÁ CERCA DEL LÍMITE';cls='near';detail=`Margen U: ${fmt(lim.u-c.U,2)} W/m²K. Revisa propiedades reales y puentes térmicos.`}
  else{state='CUMPLE CON MARGEN';cls='pass';detail=`La U está ${fmt((1-ratio)*100,0)}% por debajo del máximo de la zona.`}
@@ -84,27 +84,37 @@ function renderFrameDiagram(c){
 const ZONE_COLORS={A:'#e6c84d',B:'#e5a24a',C:'#d67b49',D:'#7bbd6d',E:'#54a88a',F:'#4d9fc0',G:'#557fc0',H:'#7465b3',I:'#87568f'};
 function selectThermalZone(z){if(!WALL_LIMITS_RESIDENTIAL[z])return;$('thermalZone').value=z;document.querySelectorAll('[data-zone]').forEach(e=>e.classList.toggle('selected',e.dataset.zone===z));render()}
 function renderChileThermalMap(){const svg=$('chileThermalMap');if(!svg)return;const zs='ABCDEFGHI'.split(''),names=['Arica/Iquique','Atacama','Coquimbo/costa','Valle central','Costa centro-sur','Chillán/Temuco','Valdivia/Pto. Montt','Cordillera','Aysén/Magallanes'];svg.innerHTML=zs.map((z,i)=>{const y=30+i*78,x=120+Math.sin(i)*18;return `<g data-zone="${z}" class="zone-map-shape"><path d="M${x} ${y} C${x-18} ${y+22},${x-17} ${y+52},${x-5} ${y+68} L${x+9} ${y+68} C${x+20} ${y+48},${x+16} ${y+20},${x+7} ${y} Z" fill="${ZONE_COLORS[z]}"/><circle cx="${x+48}" cy="${y+34}" r="13" fill="${ZONE_COLORS[z]}"/><text x="${x+48}" y="${y+38}" text-anchor="middle">${z}</text><text class="zone-place" x="${x+68}" y="${y+38}">${names[i]}</text></g>`}).join('');svg.querySelectorAll('[data-zone]').forEach(g=>g.onclick=()=>selectThermalZone(g.dataset.zone));const l=$('zoneMapLegend');l.innerHTML=zs.map(z=>`<button type="button" data-zone="${z}" style="--zc:${ZONE_COLORS[z]}">${z}</button>`).join('');l.querySelectorAll('button').forEach(b=>b.onclick=()=>selectThermalZone(b.dataset.zone))}
-function setupCommuneSearch(){
-  const inp=$('communeSearch'),host=$('communeSuggestions');
-  if(!inp||!host)return;
-  inp.addEventListener('input',()=>{
-    const q=inp.value.trim().toLowerCase();
-    if(q.length<2){host.innerHTML='';return}
-    const hits=COMMUNE_ZONES.filter(x=>x[0].toLowerCase().includes(q)).slice(0,8);
-    host.innerHTML=hits.map(x=>`<button type="button" data-name="${x[0]}"><b>${x[0]}</b><span>Zona ${x[1]}${x[2]?' · revisar condición territorial':''}</span></button>`).join('');
-    host.querySelectorAll('button').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const x=COMMUNE_ZONES.find(v=>v[0]===btn.dataset.name);
-        if(!x)return;
-        inp.value=x[0];host.innerHTML='';selectThermalZone(x[1]);
-        $('communeSelection').innerHTML=`<b>${x[0]}</b><span>Zona térmica base ${x[1]}</span>`;
-        const c=$('zoneConditionBox');
-        c.classList.toggle('hidden',!x[2]);
-        c.innerHTML=x[2]?`<b>Atención territorial</b><span>${x[2]}. Confirma la condición con la tabla/plano oficial.</span>`:'';
-      });
-    });
+function initThermalLocationSelectors(){
+  const data=window.HIDROLAB_THERMAL_ZONES||[];
+  const reg=$('thermalRegion'),com=$('thermalCommune');
+  if(!reg||!com||!data.length)return;
+  const regions=[...new Set(data.map(x=>x.region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  reg.innerHTML='<option value="">Selecciona región</option>'+regions.map(r=>`<option value="${r}">${r}</option>`).join('');
+  const fillCommunes=()=>{
+    const items=data.filter(x=>x.region===reg.value).sort((a,b)=>a.comuna.localeCompare(b.comuna,'es'));
+    com.disabled=!items.length;
+    com.innerHTML='<option value="">Selecciona comuna</option>'+items.map(x=>`<option value="${x.cut}">${x.comuna}</option>`).join('');
+    $('communeSelection').innerHTML=items.length?'<small>Ahora selecciona la comuna.</small>':'<small>Selecciona primero una región.</small>';
+    const cb=$('zoneConditionBox');cb?.classList.add('hidden');if(cb)cb.innerHTML='';
+  };
+  const selectCondition=(entry,index)=>{
+    const z=entry.zones[index]; if(!z)return;
+    selectThermalZone(z.zone);
+    $('communeSelection').innerHTML=`<b>${entry.comuna}</b><span>${entry.region} · Zona térmica ${z.zone}</span><small>${z.condition}</small>`;
+  };
+  reg.addEventListener('change',fillCommunes);
+  com.addEventListener('change',()=>{
+    const entry=data.find(x=>x.cut===com.value); if(!entry)return;
+    const cb=$('zoneConditionBox');
+    if(entry.zones.length===1){if(cb){cb.classList.add('hidden');cb.innerHTML=''};selectCondition(entry,0);return}
+    cb.classList.remove('hidden');
+    cb.innerHTML=`<b>${entry.comuna} tiene más de una zona térmica</b><span>La tabla oficial depende de una condición territorial. Selecciona la condición que corresponda al emplazamiento:</span><select id="thermalCondition"><option value="">Selecciona condición</option>${entry.zones.map((z,i)=>`<option value="${i}">Zona ${z.zone} · ${z.condition}</option>`).join('')}</select>`;
+    $('communeSelection').innerHTML=`<b>${entry.comuna}</b><span>${entry.region}</span><small>Zona pendiente de condición territorial.</small>`;
+    $('thermalCondition').addEventListener('change',e=>{if(e.target.value!=='')selectCondition(entry,+e.target.value)});
   });
+  fillCommunes();
 }
+
 function renderResistanceContribution(c){
   const host=$('resistanceContribution');if(!host)return;
   const layerTotal=Math.max(.0001,c.layerR.reduce((a,b)=>a+b,0));
@@ -188,14 +198,14 @@ $('targetMarginN').addEventListener('input',()=>syncTargetMargin('number'));
 $('findMinimum').addEventListener('click',findMinimum);syncTargetMargin('range');
 
 window.HIDROLAB_WALL_REPORT=()=>{
-  const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),zone=$('thermalZone')?.value||'F',lim=WALL_LIMITS_RESIDENTIAL[zone];
+  const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),zone=$('thermalZone')?.value||'',lim=WALL_LIMITS_RESIDENTIAL[zone]||{u:null,rt:null};
   const insE=+$('insThickness').value||0,insL=+$('insulation').value||.038,n=calc(insE>0?(insE/1000)/insL:0);
   return{
     method:wallMethod,Ti:c.Ti,Te:c.Te,RH,area:c.area,Rt:c.Rt,U:c.U,Tsi:c.Tsi,q:c.q,loss:c.loss,dew,margin:c.Tsi-dew,
     rsi:RSI,rse:RSE,layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],source:l.source||'',sourceClass:l.sourceClass||''})),
     frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value}:null,
     improvement:{material:$('insulation').options[$('insulation').selectedIndex]?.textContent||'',thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
-    normative:{enabled:!!$('normEnabled')?.checked,zone,limitU:lim.u,limitRt:lim.rt,pass:c.U<=lim.u||c.Rt>=lim.rt}
+    normative:{enabled:!!$('normEnabled')?.checked,zone,region:$('thermalRegion')?.value||'',commune:$('thermalCommune')?.selectedOptions?.[0]?.textContent||'',condition:$('thermalCondition')?.selectedOptions?.[0]?.textContent||'',limitU:lim.u,limitRt:lim.rt,pass:zone?c.U<=lim.u||c.Rt>=lim.rt:false}
   }
 };
 $('methodHomogeneous')?.addEventListener('click',()=>setWallMethod('homogeneous'));
@@ -203,5 +213,5 @@ $('methodFrame')?.addEventListener('click',()=>setWallMethod('frame'));
 ['frameLayer','studFraction','studLambda','thermalZone'].forEach(id=>$(id)?.addEventListener('input',render));
 $('normEnabled')?.addEventListener('change',render);
 $('thermalZone')?.addEventListener('change',render);
-renderChileThermalMap();setupCommuneSearch();
+renderChileThermalMap();initThermalLocationSelectors();
 renderRows();render();
