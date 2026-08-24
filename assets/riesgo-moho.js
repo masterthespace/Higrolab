@@ -246,6 +246,66 @@ function renderMoistureWall(d,v){
   s+=`<text x="${W/2}" y="372" text-anchor="middle" font-size="11" fill="#6a7d84">Perfil estacionario de temperatura · Rsi/Rse incluidos · esquema visual no a escala</text>`;
   svg.innerHTML=s;
 }
+
+function renderCurrentMoistureState(d){
+  const V=clamp(+$('vaporRoomVolume')?.value||40,5,1000);
+  const ah=absHumidity(d.ta,d.rh);
+  const sat=absHumidity(d.ta,100);
+  const currentG=ah*V;
+  const capacityG=sat*V;
+  const reserveG=Math.max(0,capacityG-currentG);
+  const pct=clamp(ah/sat*100,0,100);
+
+  if($('airWaterAh'))$('airWaterAh').textContent=fmt(ah,1)+' g/m³';
+  if($('airWaterCurrent'))$('airWaterCurrent').textContent=fmt(currentG/1000,2);
+  if($('airWaterCapacity'))$('airWaterCapacity').textContent=fmt(capacityG/1000,2);
+  if($('airWaterReserve'))$('airWaterReserve').textContent=fmt(reserveG/1000,2);
+  if($('airWaterDew'))$('airWaterDew').textContent=fmt(d.d,1);
+  if($('airWaterPercent'))$('airWaterPercent').textContent=fmt(pct,0)+'%';
+  if($('airWaterPercent')?.parentElement)$('airWaterPercent').parentElement.style.setProperty('--p',pct+'%');
+
+  let state='Margen amplio',cls='good';
+  if(d.rh>=80){state='Carga de humedad alta';cls='warn'}
+  if(d.rh>=95){state='Muy cerca de saturación';cls='bad'}
+  if($('airWaterState'))$('airWaterState').textContent=state;
+  if($('airWaterMessage')){
+    $('airWaterMessage').className='air-water-message '+cls;
+    $('airWaterMessage').innerHTML=
+      `A <b>${fmt(d.ta,1)} °C</b> y <b>${fmt(d.rh,0)}% HR</b>, el aire contiene aproximadamente <b>${fmt(ah,1)} g/m³</b> de vapor. `+
+      `En un recinto de ${fmt(V,0)} m³ esto equivale a <b>${fmt(currentG/1000,2)} L</b>. A la misma temperatura, el margen hasta saturación es de aproximadamente <b>${fmt(reserveG/1000,2)} L</b>.`;
+  }
+
+  if($('awTi'))$('awTi').textContent=fmt(d.ta,1);
+  if($('awRh'))$('awRh').textContent=fmt(d.rh,0);
+  if($('awAh'))$('awAh').textContent=fmt(ah,1);
+  if($('awTsi'))$('awTsi').textContent=fmt(d.ts,1);
+  if($('awRhs'))$('awRhs').textContent=fmt(d.rhs,0);
+  if($('awMargin'))$('awMargin').textContent=fmt(d.ts-d.d,1)+' °C';
+  if($('awT80'))$('awT80').textContent=fmt(d.t80,1)+' °C';
+  if($('awScore'))$('awScore').textContent=fmt(d.score,0)+' / 100';
+
+  let surfaceState='Condición favorable',surfaceCls='good',msg='';
+  if(d.rhs>=100){
+    surfaceState='Saturación / condensación posible';surfaceCls='bad';
+    msg=`La superficie interior está a ${fmt(d.ts,1)} °C, igual o por debajo del punto de rocío (${fmt(d.d,1)} °C). Existe condición de condensación superficial posible.`;
+  }else if(d.rhs>=90){
+    surfaceState='HR superficial muy alta';surfaceCls='bad';
+    msg=`El aire interior tiene ${fmt(d.rh,0)}% HR, pero al enfriarse hasta ${fmt(d.ts,1)} °C junto al muro alcanza aproximadamente ${fmt(d.rhs,0)}% HR superficial. El margen respecto del punto de rocío es solo ${fmt(d.ts-d.d,1)} °C.`;
+  }else if(d.rhs>=80){
+    surfaceState='Zona de atención';surfaceCls='warn';
+    msg=`La misma humedad absoluta del aire interior pasa de ${fmt(d.rh,0)}% HR a aproximadamente ${fmt(d.rhs,0)}% HR al enfriarse junto a la superficie del muro.`;
+  }else{
+    msg=`La misma humedad absoluta del aire interior pasa de ${fmt(d.rh,0)}% HR a aproximadamente ${fmt(d.rhs,0)}% HR al enfriarse de ${fmt(d.ta,1)} °C a ${fmt(d.ts,1)} °C junto al muro.`;
+  }
+  if($('awSurfaceState'))$('awSurfaceState').textContent=surfaceState;
+  if($('airToWallMessage')){
+    $('airToWallMessage').className='air-to-wall-message '+surfaceCls;
+    $('airToWallMessage').innerHTML=`<b>${surfaceState}</b><span>${msg}</span>`;
+  }
+
+  // Reuse wall visualization, now without any period/vapor source dependency.
+  renderMoistureWall(d,{hours:0,grams:0,liters:0});
+}
 function draw(d){
   const W=900,H=410,L=64,R=28,T=30,BT=62;
   const minX=Math.floor(Math.min(-5,d.d-5,d.te-2)/5)*5;
@@ -538,12 +598,11 @@ function syncPersistenceUI(){
     $('durationHoursOut').textContent=fmt(h,1)+' h';
     $('durationPenaltyOut').textContent='+'+fmt(15*(h/24),1)+' puntos';
   }
-  renderVaporEstimate();
 }
 function setMode(mode){inputMode=mode==='estimated'?'estimated':'measured';$('modeMeasured').classList.toggle('active',inputMode==='measured');$('modeEstimated').classList.toggle('active',inputMode==='estimated');$('measuredPanel').classList.toggle('hidden',inputMode!=='measured');$('estimatedPanel').classList.toggle('hidden',inputMode!=='estimated');render()}
 
 window.HIDROLAB_RISK_REPORT=()=>{
-  const d=data(),st=scoreStyle(d.score),v=vaporEstimate();
+  const d=data(),st=scoreStyle(d.score);
   return{
     inputMode,modeLabel:inputMode==='estimated'?'Temperatura superficial estimada mediante muro':'Temperatura superficial medida',
     ta:d.ta,rh:d.rh,te:d.te,ts:d.ts,p:d.p,rhs:d.rhs,dew:d.d,t80:d.t80,margin:d.ts-d.d,
@@ -551,9 +610,7 @@ window.HIDROLAB_RISK_REPORT=()=>{
     thermal:{rsi:R_SI,rse:R_SE,rLayers:d.rLayers,rTotal:d.rTotal,U:d.U},
     layers:layers.map((l,i)=>({order:i+1,position:i===0?'Exterior':i===layers.length-1?'Interior':'Intermedia',
       name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind,source:l.source||'Preset HIDROLAB'})),
-    vapor:{active:d.persist.mode==='manual',hours:v.hours,persons:v.persons,peopleGrams:v.peopleGrams,
-      loads:v.loads,laundryGrams:v.laundryGrams,heaterType:v.heaterType,heaterHours:v.heaterHours,
-      heaterGrams:v.heaterGrams,grams:v.grams,kg:v.kg,liters:v.liters,impact:vaporImpactEstimate(v)}
+    airState:{volume:clamp(+$('vaporRoomVolume').value||40,5,1000),absoluteHumidity:absHumidity(d.ta,d.rh),saturationHumidity:absHumidity(d.ta,100),surfaceRH:d.rhs,dew:d.d}
   }
 };
 
@@ -576,7 +633,7 @@ function render(){
   else{$('rLayers').textContent=fmt(d.rLayers,3);$('rTotal').textContent=fmt(d.rTotal,3);$('uCalculated').textContent=fmt(d.U,2);$('tsEstimated').textContent=fmt(d.ts,1)}
   $('rhs').textContent=fmt(d.rhs,0);$('dew').textContent=fmt(d.d);$('t80').textContent=fmt(d.t80);$('margin').textContent=fmt(d.ts-d.d);$('score').textContent=fmt(d.score,0);$('scoreLevel').textContent=`${st.level} · 0 = bajo · 100 = muy alto`;$('scoreBar').style.width=d.score+'%';$('scoreBar').style.background=st.color;$('score').style.color=st.color;
   let cls='safe',txt='Humedad superficial relativamente baja para este indicador.';if(d.rhs>=100){cls='danger';txt='La superficie está en condición de saturación o condensación posible.'}else if(d.rhs>=90){cls='danger';txt='Humedad superficial muy alta; si persiste, la condición requiere atención.'}else if(d.rhs>=80){cls='warn';txt='Humedad superficial elevada; la persistencia aumenta el riesgo preventivo.'}else if(d.rhs>=70){cls='warn';txt='Zona de atención: la superficie está acumulando una HR mayor que el aire del recinto.'}
-  const source=inputMode==='estimated'?` T° superficial estimada: ${fmt(d.ts)} °C · U calculada: ${fmt(d.U,2)} W/m²K.`:` T° superficial interior medida: ${fmt(d.ts)} °C.`;const persistence=` Persistencia: ${d.persist.label} · aporte al índice +${fmt(d.persist.penalty,1)}.`;$('status').className='callout '+cls;$('status').innerHTML=`<b>${txt}</b> HR superficial estimada: ${fmt(d.rhs,0)}%.${source}${persistence}`;renderVaporEstimate();draw(d)
+  const source=inputMode==='estimated'?` T° superficial estimada: ${fmt(d.ts)} °C · U calculada: ${fmt(d.U,2)} W/m²K.`:` T° superficial interior medida: ${fmt(d.ts)} °C.`;const persistence=` Persistencia: ${d.persist.label} · aporte al índice +${fmt(d.persist.penalty,1)}.`;$('status').className='callout '+cls;$('status').innerHTML=`<b>${txt}</b> HR superficial estimada: ${fmt(d.rhs,0)}%.${source}${persistence}`;renderCurrentMoistureState(d);draw(d)
 }
 $('modeMeasured').onclick=()=>setMode('measured');
 $('modeEstimated').onclick=()=>setMode('estimated');
@@ -584,14 +641,8 @@ $('wallTemplate').onchange=e=>loadTemplate(e.target.value);
 $('addLayer').onclick=()=>{layers.push(makeLayer('custom',20));$('wallTemplate').value='custom';renderQuickControls('custom');renderLayers();render()};
 $('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};
 ['ta','rh','ts','te'].forEach(id=>$(id).addEventListener('input',render));
+$('vaporRoomVolume')?.addEventListener('input',render);
 $('duration').addEventListener('change',()=>{syncPersistenceUI();render()});
 $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours').value||0,0,24);$('durationHoursSlider').value=h;syncPersistenceUI();render()});
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
-$('vaporPeople').addEventListener('input',()=>{renderVaporPersons();renderVaporEstimate()});
-['vaporLaundryLoads','vaporHeaterQuick','vaporHeaterHours'].forEach(id=>$(id)?.addEventListener('input',renderVaporEstimate));
-['vaporImpactEnabled','vaporRoomVolume','vaporVentMode','vaporOutdoorT','vaporOutdoorRH','vaporVentPractical','doorWidthCm','doorGapCm','extractorFlow','vaporCustomAch'].forEach(id=>{
-  $(id)?.addEventListener('input',renderVaporEstimate);
-  $(id)?.addEventListener('change',renderVaporEstimate);
-});
-$('vaporHeaterQuick')?.addEventListener('change',renderVaporEstimate);
 loadTemplate('eifs_concrete');syncPersistenceUI();render();
