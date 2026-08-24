@@ -1,7 +1,202 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Pérdidas térmicas</title><link href="styles.css" rel="stylesheet"/><link rel="stylesheet" href="modern-ui.css"><meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero mini-hero"><div class="eyebrow">Demanda instantánea · envolvente</div><h1>Calculadora de pérdidas térmicas de la vivienda</h1><p>Agrega muros, techos, pisos, ventanas y puertas. La herramienta calcula la pérdida por transmisión, identifica qué elemento pesa más y estima energía diaria.</p></div></header>
-<main class="wrap main"><div class="calc-grid"><section class="card"><div class="section-head"><div><p class="kicker">01 · Condiciones</p><h2>Temperaturas y ventilación</h2></div></div><div class="form-grid"><div class="field"><label>Temperatura interior</label><input id="ti" step="0.1" type="number" value="20"/></div><div class="field"><label>Temperatura exterior</label><input id="te" step="0.1" type="number" value="5"/></div><div class="field"><label>Volumen interior</label><input id="vol" min="0" step="1" type="number" value="180"/><small>m³</small></div><div class="field"><label>Renovaciones de aire ACH</label><input id="ach" min="0" step="0.1" type="number" value="0.5"/><small>1/h</small></div></div><div class="section-divider"></div><div class="table-shell"><table class="data-table"><thead><tr><th>Elemento</th><th>Área m²</th><th>U W/m²K</th><th>Pérdida W</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><div class="action-row"><button class="btn btn-dark btn-small" id="add">+ Agregar elemento</button><button class="btn btn-outline btn-small" id="preset">Ejemplo vivienda</button></div></section>
-<section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Balance instantáneo</h2></div></div><div class="summary-grid"><div class="stat"><small>Transmisión</small><strong id="trans">—</strong><em>W</em></div><div class="stat"><small>Ventilación/infiltración</small><strong id="vent">—</strong><em>W</em></div><div class="stat"><small>Total</small><strong id="total">—</strong><em>W</em></div><div class="stat"><small>Carga específica</small><strong id="specific">—</strong><em>W/m² de envolvente</em></div></div><div class="interactive-panel" style="margin-top:14px"><div class="metric-big"><strong id="kw">—</strong><span>potencia térmica aproximada necesaria para compensar las pérdidas en estas condiciones</span></div></div><div class="callout" style="margin-top:14px">Ventilación estimada con <b>0,33 · ACH · volumen · ΔT</b>. Es una aproximación para aire; no incluye ganancias solares, internas, puentes térmicos detallados ni masa térmica.</div></section>
-<section class="card full"><div class="section-head"><div><p class="kicker">03 · Distribución</p><h2>¿Dónde se pierde más calor?</h2></div><span class="note">Las barras reaccionan a cada cambio</span></div><div class="cost-bars" id="bars"></div><div class="section-divider"></div><div class="summary-grid three"><div class="stat"><small>Energía en 8 h</small><strong id="e8">—</strong><em>kWh</em></div><div class="stat"><small>Energía en 24 h</small><strong id="e24">—</strong><em>kWh</em></div><div class="stat"><small>ΔT actual</small><strong id="dt">—</strong><em>°C</em></div></div></section></div></main><footer class="wrap footer">HIDROLAB · Cálculo simplificado de pérdidas por transmisión y ventilación</footer>
-<script defer="" src="assets/perdidas-termicas.js"></script><script defer src="assets/reportes.js"></script><script src="modern-ui.js"></script></body></html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HIDROLAB · Pérdidas térmicas</title>
+<link href="styles.css" rel="stylesheet"/>
+<link rel="stylesheet" href="modern-ui.css"/>
+<meta content="strict-origin-when-cross-origin" name="referrer"/>
+</head>
+<body>
+<header class="top">
+  <div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+  <div class="wrap hero mini-hero"><div class="eyebrow">Envolvente completa · lectura instantánea</div><h1>Pérdidas térmicas de la vivienda</h1><p>Construye la envolvente, define cómo es el muro y observa de forma gráfica por dónde escapa el calor. El módulo funciona de forma independiente y no toma datos de otros simuladores.</p></div>
+</header>
+
+<main class="wrap main">
+<div class="calc-grid heatloss-grid">
+
+<section class="card full">
+  <div class="section-head"><div><p class="kicker">01 · Condiciones</p><h2>Define la vivienda y el escenario térmico</h2></div><span class="calc-origin physical">CÁLCULO ESTACIONARIO</span></div>
+  <div class="conditions-layout">
+    <div class="form-grid">
+      <div class="field"><label>Temperatura interior [°C]</label><input id="ti" step=".1" type="number" value="20"/></div>
+      <div class="field"><label>Temperatura exterior [°C]</label><input id="te" step=".1" type="number" value="5"/></div>
+      <div class="field"><label>Largo interior [m]</label><input id="length" min="1" step=".1" type="number" value="8"/></div>
+      <div class="field"><label>Ancho interior [m]</label><input id="width" min="1" step=".1" type="number" value="7"/></div>
+      <div class="field"><label>Altura interior [m]</label><input id="height" min="1.8" step=".1" type="number" value="2.5"/></div>
+      <div class="field"><label>Niveles</label><input id="levels" min="1" max="4" step="1" type="number" value="1"/></div>
+    </div>
+    <div class="geometry-live">
+      <div><small>Volumen interior</small><strong id="volumeOut">—</strong><em>m³</em></div>
+      <div><small>Área de piso/techo</small><strong id="floorAreaOut">—</strong><em>m²</em></div>
+      <div><small>Muros brutos</small><strong id="grossWallOut">—</strong><em>m²</em></div>
+      <div><small>Diferencia térmica</small><strong id="deltaTOut">—</strong><em>°C</em></div>
+    </div>
+  </div>
+  <div class="callout norm-soft">La pérdida por transmisión se calcula con <b>Φ = U · A · ΔT</b>. La CEV considera que la demanda energética depende además de aislamiento, puentes térmicos, ventilación, infiltraciones, ganancias solares e inercia; por eso HIDROLAB presenta este resultado como <b>pérdida térmica instantánea</b>, no como demanda anual CEV.</div>
+</section>
+
+<section class="card full envelope-builder">
+  <div class="section-head"><div><p class="kicker">02 · Envolvente</p><h2>Construye cómo es tu vivienda</h2></div><span class="note">Cada cambio recalcula en tiempo real</span></div>
+
+  <div class="envelope-tabs">
+    <button class="env-tab active" data-panel="walls">Muros</button>
+    <button class="env-tab" data-panel="windows">Ventanas y puertas</button>
+    <button class="env-tab" data-panel="roof">Techumbre</button>
+    <button class="env-tab" data-panel="floor">Piso</button>
+    <button class="env-tab" data-panel="air">Ventilación / infiltración</button>
+  </div>
+
+  <div id="panel-walls" class="env-panel active">
+    <div class="wall-builder-head">
+      <div><h3>Muro exterior · interior → exterior</h3><p>Incluye terminaciones, barrera de vapor, estructura, aislación y sistemas EIFS.</p></div>
+      <div class="wall-actions"><button id="wallPresetTimber" class="btn btn-outline btn-small">Tabique aislado</button><button id="wallPresetConcreteEIFS" class="btn btn-outline btn-small">Hormigón + EIFS</button><button id="wallPresetMasonry" class="btn btn-outline btn-small">Albañilería + aislación</button></div>
+    </div>
+
+    <div class="wall-layers-visual" id="wallLayersVisual"></div>
+    <div id="wallLayerRows" class="wall-layer-rows"></div>
+    <button id="addWallLayer" class="btn btn-dark btn-small">+ Agregar capa</button>
+
+    <div class="wall-result-strip">
+      <div><small>R total muro</small><strong id="wallRt">—</strong><em>m²K/W</em></div>
+      <div><small>U muro</small><strong id="wallU">—</strong><em>W/m²K</em></div>
+      <div><small>Área neta muros</small><strong id="wallArea">—</strong><em>m²</em></div>
+      <div><small>Pérdida muros</small><strong id="wallLoss">—</strong><em>W</em></div>
+    </div>
+
+    <div class="wall-explainer" id="wallExplainer">—</div>
+  </div>
+
+  <div id="panel-windows" class="env-panel">
+    <div class="openings-grid">
+      <div class="opening-card">
+        <div class="opening-icon window-icon"><i></i><i></i></div><h3>Ventanas</h3>
+        <div class="form-grid">
+          <div class="field"><label>Área total [m²]</label><input id="windowArea" min="0" step=".1" type="number" value="12"/></div>
+          <div class="field"><label>Tipo / U</label><select id="windowPreset"><option value="5.8">Vidrio simple · U 5,8</option><option value="2.8" selected>DVH estándar · U 2,8</option><option value="1.8">DVH mejorado · U 1,8</option><option value="1.2">Ventana alto desempeño · U 1,2</option><option value="custom">Personalizado</option></select></div>
+          <div class="field hidden" id="windowCustomWrap"><label>U personalizado [W/m²K]</label><input id="windowUCustom" min=".1" step=".1" type="number" value="2.5"/></div>
+        </div>
+        <div class="opening-loss"><small>Pérdida estimada</small><strong id="windowLoss">— W</strong></div>
+      </div>
+      <div class="opening-card">
+        <div class="opening-icon door-icon"></div><h3>Puertas exteriores</h3>
+        <div class="form-grid">
+          <div class="field"><label>Área total [m²]</label><input id="doorArea" min="0" step=".1" type="number" value="4"/></div>
+          <div class="field"><label>Transmitancia U [W/m²K]</label><input id="doorU" min=".1" step=".1" type="number" value="2.2"/></div>
+        </div>
+        <div class="opening-loss"><small>Pérdida estimada</small><strong id="doorLoss">— W</strong></div>
+      </div>
+    </div>
+    <p class="method-note">Los U precargados de ventanas son escenarios didácticos. Para proyecto o acreditación debe utilizarse el valor U del complejo de ventana/puerta acreditado o determinado por el procedimiento aplicable.</p>
+  </div>
+
+  <div id="panel-roof" class="env-panel">
+    <div class="simple-element-grid">
+      <div class="field"><label>Área de techumbre [m²]</label><input id="roofArea" min="0" step=".1" type="number" value="56"/></div>
+      <div class="field"><label>U techumbre [W/m²K]</label><input id="roofU" min=".05" step=".01" type="number" value=".45"/></div>
+      <div class="element-result"><small>Pérdida por techumbre</small><strong id="roofLoss">— W</strong></div>
+    </div>
+    <div class="element-visual roof-visual"><span>aire interior</span><div class="roof-shape"></div><b id="roofVisualText">—</b></div>
+  </div>
+
+  <div id="panel-floor" class="env-panel">
+    <div class="simple-element-grid">
+      <div class="field"><label>Tipo de piso</label><select id="floorType"><option value="exterior">Piso ventilado / sobre exterior</option><option value="ground">Piso en contacto con terreno</option><option value="adiabatic">Sobre recinto acondicionado / adiabático</option></select></div>
+      <div class="field" id="floorUWrap"><label>U piso [W/m²K]</label><input id="floorU" min=".05" step=".01" type="number" value=".60"/></div>
+      <div class="element-result"><small>Pérdida de piso</small><strong id="floorLoss">— W</strong></div>
+    </div>
+    <p class="method-note" id="floorMethodNote">Para piso ventilado se usa U·A·ΔT. El contacto con terreno requiere un tratamiento más específico; en esta primera versión avanzada se identifica como estimación simplificada.</p>
+  </div>
+
+  <div id="panel-air" class="env-panel">
+    <div class="air-mode-grid">
+      <label class="air-mode active"><input type="radio" name="airMode" value="ach" checked><b>Conozco ACH</b><span>Ingresar renovaciones de aire por hora.</span></label>
+      <label class="air-mode"><input type="radio" name="airMode" value="scenario"><b>Escenario práctico</b><span>Usar un escenario orientativo de hermeticidad.</span></label>
+    </div>
+    <div id="achPanel" class="form-grid"><div class="field"><label>Renovaciones de aire ACH [1/h]</label><input id="ach" min="0" step=".1" type="number" value=".5"/></div></div>
+    <div id="airScenarioPanel" class="form-grid hidden"><div class="field"><label>Escenario</label><select id="airScenario"><option value=".25">Muy hermética / ventilación controlada · 0,25 ACH</option><option value=".5" selected>Hermeticidad media · 0,50 ACH</option><option value="1">Infiltración apreciable · 1,00 ACH</option><option value="1.5">Vivienda poco hermética · 1,50 ACH</option></select></div></div>
+    <div class="air-loss-visual"><div class="air-house"><span>CASA</span><i class="air-in">→</i><i class="air-out">→</i></div><div><small>Pérdida asociada al recambio de aire</small><strong id="airLoss">— W</strong><span id="airFormula">—</span></div></div>
+    <p class="method-note">Se usa <b>0,33 · ACH · V · ΔT</b>, aproximación estacionaria de calor sensible del aire. No equivale al procedimiento completo de infiltraciones/ventilación de la CEV.</p>
+  </div>
+</section>
+
+<section class="card full">
+  <div class="section-head"><div><p class="kicker">03 · Radiografía térmica</p><h2>¿Por dónde se está escapando el calor?</h2></div><span class="tool-tag new">INTERACTIVO</span></div>
+  <div class="heat-radiography">
+    <div class="house-heatmap" id="houseHeatmap">
+      <div class="house-roof" data-part="roof"><span>TECHUMBRE</span><b id="hmRoof">—</b></div>
+      <div class="house-body">
+        <div class="house-wall left" data-part="walls"><span>MUROS</span><b id="hmWalls">—</b></div>
+        <div class="house-window" data-part="windows"><span>VENTANAS</span><b id="hmWindows">—</b></div>
+        <div class="house-door" data-part="doors"><span>PUERTAS</span><b id="hmDoors">—</b></div>
+        <div class="heat-core"><small>PÉRDIDA TOTAL</small><strong id="hmTotal">—</strong><em>kW</em></div>
+      </div>
+      <div class="house-floor" data-part="floor"><span>PISO</span><b id="hmFloor">—</b></div>
+      <div class="air-cloud" data-part="air"><span>AIRE</span><b id="hmAir">—</b></div>
+    </div>
+
+    <div class="heat-ranking">
+      <div class="ranking-head"><b>Participación de cada componente</b><span>Ordenado de mayor a menor</span></div>
+      <div id="lossRanking"></div>
+      <div id="dominantAdvice" class="dominant-advice">—</div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head"><div><p class="kicker">04 · Resultado</p><h2>Potencia térmica instantánea</h2></div></div>
+  <div class="summary-grid">
+    <div class="stat"><small>Transmisión envolvente</small><strong id="trans">—</strong><em>W</em></div>
+    <div class="stat"><small>Recambio de aire</small><strong id="vent">—</strong><em>W</em></div>
+    <div class="stat primary-stat"><small>Total</small><strong id="total">—</strong><em>W</em></div>
+    <div class="stat"><small>Carga por superficie útil</small><strong id="specific">—</strong><em>W/m² piso</em></div>
+  </div>
+  <div class="thermal-demand-meter">
+    <div><small>Potencia para compensar estas pérdidas</small><strong id="kw">— kW</strong></div>
+    <div class="demand-scale"><i id="demandFill"></i></div>
+    <span id="demandInterpretation">—</span>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head"><div><p class="kicker">05 · Si estas condiciones duraran…</p><h2>Energía térmica equivalente</h2></div><span class="calc-origin estimate">ESCENARIO</span></div>
+  <div class="summary-grid three">
+    <div class="stat"><small>Durante 8 h</small><strong id="e8">—</strong><em>kWh térmicos</em></div>
+    <div class="stat"><small>Durante 12 h</small><strong id="e12">—</strong><em>kWh térmicos</em></div>
+    <div class="stat"><small>Durante 24 h</small><strong id="e24">—</strong><em>kWh térmicos</em></div>
+  </div>
+  <p class="method-note">Es la energía equivalente a mantener constante esta pérdida durante el período indicado. No incorpora termostato, ganancias internas/solares, masa térmica ni variación horaria exterior.</p>
+</section>
+
+<section class="card full">
+  <div class="section-head"><div><p class="kicker">06 · Prueba una mejora</p><h2>¿Qué intervención tendría mayor efecto?</h2></div></div>
+  <div class="improvement-options">
+    <label><span>Mejorar muro</span><input id="improveWallU" type="number" min=".05" step=".05" value=".45"><small>U objetivo W/m²K</small></label>
+    <label><span>Mejorar ventanas</span><input id="improveWindowU" type="number" min=".3" step=".1" value="1.8"><small>U objetivo W/m²K</small></label>
+    <label><span>Mejorar techumbre</span><input id="improveRoofU" type="number" min=".05" step=".05" value=".30"><small>U objetivo W/m²K</small></label>
+    <label><span>Reducir infiltración</span><input id="improveAch" type="number" min="0" step=".1" value=".30"><small>ACH objetivo</small></label>
+  </div>
+  <div id="improvementRanking" class="improvement-ranking"></div>
+  <p class="method-note">Comparación instantánea: muestra cuántos W se reducirían si solo se aplicara una de las mejoras propuestas.</p>
+</section>
+
+<section class="card full technical-scope">
+  <div class="section-head"><div><p class="kicker">07 · Alcance técnico</p><h2>Qué representa este módulo</h2></div></div>
+  <div class="trace-grid">
+    <div class="trace-item normative"><span class="trace-pill">BASE FÍSICA / NCh853</span><b>Transmitancia de la envolvente</b><p>Las pérdidas por elementos expuestos usan U·A·ΔT. El U debe representar la solución completa y utilizar propiedades térmicas respaldadas cuando el cálculo se emplee técnicamente.</p></div>
+    <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>Recambio de aire</b><p>La ecuación 0,33·ACH·V·ΔT aproxima el calor sensible asociado al aire renovado. Es útil para diagnóstico rápido, pero no reemplaza el procedimiento CEV de infiltraciones y ventilación.</p></div>
+    <div class="trace-item estimate"><span class="trace-pill">DIDÁCTICO</span><b>Radiografía y recomendaciones</b><p>Los porcentajes, colores y ranking sirven para comprender dónde se concentra la pérdida; no son categorías normativas.</p></div>
+    <div class="trace-item estimate"><span class="trace-pill">NO ES DEMANDA ANUAL</span><b>kWh por período</b><p>Supone que las condiciones permanecen constantes. La CEV usa una evaluación energética más amplia que incluye clima, ganancias, inercia, infiltraciones, ventilación y zona térmica.</p></div>
+  </div>
+</section>
+
+</div>
+</main>
+<footer class="wrap footer">HIDROLAB · Diagnóstico interactivo de pérdidas térmicas instantáneas</footer>
+<script defer src="assets/perdidas-termicas.js"></script>
+<script defer src="assets/reportes.js"></script>
+<script src="modern-ui.js"></script>
+</body>
+</html>
