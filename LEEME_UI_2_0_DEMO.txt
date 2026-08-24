@@ -1,0 +1,14 @@
+HIDROLAB UI 2.0 — DEMO VISUAL
+
+Abrir primero: index-demo.html
+Luego: calculadoras-demo.html
+
+IMPORTANTE:
+- index.html y calculadoras.html originales NO fueron reemplazados.
+- Los módulos/calculadoras existentes permanecen intactos.
+- Esta demo prueba una nueva dirección visual sin reducir interactividad.
+- El hero contiene un mini laboratorio funcional con sliders.
+- La búsqueda ⌘K / Ctrl+K funciona y entiende términos conceptuales simples.
+- El catálogo sustituye la grilla uniforme de tarjetas por filas técnicas jerarquizadas.
+- Los enlaces abren los módulos reales del ZIP.
+- Incluye tema claro/oscuro en la demo.
