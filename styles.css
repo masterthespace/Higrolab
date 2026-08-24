@@ -530,3 +530,8 @@ html[data-theme=dark] .volume-mode-box,html[data-theme=dark] .volume-mode-tabs b
 .support-chips .normative{background:#e4f3e9;color:#216c45}.support-chips .product{background:#e6f2fa;color:#1e6280}.support-chips .estimate{background:#fff1d9;color:#8b5b0a}.support-chips .custom{background:#eee9fa;color:#62489a}
 .support-note{font-size:.55rem!important;color:#687c84!important;margin:7px 2px 0!important}
 @media(max-width:700px){.nch853-mini{grid-template-columns:1fr 1fr}.frame-result{grid-template-columns:1fr}.frame-result small{grid-column:1}.support-chips{display:grid;grid-template-columns:1fr 1fr}}
+
+/* V8.6 · biblioteca de aislantes */
+.official-material-note{margin:8px 0 12px;padding:10px 12px;border:1px solid #cfe1e5;border-radius:10px;background:#f5fafb;display:flex;gap:8px;align-items:flex-start}
+.official-material-note b{font-size:.65rem;color:#164c5d;white-space:nowrap}.official-material-note span{font-size:.57rem;line-height:1.5;color:#536b74}
+@media(max-width:700px){.official-material-note{display:block}.official-material-note b{display:block;margin-bottom:4px}}
