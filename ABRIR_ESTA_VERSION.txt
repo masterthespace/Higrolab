@@ -1,0 +1,20 @@
+HIDROLAB UI 2.0 — DEMO REAL
+
+1. Descomprime el ZIP.
+2. Abre directamente index.html.
+3. El nuevo frontend YA reemplaza la entrada normal de esta demo.
+4. Abre calculadoras.html para ver el nuevo catálogo técnico.
+5. Los módulos internos siguen siendo los mismos y están enlazados desde el catálogo.
+6. Los originales se guardaron como:
+   - index-original-backup.html
+   - calculadoras-original-backup.html
+
+Cambios visibles:
+- nueva Home oscura tipo software técnico;
+- hero interactivo con sliders;
+- mini laboratorio en tiempo real;
+- símbolos técnicos Td / φi / U / ACH;
+- catálogo sin cards repetitivas;
+- Command Palette con Ctrl+K / Cmd+K;
+- tema claro/oscuro;
+- navegación más sobria.

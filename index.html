@@ -1,106 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HIDROLAB · Ciencia de la vivienda</title>
-<meta name="description" content="Herramientas interactivas para humedad, condensación, envolvente térmica, confort, energía y análisis solar 3D.">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="modern-ui.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HIDROLAB UI 2.0 · Demo</title>
+<link rel="stylesheet" href="hidrolab-ui-demo.css">
 </head>
-<body class="home-v7">
-<header class="top">
-  <div class="wrap nav">
-    <a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
-    <nav class="navlinks">
-      <a class="active" href="index.html">Inicio</a>
-      <a href="calculadoras.html">Herramientas</a>
-      <a href="zona-interactiva.html">Zona interactiva</a>
-    </nav>
-  </div>
-  <div class="wrap hero-v7">
-    <div class="hero-copy">
-      <div class="eyebrow">Scientific housing toolkit · V7</div>
-      <h1>La vivienda convertida en <span class="accent">datos útiles.</span></h1>
-      <p>Analiza humedad, condensación, transmitancia térmica, pérdidas, ventilación, confort, energía y asoleamiento desde una suite técnica interactiva.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="calculadoras.html">Explorar herramientas</a>
-        <a class="btn btn-soft" href="simulador-solar.html">Abrir Solar Studio 3D</a>
-      </div>
-      <div class="hero-badges">
-        <span class="hero-badge">Cálculo en navegador</span>
-        <span class="hero-badge">Informes PDF</span>
-        <span class="hero-badge">Modo claro / oscuro</span>
-        <span class="hero-badge">Visualización interactiva</span>
-      </div>
-    </div>
-    <div class="solar-preview" aria-label="Vista previa interactiva del simulador solar">
-      <canvas id="home-solar-preview"></canvas>
-      <div class="preview-head">
-        <div class="preview-title"><b>Solar Studio 3D</b><span>Preview interactivo · arrastra para orbitar</span></div>
-        <span class="preview-live">LIVE</span>
-      </div>
-      <div class="preview-foot"><span>Trayectoria solar · fachadas · cubierta</span><span class="preview-orbit">◌ Orbit</span></div>
-    </div>
-  </div>
+<body>
+<div class="demo-app"><div class="ui2-demo-banner">DEMO UI 2.0 · NUEVO FRONTEND ACTIVO · Los módulos internos no fueron modificados</div>
+<header class="bar">
+  <a class="logo" href="index.html"><span class="mark">H</span><b>HIDRO<span>LAB</span></b><small>UI 2.0 / DEMO</small></a>
+  <nav><a class="active" href="index.html">Inicio</a><a href="calculadoras.html">Herramientas</a><a href="simulador-solar.html">Solar Studio</a><a href="zona-interactiva.html">Zona interactiva</a></nav>
+  <div class="bar-actions"><button id="cmdBtn" class="cmd">⌘K <span>Buscar</span></button><button id="themeBtn" class="icon-btn" aria-label="Cambiar tema">◐</button></div>
 </header>
 
-<main class="wrap main home-main">
-  <section class="section-v7">
-    <div class="section-v7-head">
-      <div><p class="kicker">Suite HIDROLAB</p><h2>Un panel técnico para cada problema</h2></div>
-      <p>Herramientas independientes, conectadas por una interfaz consistente y orientadas a lectura rápida de datos.</p>
-    </div>
-    <div class="bento">
-      <a class="bento-card solar" href="simulador-solar.html">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2M20 12h2M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg></div>
-        <h3>Simulador Solar 3D</h3>
-        <p>Modela una planta, calibra orientación, analiza horas de asoleamiento por fachada y cubierta y exporta un informe técnico.</p>
-        <div class="bento-meta"><span>Three.js</span><span>Fachadas F1…</span><span>Cubierta C1</span><span>PDF</span></div>
-        <div class="bento-big-number">SOLAR / 3D</div>
-        <div class="solar-mini-scene">
-          <svg viewBox="0 0 300 220" aria-hidden="true">
-            <path d="M42 160 146 115 250 155 145 203Z" fill="rgba(239,181,43,.10)" stroke="rgba(239,181,43,.40)"/>
-            <path d="M92 141 146 116 205 140 146 168Z" fill="rgba(255,235,180,.75)" stroke="rgba(239,181,43,.7)"/>
-            <path d="M92 141v42l54 25v-40z" fill="rgba(26,84,99,.88)" stroke="rgba(202,232,238,.45)"/>
-            <path d="M205 140v42l-59 26v-40z" fill="rgba(12,54,67,.90)" stroke="rgba(202,232,238,.4)"/>
-            <circle cx="238" cy="62" r="15" fill="rgba(239,181,43,.88)"/>
-            <path d="M224 74 190 105" stroke="rgba(239,181,43,.55)" stroke-dasharray="4 5"/>
-          </svg>
-        </div>
-      </a>
-      <a class="bento-card humidity" href="calculadoras.html#humedad">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.5-6-11.5Z"/><path d="M9.2 15.2a3 3 0 0 0 3 2.8"/></svg></div><h3>Humedad y condensación</h3>
-        <p>Punto de rocío, humedad superficial, moho y balance de vapor.</p>
-        <div class="bento-meta"><span>HR</span><span>T° superficial</span><span>Riesgo</span></div>
-      </a>
-      <a class="bento-card thermal" href="calculadoras.html#envolvente">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 10h18M3 15h18M8 5v5M16 10v5M8 15v4"/></svg></div><h3>Envolvente térmica</h3>
-        <p>Muros multicapa, U, R, pérdidas, puentes térmicos y simulación de mejoras.</p>
-        <div class="bento-meta"><span>W/m²K</span><span>Capas</span><span>Aislación</span></div>
-      </a>
-      <a class="bento-card comfort" href="confort-termico.html">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.5c2 1.8 5 1.8 7 0"/></svg></div><h3>Confort</h3>
-        <p>PMV/PPD y variables que influyen en la sensación térmica interior.</p>
-      </a>
-      <a class="bento-card ventilation" href="ventilacion-humedad.html">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg></div><h3>Ventilación</h3>
-        <p>Caudal, ACH, generación de vapor y humedad de equilibrio.</p>
-      </a>
-      <a class="bento-card interactive" href="zona-interactiva.html">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 8 6 4-6 4z"/></svg></div><h3>Zona interactiva</h3>
-        <p>Contenido audiovisual de HIDROLAB para complementar la interpretación de los resultados técnicos.</p>
-        <div class="bento-meta"><span>Videos</span><span>Explicaciones</span><span>HIDROLAB</span></div>
-      </a>
-      <a class="bento-card architecture" href="calculadoras.html">
-        <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><h3>Arquitectura modular</h3>
-        <p>Cada herramienta funciona como módulo independiente y puede evolucionar sin rehacer la plataforma.</p>
-      </a>
-    </div>
-  </section>
+<main>
+<section class="hero">
+ <div class="hero-copy">
+   <p class="overline">BUILDING SCIENCE / INTERACTIVE LAB</p>
+   <h1>Ciencia de la vivienda,<br><em>convertida en datos.</em></h1>
+   <p class="lead">Analiza humedad, condensación, envolvente térmica, confort y comportamiento solar con herramientas técnicas que explican el fenómeno mientras calculas.</p>
+   <div class="actions"><a class="primary" href="calculadoras.html">Explorar herramientas <span>→</span></a><a class="secondary" href="simulador-solar.html">Abrir Solar Studio 3D ↗</a></div>
+   <div class="metric-strip">
+     <div><span class="symbol">Td</span><b id="mTd">12,0</b><small>°C · rocío</small></div>
+     <div><span class="symbol">φi</span><b id="mRh">60</b><small>% · HR interior</small></div>
+     <div><span class="symbol">U</span><b>0,38</b><small>W/m²K</small></div>
+     <div><span class="symbol">ACH</span><b>0,52</b><small>h⁻¹</small></div>
+   </div>
+ </div>
+
+ <div class="live-lab" aria-label="Mini laboratorio interactivo">
+   <div class="lab-top"><div><span class="status-dot"></span><b>LIVE / ENVOLVENTE</b></div><span>Modelo didáctico</span></div>
+   <div class="lab-stage">
+     <svg viewBox="0 0 640 390" role="img" aria-label="Sección interactiva de vivienda con temperatura y humedad">
+       <defs>
+        <linearGradient id="wallTemp" x1="0" x2="1"><stop id="g1" offset="0%" stop-color="#f2a84a"/><stop id="g2" offset="100%" stop-color="#4d9fbd"/></linearGradient>
+       </defs>
+       <path d="M135 255V155L315 70l190 90v95" class="house-line"/>
+       <rect x="160" y="155" width="320" height="150" rx="3" class="room"/>
+       <rect x="160" y="155" width="28" height="150" fill="url(#wallTemp)" opacity=".95"/>
+       <rect x="452" y="155" width="28" height="150" fill="url(#wallTemp)" opacity=".95"/>
+       <rect x="188" y="155" width="264" height="18" fill="url(#wallTemp)" opacity=".75"/>
+       <path id="sunRay1" d="M545 78 447 158" class="sun-ray"/><path id="sunRay2" d="M575 105 477 180" class="sun-ray"/>
+       <circle id="sun" cx="560" cy="66" r="22" class="sun"/>
+       <g class="airflow"><path d="M210 235c55-42 118-42 170 0"/><path d="M370 225l12 10-13 8"/></g>
+       <text x="205" y="202" class="svg-label">INTERIOR</text><text x="205" y="226" id="svgTi" class="svg-big">20,0 °C</text>
+       <text x="205" y="252" id="svgRh" class="svg-small">HR 60 %</text>
+       <text x="490" y="285" class="svg-label">EXTERIOR</text><text x="490" y="309" id="svgTe" class="svg-big">5,0 °C</text>
+       <text x="160" y="335" class="svg-small">INTERIOR</text><text x="420" y="335" class="svg-small">EXTERIOR</text>
+       <path d="M190 350H450" class="profile-axis"/><path id="profile" d="" class="profile-line"/>
+       <circle id="profileDot" cx="190" cy="350" r="5" class="profile-dot"/>
+     </svg>
+     <div id="riskPill" class="risk-pill safe"><span></span><b>CONDICIÓN FAVORABLE</b><small id="riskText">Margen al rocío: 5,4 °C</small></div>
+   </div>
+   <div class="lab-controls">
+     <label><span>Temperatura interior <b id="tiOut">20,0 °C</b></span><input id="ti" type="range" min="12" max="28" step=".5" value="20"></label>
+     <label><span>HR interior <b id="rhOut">60 %</b></span><input id="rh" type="range" min="30" max="90" step="1" value="60"></label>
+     <label><span>Temperatura exterior <b id="teOut">5,0 °C</b></span><input id="te" type="range" min="-5" max="20" step=".5" value="5"></label>
+   </div>
+   <div class="lab-bottom"><span><i class="cyan"></i> Calculado en tiempo real</span><span>Prueba los controles ↑</span></div>
+ </div>
+</section>
+
+<section class="science-nav">
+ <div class="section-title"><p class="overline">SUITE HIDROLAB</p><h2>La ciencia es la interfaz.</h2><p>Menos decoración. Más fenómenos visibles, resultados legibles y decisiones claras.</p></div>
+ <div class="discipline-grid">
+   <a href="calculadoras-demo.html#humedad" class="discipline"><span class="tech-symbol">Td</span><div><b>Humedad y condensación</b><p>Punto de rocío · φsi · vapor · ventilación</p></div><span class="arrow">→</span><div class="mini-viz dew"><i></i><i></i><i></i></div></a>
+   <a href="calculadoras-demo.html#envolvente" class="discipline"><span class="tech-symbol">U</span><div><b>Envolvente térmica</b><p>Capas · R · U · Q · pérdidas</p></div><span class="arrow">→</span><div class="mini-viz layers"><i></i><i></i><i></i><i></i><i></i></div></a>
+   <a href="calculadoras-demo.html#confort" class="discipline"><span class="tech-symbol">PMV</span><div><b>Confort y energía</b><p>PMV/PPD · carga · consumo</p></div><span class="arrow">→</span><div class="mini-viz pmv"><span>−3</span><i></i><span>0</span><i></i><span>+3</span></div></a>
+   <a href="simulador-solar.html" class="discipline solar-row"><span class="tech-symbol">☀</span><div><b>Solar Studio 3D</b><p>Geometría · norte · sombras · asoleamiento</p></div><span class="arrow">↗</span><div class="mini-viz solar-mini"><i></i><b></b></div></a>
+ </div>
+</section>
+
+<section class="principles">
+ <div><span>01</span><b>MODELO</b><p>Ingresa o construye las condiciones reales.</p></div>
+ <div><span>02</span><b>FENÓMENO</b><p>Observa qué cambia mientras modificas el modelo.</p></div>
+ <div><span>03</span><b>RESULTADO</b><p>El dato principal domina la lectura.</p></div>
+ <div><span>04</span><b>DECISIÓN</b><p>Interpretación técnica y siguiente acción.</p></div>
+</section>
 </main>
-<footer class="wrap footer">HIDROLAB · Ciencia de la humedad para construir mejor</footer>
-<script src="modern-ui.js"></script>
-</body>
-</html>
+<footer><span>HIDROLAB / UI 2.0 DEMO</span><span>Propuesta visual aislada · no modifica cálculos existentes</span></footer>
+</div>
+
+<div id="palette" class="palette hidden" role="dialog" aria-modal="true" aria-label="Buscar herramientas">
+ <div class="palette-box"><div class="palette-search"><span>⌕</span><input id="paletteInput" placeholder="Buscar herramienta o problema…"><kbd>ESC</kbd></div><div id="paletteResults"></div><div class="palette-help">Prueba: “condensación”, “pierdo calor”, “ventilar”, “confort”, “sol”</div></div>
+</div>
+<script src="hidrolab-ui-demo.js"></script>
+</body></html>

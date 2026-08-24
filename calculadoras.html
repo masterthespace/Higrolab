@@ -1,32 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIDROLAB · Herramientas / UI 2.0 Demo</title><link rel="stylesheet" href="hidrolab-ui-demo.css"></head>
+<body>
+<div class="demo-app"><div class="ui2-demo-banner">DEMO UI 2.0 · NUEVO FRONTEND ACTIVO · Los módulos internos no fueron modificados</div>
+<header class="bar">
+<a class="logo" href="index.html"><span class="mark">H</span><b>HIDRO<span>LAB</span></b><small>UI 2.0 / DEMO</small></a>
+<nav><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="simulador-solar.html">Solar Studio</a><a href="zona-interactiva.html">Zona interactiva</a></nav>
+<div class="bar-actions"><button id="cmdBtn" class="cmd">⌘K <span>Buscar</span></button><button id="themeBtn" class="icon-btn">◐</button></div>
+</header>
+<main class="catalog-main">
+ <section class="catalog-intro"><div><p class="overline">TOOL LIBRARY / 09 MÓDULOS</p><h1>Herramientas técnicas</h1><p>Selecciona por fenómeno. Las herramientas importantes se reconocen por su símbolo físico, no por iconos decorativos.</p></div><button id="catalogSearchBtn" class="big-search"><span>⌕</span><div><b>Buscar herramienta o cálculo</b><small>condensación, U, ventilación, confort, energía, solar…</small></div><kbd>⌘ K</kbd></button></section>
 
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Calculadoras</title><link href="styles.css" rel="stylesheet"/><link href="modern-ui.css" rel="stylesheet"/><meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero"><div class="eyebrow">Suite técnica interactiva</div><h1>Calculadoras HIDROLAB</h1><p>Herramientas para humedad, condensación, envolvente térmica, ventilación, confort y energía.</p></div></header>
-<main class="wrap main"><section class="card">
-<div class="catalog-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="tool-search" type="search" placeholder="Buscar herramienta: condensación, U, ventilación, confort, energía, solar…"></div>
-<div class="catalog-shell">
-<aside class="catalog-sidebar" aria-label="Categorías">
-<a href="#humedad"><svg viewBox="0 0 24 24"><path d="M12 2.5S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.5-6-11.5Z"/></svg>Humedad</a>
-<a href="#envolvente"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 10h18M3 15h18"/></svg>Envolvente</a>
-<a href="#confort"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 14.5c2 1.8 5 1.8 7 0"/></svg>Confort</a>
+ <section id="humedad" class="tool-section">
+   <header><span class="section-code">H₂O</span><div><p class="overline">HUMEDAD Y CONDENSACIÓN</p><h2>Diagnóstico higrotérmico</h2></div><div class="section-viz humidity-viz"><span>45%</span><i></i><span>80%</span></div></header>
+   <div class="tool-list">
+    <a href="calculadora-rocio.html" class="tool-row"><span class="tool-symbol">Td</span><div><b>Punto de rocío con T° de muro</b><p>T° superficial · HR · condensación</p></div><div class="tool-signal"><span>MEDIDO + CALCULADO</span></div><strong>Diagnóstico directo</strong><span class="go">→</span></a>
+    <a href="calculadora-sin-muro.html" class="tool-row"><span class="tool-symbol">Tc</span><div><b>Riesgo sin T° de muro</b><p>Umbrales críticos · superficie estimada</p></div><div class="tool-signal"><span>ESTIMADO</span></div><strong>Exploración</strong><span class="go">→</span></a>
+    <a href="riesgo-moho.html" class="tool-row featured"><span class="tool-symbol">φsi</span><div><b>Riesgo de humedad superficial</b><p>HR superficial · rocío · persistencia · vapor</p></div><div class="tool-signal"><span>INTERACTIVO</span></div><strong>Diagnóstico avanzado</strong><span class="go">→</span></a>
+    <a href="ventilacion-humedad.html" class="tool-row"><span class="tool-symbol">ACH</span><div><b>Ventilación y humedad</b><p>Caudal · vapor · HR equilibrio · acciones prácticas</p></div><div class="tool-signal"><span>FÍSICO + ESTIMADO</span></div><strong>Control de humedad</strong><span class="go">→</span></a>
+   </div>
+ </section>
 
-<a href="simulador-solar.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>Solar 3D</a>
-</aside>
-<div class="catalog-content">
-<div class="category" id="humedad"><div class="category-head"><div><p class="kicker">Humedad y condensación</p><h2>Diagnóstico higrotérmico</h2></div><p>Desde mediciones simples hasta umbrales superficiales.</p></div><div class="cards-4">
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">°C</div></div><div class="tool-body"><h3>Punto de rocío con T° de muro</h3><p>Evalúa condensación usando temperatura superficial medida, HR y temperatura interior.</p><div class="tool-meta"><span class="tool-tag">Terreno</span></div><a class="btn btn-dark" href="calculadora-rocio.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">↗</div></div><div class="tool-body"><h3>Riesgo sin T° de muro</h3><p>Calcula temperaturas superficiales críticas y explora un simulador de superficie.</p><div class="tool-meta"><span class="tool-tag">Umbrales</span></div><a class="btn btn-dark" href="calculadora-sin-muro.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">◌</div></div><div class="tool-body"><h3>Riesgo de humedad superficial</h3><p>Estima HR superficial, punto de rocío e índice preventivo de humedad persistente.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="riesgo-moho.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">≈</div></div><div class="tool-body"><h3>Ventilación y humedad</h3><p>Balance de vapor: caudal, ACH, generación interior y HR de equilibrio.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="ventilacion-humedad.html">Abrir</a></div></article>
-</div></div>
-<div class="category" id="envolvente"><div class="category-head"><div><p class="kicker">Envolvente térmica</p><h2>Muros, U y pérdidas</h2></div><p>Construye soluciones y analiza dónde se pierde calor.</p></div><div class="cards-4">
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">▤</div></div><div class="tool-body"><h3>Simulador de muro + U</h3><p>Agrega capas, calcula R/U, temperatura superficial y compara aislación antes/después.</p><div class="tool-meta"><span class="tool-tag new">Muy interactiva</span></div><a class="btn btn-dark" href="simulador-muro.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">↓</div></div><div class="tool-body"><h3>Pérdidas térmicas</h3><p>Suma muros, techo, piso, ventanas y ventilación para obtener W y kWh.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="perdidas-termicas.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">✓</div></div><div class="tool-body"><h3>Comparador de U</h3><p>Compara la transmitancia calculada con un límite de proyecto ingresado por el usuario.</p><div class="tool-meta"><span class="tool-tag">Configurable</span></div><a class="btn btn-dark" href="comparador-u.html">Abrir</a></div></article>
-</div></div>
-<div class="category" id="confort"><div class="category-head"><div><p class="kicker">Confort y energía</p><h2>Uso de la vivienda</h2></div><p>Confort térmico y costo de calefacción.</p></div><div class="cards-4">
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">◎</div></div><div class="tool-body"><h3>Confort térmico PMV/PPD</h3><p>Simula sensación térmica con temperatura, radiación, HR, aire, actividad y vestimenta.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="confort-termico.html">Abrir</a></div></article>
-<article class="tool-card"><div class="tool-visual"><div class="tool-icon">$</div></div><div class="tool-body"><h3>Costo de calefacción</h3><p>Compara consumo y costo eléctrico según carga térmica, COP, horas y tarifa ingresada.</p><div class="tool-meta"><span class="tool-tag new">Nueva</span></div><a class="btn btn-dark" href="costo-calefaccion.html">Abrir</a></div></article>
-</div></div>
+ <section id="envolvente" class="tool-section">
+   <header><span class="section-code">U</span><div><p class="overline">ENVOLVENTE TÉRMICA</p><h2>Muros, transmitancia y pérdidas</h2></div><div class="section-viz wall-viz"><i></i><i></i><i></i><i></i><i></i></div></header>
+   <div class="tool-list">
+    <a href="simulador-muro.html" class="tool-row featured"><span class="tool-symbol">U</span><div><b>Simulador de muro + U</b><p>Capas · R · U · perfil térmico · zonas</p></div><div class="tool-signal"><span>CONSTRUCTOR</span></div><strong>Muro multicapa</strong><span class="go">→</span></a>
+    <a href="perdidas-termicas.html" class="tool-row featured"><span class="tool-symbol">Q̇</span><div><b>Pérdidas térmicas</b><p>Muros · techo · piso · ventanas · aire</p></div><div class="tool-signal"><span>NUEVO / AVANZADO</span></div><strong>Radiografía térmica</strong><span class="go">→</span></a>
+    <a href="comparador-u.html" class="tool-row"><span class="tool-symbol">ΔU</span><div><b>Comparador de U</b><p>Transmitancia calculada · límite de proyecto</p></div><div class="tool-signal"><span>COMPARACIÓN</span></div><strong>Cumplimiento objetivo</strong><span class="go">→</span></a>
+   </div>
+ </section>
 
-</div></div></section></main><footer class="wrap footer">HIDROLAB · Herramientas interactivas para viviendas saludables y eficientes</footer><script src="modern-ui.js"></script></body></html>
+ <section id="confort" class="tool-section">
+   <header><span class="section-code">PMV</span><div><p class="overline">CONFORT Y ENERGÍA</p><h2>Uso y respuesta de la vivienda</h2></div><div class="section-viz pmv-viz"><span>−3</span><i></i><b>0</b><i></i><span>+3</span></div></header>
+   <div class="tool-list">
+    <a href="confort-termico.html" class="tool-row"><span class="tool-symbol">PMV</span><div><b>Confort térmico PMV/PPD</b><p>T° · radiación · HR · aire · actividad · vestimenta</p></div><div class="tool-signal"><span>ISO / MODELO</span></div><strong>Sensación térmica</strong><span class="go">→</span></a>
+    <a href="costo-calefaccion.html" class="tool-row"><span class="tool-symbol">E</span><div><b>Costo de calefacción</b><p>Carga · COP · horas · tarifa · consumo</p></div><div class="tool-signal"><span>ESCENARIO</span></div><strong>Energía y costo</strong><span class="go">→</span></a>
+   </div>
+ </section>
+
+ <a class="solar-banner" href="simulador-solar.html"><div><span class="section-code">☀</span><p class="overline">WORKSPACE ESPECIALIZADO</p><h2>Solar Studio 3D</h2><p>Editor de planta, orientación, sombras, fachadas y análisis diario.</p></div><div class="solar-orbit"><i></i><b></b><span>N</span></div><strong>Abrir Studio ↗</strong></a>
+</main>
+<footer><span>HIDROLAB / TOOL LIBRARY</span><span>UI 2.0 DEMO</span></footer>
+</div>
+<div id="palette" class="palette hidden"><div class="palette-box"><div class="palette-search"><span>⌕</span><input id="paletteInput" placeholder="Buscar herramienta o problema…"><kbd>ESC</kbd></div><div id="paletteResults"></div><div class="palette-help">También entiende: “pierdo calor”, “tengo humedad”, “quiero ventilar”, “sol en fachada”</div></div></div>
+<script src="hidrolab-ui-demo.js"></script>
+</body></html>

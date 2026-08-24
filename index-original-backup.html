@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HIDROLAB · Ciencia de la vivienda</title>
+<meta name="description" content="Herramientas interactivas para humedad, condensación, envolvente térmica, confort, energía y análisis solar 3D.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="modern-ui.css">
+</head>
+<body class="home-v7">
+<header class="top">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
+    <nav class="navlinks">
+      <a class="active" href="index.html">Inicio</a>
+      <a href="calculadoras.html">Herramientas</a>
+      <a href="zona-interactiva.html">Zona interactiva</a>
+    </nav>
+  </div>
+  <div class="wrap hero-v7">
+    <div class="hero-copy">
+      <div class="eyebrow">Scientific housing toolkit · V7</div>
+      <h1>La vivienda convertida en <span class="accent">datos útiles.</span></h1>
+      <p>Analiza humedad, condensación, transmitancia térmica, pérdidas, ventilación, confort, energía y asoleamiento desde una suite técnica interactiva.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="calculadoras.html">Explorar herramientas</a>
+        <a class="btn btn-soft" href="simulador-solar.html">Abrir Solar Studio 3D</a>
+      </div>
+      <div class="hero-badges">
+        <span class="hero-badge">Cálculo en navegador</span>
+        <span class="hero-badge">Informes PDF</span>
+        <span class="hero-badge">Modo claro / oscuro</span>
+        <span class="hero-badge">Visualización interactiva</span>
+      </div>
+    </div>
+    <div class="solar-preview" aria-label="Vista previa interactiva del simulador solar">
+      <canvas id="home-solar-preview"></canvas>
+      <div class="preview-head">
+        <div class="preview-title"><b>Solar Studio 3D</b><span>Preview interactivo · arrastra para orbitar</span></div>
+        <span class="preview-live">LIVE</span>
+      </div>
+      <div class="preview-foot"><span>Trayectoria solar · fachadas · cubierta</span><span class="preview-orbit">◌ Orbit</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap main home-main">
+  <section class="section-v7">
+    <div class="section-v7-head">
+      <div><p class="kicker">Suite HIDROLAB</p><h2>Un panel técnico para cada problema</h2></div>
+      <p>Herramientas independientes, conectadas por una interfaz consistente y orientadas a lectura rápida de datos.</p>
+    </div>
+    <div class="bento">
+      <a class="bento-card solar" href="simulador-solar.html">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2M20 12h2M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg></div>
+        <h3>Simulador Solar 3D</h3>
+        <p>Modela una planta, calibra orientación, analiza horas de asoleamiento por fachada y cubierta y exporta un informe técnico.</p>
+        <div class="bento-meta"><span>Three.js</span><span>Fachadas F1…</span><span>Cubierta C1</span><span>PDF</span></div>
+        <div class="bento-big-number">SOLAR / 3D</div>
+        <div class="solar-mini-scene">
+          <svg viewBox="0 0 300 220" aria-hidden="true">
+            <path d="M42 160 146 115 250 155 145 203Z" fill="rgba(239,181,43,.10)" stroke="rgba(239,181,43,.40)"/>
+            <path d="M92 141 146 116 205 140 146 168Z" fill="rgba(255,235,180,.75)" stroke="rgba(239,181,43,.7)"/>
+            <path d="M92 141v42l54 25v-40z" fill="rgba(26,84,99,.88)" stroke="rgba(202,232,238,.45)"/>
+            <path d="M205 140v42l-59 26v-40z" fill="rgba(12,54,67,.90)" stroke="rgba(202,232,238,.4)"/>
+            <circle cx="238" cy="62" r="15" fill="rgba(239,181,43,.88)"/>
+            <path d="M224 74 190 105" stroke="rgba(239,181,43,.55)" stroke-dasharray="4 5"/>
+          </svg>
+        </div>
+      </a>
+      <a class="bento-card humidity" href="calculadoras.html#humedad">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.5-6-11.5Z"/><path d="M9.2 15.2a3 3 0 0 0 3 2.8"/></svg></div><h3>Humedad y condensación</h3>
+        <p>Punto de rocío, humedad superficial, moho y balance de vapor.</p>
+        <div class="bento-meta"><span>HR</span><span>T° superficial</span><span>Riesgo</span></div>
+      </a>
+      <a class="bento-card thermal" href="calculadoras.html#envolvente">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 10h18M3 15h18M8 5v5M16 10v5M8 15v4"/></svg></div><h3>Envolvente térmica</h3>
+        <p>Muros multicapa, U, R, pérdidas, puentes térmicos y simulación de mejoras.</p>
+        <div class="bento-meta"><span>W/m²K</span><span>Capas</span><span>Aislación</span></div>
+      </a>
+      <a class="bento-card comfort" href="confort-termico.html">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.5c2 1.8 5 1.8 7 0"/></svg></div><h3>Confort</h3>
+        <p>PMV/PPD y variables que influyen en la sensación térmica interior.</p>
+      </a>
+      <a class="bento-card ventilation" href="ventilacion-humedad.html">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg></div><h3>Ventilación</h3>
+        <p>Caudal, ACH, generación de vapor y humedad de equilibrio.</p>
+      </a>
+      <a class="bento-card interactive" href="zona-interactiva.html">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 8 6 4-6 4z"/></svg></div><h3>Zona interactiva</h3>
+        <p>Contenido audiovisual de HIDROLAB para complementar la interpretación de los resultados técnicos.</p>
+        <div class="bento-meta"><span>Videos</span><span>Explicaciones</span><span>HIDROLAB</span></div>
+      </a>
+      <a class="bento-card architecture" href="calculadoras.html">
+        <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><h3>Arquitectura modular</h3>
+        <p>Cada herramienta funciona como módulo independiente y puede evolucionar sin rehacer la plataforma.</p>
+      </a>
+    </div>
+  </section>
+</main>
+<footer class="wrap footer">HIDROLAB · Ciencia de la humedad para construir mejor</footer>
+<script src="modern-ui.js"></script>
+</body>
+</html>
