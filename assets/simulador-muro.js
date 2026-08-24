@@ -13,7 +13,21 @@ const materialLibrary={
   "EPS":{lambda:.038,source:"Orientativo HIDROLAB · usar λ declarada según densidad/producto",class:"estimate"},
   "XPS":{lambda:.032,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
   "Poliuretano":{lambda:.025,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
-  "Fibra de madera":{lambda:.045,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"}
+  "Fibra de madera":{lambda:.045,source:"Orientativo HIDROLAB · usar λ declarada del producto",class:"estimate"},
+  "Volcanboard Base 4 mm":{lambda:.23,thickness:4,source:"Volcán · Volcanboard Base 4 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Cielo 5 mm":{lambda:.23,thickness:5,source:"Volcán · Volcanboard Cielo 5 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Tabique 6 mm":{lambda:.23,thickness:6,source:"Volcán · Volcanboard Tabique 6 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Cerámica/Enchapes 6 mm":{lambda:.23,thickness:6,source:"Volcán · Volcanboard Cerámica y Enchapes 6 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Estructural 8 mm":{lambda:.23,thickness:8,source:"Volcán · Volcanboard Estructural 8 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Fachada 10 mm":{lambda:.23,thickness:10,source:"Volcán · Volcanboard Fachada 10 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Alto Impacto 12 mm":{lambda:.23,thickness:12,source:"Volcán · Volcanboard Alto Impacto 12 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Volcanboard Alto Impacto XR 15 mm":{lambda:.23,thickness:15,source:"Volcán · Volcanboard Alto Impacto XR 15 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
+  "Poligyp Regular 20 mm (Yeso 10 + EPS 10)":{lambda:.0833,thickness:20,declaredR:.24,source:"Poligyp · panel compuesto · R declarado 0,24 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Regular 30 mm (Yeso 10 + EPS 20)":{lambda:.0625,thickness:30,declaredR:.48,source:"Poligyp · panel compuesto · R declarado 0,48 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Regular 40 mm (Yeso 10 + EPS 30)":{lambda:.0548,thickness:40,declaredR:.73,source:"Poligyp · panel compuesto · R declarado 0,73 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 20 mm (Yeso 10 + EPS 10)":{lambda:.0690,thickness:20,declaredR:.29,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,29 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 30 mm (Yeso 10 + EPS 20)":{lambda:.0508,thickness:30,declaredR:.59,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,59 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 40 mm (Yeso 10 + EPS 30)":{lambda:.0455,thickness:40,declaredR:.88,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,88 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"}
 };
 const materials=Object.fromEntries(Object.entries(materialLibrary).map(([k,v])=>[k,v.lambda]));
 let layers=[
@@ -28,7 +42,7 @@ function dewPoint(T,RH){const g=Math.log(clamp(RH,1,100)/100)+(A*T)/(B+T);return
 function surfaceRH(Tair,RHair,Tsurface){const pv=(clamp(RHair,1,100)/100)*satPressure(Tair);return 100*pv/satPressure(Tsurface)}
 function effectiveLayerR(layer,index){return (layer.e/1000)/Math.max(.001,layer.l)}
 function calcPath(replaceIndex=null,replaceLambda=null,extraR=0){
- const rs=layers.map((x,i)=>(x.e/1000)/Math.max(.001,(i===replaceIndex&&replaceLambda?replaceLambda:x.l)));
+ const rs=layers.map((x,i)=>x.declaredR&&!(i===replaceIndex&&replaceLambda)?x.declaredR:(x.e/1000)/Math.max(.001,(i===replaceIndex&&replaceLambda?replaceLambda:x.l)));
  const Rt=RSE+RSI+rs.reduce((a,b)=>a+b,0)+extraR;return {Rt,U:1/Rt,layerR:rs}
 }
 function calc(extraR=0){
@@ -38,7 +52,7 @@ function calc(extraR=0){
 }
 function materialOptions(selected){return Object.keys(materials).map(m=>`<option ${m===selected?'selected':''}>${m}</option>`).join('')+`<option ${selected==='Personalizado'?'selected':''}>Personalizado</option>`}
 function renderRows(){normalizeLayerSources();const tb=$('layers');tb.innerHTML='';layers.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><select class="mat" data-i="${i}">${materialOptions(x.m)}</select></td><td><input class="thick" data-i="${i}" type="number" min="1" step="1" value="${x.e}"></td><td><input class="lambda" data-i="${i}" type="number" min="0.001" step="0.001" value="${x.l}"></td><td class="rval">${fmt(effectiveLayerR(x,i),3)}</td><td><span class="material-source ${x.sourceClass||'estimate'}">${x.source||'Valor personalizado por usuario'}</span></td><td><div class="row-actions"><button class="up" data-i="${i}" title="Subir">↑</button><button class="down" data-i="${i}" title="Bajar">↓</button><button class="del" data-i="${i}" title="Eliminar">×</button></div></td>`;tb.appendChild(tr)});bindRows()}
-function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value]){layers[i].l=materials[el.value];layers[i].source=materialLibrary[el.value]?.source||'Biblioteca HIDROLAB';layers[i].sourceClass=materialLibrary[el.value]?.class||'estimate'}renderRows();renderFrameLayerOptions();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].m='Personalizado';layers[+el.dataset.i].source='Valor personalizado por usuario';layers[+el.dataset.i].sourceClass='custom';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
+function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value]){const meta=materialLibrary[el.value]||{};layers[i].l=materials[el.value];if(meta.thickness)layers[i].e=meta.thickness;layers[i].declaredR=meta.declaredR||null;layers[i].source=meta.source||'Biblioteca HIDROLAB';layers[i].sourceClass=meta.class||'estimate'}renderRows();renderFrameLayerOptions();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);layers[+el.dataset.i].declaredR=null;render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].declaredR=null;layers[+el.dataset.i].m='Personalizado';layers[+el.dataset.i].source='Valor personalizado por usuario';layers[+el.dataset.i].sourceClass='custom';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
 
 function normalizeLayerSources(){
   layers.forEach(l=>{
@@ -294,7 +308,7 @@ window.HIDROLAB_WALL_REPORT=()=>{
   const insE=+$('insThickness').value||0,insL=+$('insulation').value||.038,n=calc(insE>0?(insE/1000)/insL:0);
   return{
     method:wallMethod,Ti:c.Ti,Te:c.Te,RH,area:c.area,Rt:c.Rt,U:c.U,Tsi:c.Tsi,q:c.q,loss:c.loss,dew,margin:c.Tsi-dew,
-    rsi:RSI,rse:RSE,layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],source:l.source||'',sourceClass:l.sourceClass||''})),
+    rsi:RSI,rse:RSE,profileSvg:$('profile')?.outerHTML||'',layers:layers.map((l,i)=>({order:i+1,name:l.m,thickness:l.e,lambda:l.l,R:c.layerR[i],declaredR:l.declaredR||null,source:l.source||'',sourceClass:l.sourceClass||''})),
     frame:wallMethod==='frame'?{layer:+$('frameLayer').value+1,studFraction:+$('studFraction').value,studLambda:+$('studLambda').value}:null,
     improvement:{material:$('insulation').options[$('insulation').selectedIndex]?.textContent||'',thickness:insE,U:n.U,Rt:n.Rt,Tsi:n.Tsi,loss:n.loss},
     normative:{enabled:!!$('normEnabled')?.checked,zone,region:$('thermalRegion')?.value||'',commune:$('thermalCommune')?.selectedOptions?.[0]?.textContent||'',condition:$('thermalCondition')?.selectedOptions?.[0]?.textContent||'',limitU:lim.u,limitRt:lim.rt,pass:zone?c.U<=lim.u||c.Rt>=lim.rt:false}
