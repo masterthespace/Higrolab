@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HIDROLAB · BETA 1</title>
 <link rel="stylesheet" href="hidrolab-ui-demo.css">
+<style id="beta1-light-lock">#themeBtn,.theme-toggle,[data-theme-toggle]{display:none!important}</style>
 </head>
 <body>
 <div class="demo-app">
@@ -28,45 +29,13 @@
    </div>
  </div>
 
- <div class="product-preview" aria-label="Vista previa de HIDROLAB">
-  <div class="preview-top">
-    <div><span class="status-dot"></span><b>SOLAR / ENVOLVENTE</b></div>
-    <span>Preview BETA 1</span>
+ <div class="solar-preview beta-solar-preview" aria-label="Vista previa interactiva del simulador solar">
+  <canvas id="home-solar-preview"></canvas>
+  <div class="preview-head">
+    <div class="preview-title"><b>Solar Studio 3D</b><span>Preview interactivo · arrastra para orbitar</span></div>
+    <span class="preview-live">BETA 1</span>
   </div>
-
-  <div class="house-preview-stage">
-    <div class="orientation-chip"><b>N</b><span>↑</span></div>
-    <div class="sun-preview"><i></i><span>14:35</span></div>
-
-    <div class="house3d-wrap" id="house3dWrap">
-      <div class="house3d" id="house3d">
-        <div class="h-base"></div>
-        <div class="h-wall h-front">
-          <div class="h-window w1"></div><div class="h-window w2"></div><div class="h-door"></div>
-        </div>
-        <div class="h-wall h-side"><div class="h-window side-window"></div></div>
-        <div class="h-roof roof-a"></div>
-        <div class="h-roof roof-b"></div>
-        <div class="h-shadow"></div>
-      </div>
-    </div>
-
-    <div class="preview-readout">
-      <div><small>FACHADA ACTIVA</small><strong>Norte</strong></div>
-      <div><small>ASOLEAMIENTO</small><strong>4 h 32 min</strong></div>
-      <div><small>AZIMUT</small><strong>358°</strong></div>
-    </div>
-  </div>
-
-  <div class="preview-controls">
-    <label><span>Hora solar</span><input id="previewHour" type="range" min="7" max="19" step=".25" value="14.5"></label>
-    <button id="previewPause" type="button">Pausar giro</button>
-  </div>
-
-  <div class="preview-bottom">
-    <span><i class="violet-dot"></i> Modelo 3D ilustrativo</span>
-    <span>Arrastra la hora · la casa gira lentamente</span>
-  </div>
+  <div class="preview-foot"><span>Trayectoria solar · fachadas · cubierta</span><span class="preview-orbit">◌ Orbit</span></div>
 </div>
 </section>
 
@@ -92,6 +61,7 @@
 <div id="palette" class="palette hidden" role="dialog" aria-modal="true" aria-label="Buscar herramientas">
  <div class="palette-box"><div class="palette-search"><span>⌕</span><input id="paletteInput" placeholder="Buscar herramienta o problema…"><kbd>ESC</kbd></div><div id="paletteResults"></div><div class="palette-help">Prueba: “condensación”, “pierdo calor”, “ventilar”, “confort”, “sol”</div></div>
 </div>
+<script src="modern-ui.js"></script>
 <script src="hidrolab-ui-demo.js"></script>
 <div class="hl-legal-footer">
   <div>© 2026 HIDROLAB · Derechos reservados a Gonzalo Campos V.</div>

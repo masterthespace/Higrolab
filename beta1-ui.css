@@ -64,3 +64,19 @@ a{color:inherit}
 .hl-legal-footer a{color:#69c6d6;text-decoration:none}
 .hl-legal-footer a:hover{text-decoration:underline}
 @media(max-width:560px){.hl-legal-footer{font-size:13px;padding-bottom:24px}}
+
+:root{--beta-bg:#eef3f4;--beta-panel:#f8fafb;--beta-panel2:#fff;--beta-line:#d6e0e3;--beta-line2:#c3d0d4;--beta-text:#17282f;--beta-muted:#61757d;--beta-accent:#187f94;--beta-good:#2f8a59;--beta-warn:#a87518;--beta-bad:#b94b45}
+html,body{background:#eef3f4!important;color:#17282f!important}
+body{background-image:linear-gradient(rgba(24,127,148,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(24,127,148,.018) 1px,transparent 1px)!important;background-size:32px 32px!important}
+.top,.topbar,.app-header,header.top,header{background:#f8fafb!important;color:#17282f!important;border-color:#d5dfe2!important}
+.card,.panel,.interactive-panel,.compare-card,.opening-card,.wall-method-card,.air-to-wall-card,.thermal-wall-scene,.air-water-panel,.norm-result,.zone-map-card,.zone-selector-card,.result-card,.control-card,.source-card,.metric-card,.wall-card,.module-card{background:#fff!important;border-color:#d4dfe2!important;color:#17282f!important;box-shadow:0 7px 22px rgba(34,65,76,.055)!important}
+input,select,textarea{background:#fff!important;color:#17282f!important;border-color:#bccbd0!important;box-shadow:none!important}
+input:focus,select:focus,textarea:focus{border-color:#187f94!important;outline:2px solid rgba(24,127,148,.12)!important}
+label,.field label{color:#344b54!important}
+small,.note,.method-note,.section-note,.field small,.help,.hint,.kicker,.calc-origin,.tool-tag,.trace-pill,.material-source,.legend-row,.split-labels,.thermal-wall-footer{color:#647980!important}
+h1,h2,h3,h4,strong,b{color:#17282f}table{background:#fff!important;color:#17282f!important}
+th{background:#eef4f5!important;color:#314850!important}td,th{border-color:#d5dfe2!important}
+.callout,.method-warning,.air-water-message,.air-to-wall-message,.dominant-advice{background:#f5f8f9!important;color:#40575f!important;border-color:#d1dde0!important}
+.navlinks a,.nav a{color:#3d555e!important}.brand{color:#17282f!important}.brand:after{color:#187f94!important;border-color:#c4d1d5!important}
+.footer,footer{color:#61757d!important;border-color:#cbd7da!important}
+.hl-legal-footer{border-color:#c8d4d8!important;color:#60747c!important}.hl-legal-footer div:first-child{color:#17282f!important}.hl-legal-footer a{color:#187f94!important}
