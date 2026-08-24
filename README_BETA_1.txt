@@ -1,26 +1,25 @@
-HIDROLAB — BETA 1
+HIDROLAB — BETA 1 CORREGIDA
 
-ALCANCE DE ESTA ENTREGA
-- Home nueva.
-- Catálogo nuevo.
-- Punto de rocío con temperatura superficial.
-- Riesgo sin temperatura superficial.
-- Riesgo de humedad superficial.
-- Ventilación y humedad.
-- Simulador de muro + U.
-- Solar Studio 3D se mantiene accesible como workspace especializado.
+IMPORTANTE
+La Beta 1 anterior tenía un error de empaquetado: una sustitución de texto cambió
+accidentalmente referencias técnicas como:
+- hidrolab-ui-demo.css -> hidrolab-ui-BETA 1.css
+- demo-app -> BETA 1-app
 
-Los módulos posteriores de la suite no se presentan en el catálogo Beta 1 y continuarán en versiones futuras.
+Eso hacía que el frontend perdiera su hoja de estilos y fallara visualmente.
 
-CAMBIOS VISUALES
-- Solo tema oscuro.
-- Oscuro técnico más suave, menos negro.
-- Tipografía pequeña aumentada en frontend y módulos.
-- Misma identidad de paneles, bordes, inputs y resultados en módulos públicos.
-- Home con casa 3D rotatoria claramente identificable.
-- Preview no entrega un cálculo técnico redundante: muestra capacidades de modelado/solar.
-- Command Palette Ctrl+K / Cmd+K.
-- Todas las referencias “Demo” fueron reemplazadas por BETA 1.
+ESTA VERSIÓN CORRIGE
+- index.html enlaza correctamente hidrolab-ui-demo.css.
+- calculadoras.html enlaza correctamente hidrolab-ui-demo.css.
+- se restaura la clase interna demo-app (es solo un nombre técnico CSS, no se muestra al usuario).
+- se eliminan archivos de entrada duplicados/backups que podían confundir el despliegue.
+- se mantiene visible BETA 1 en la interfaz.
+- se añade pie legal solicitado en las páginas.
 
-ABRIR
-- index.html
+PIE
+© 2026 HIDROLAB · Derechos reservados a Gonzalo Campos V.
+Constructor Civil · Evaluador CEV
+gonzaloacv@gmail.com
+
+PUNTO DE ENTRADA
+index.html

@@ -111,3 +111,21 @@ body{font-size:17px}
 }
 
 #themeBtn{display:none!important}
+
+
+/* HIDROLAB BETA 1 · pie legal */
+.hl-legal-footer{
+  width:min(1280px,calc(100% - 32px));
+  margin:18px auto 0;
+  padding:24px 16px 32px;
+  border-top:1px solid #445a64;
+  color:#b7c6cb;
+  text-align:center;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:13px;
+  line-height:1.65;
+}
+.hl-legal-footer div:first-child{color:#edf4f5;font-weight:650}
+.hl-legal-footer a{color:#69c6d6;text-decoration:none}
+.hl-legal-footer a:hover{text-decoration:underline}
+@media(max-width:560px){.hl-legal-footer{font-size:13px;padding-bottom:24px}}
