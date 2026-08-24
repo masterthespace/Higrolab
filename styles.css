@@ -451,3 +451,22 @@ html[data-theme=dark] .air-water-track:before{background:var(--ui-panel-solid)}
 .air-to-wall-message.bad{background:#fde9e7;border-left:4px solid #d45151}
 html[data-theme=dark] .air-to-wall-card,html[data-theme=dark] .air-state-box,html[data-theme=dark] .air-to-wall-metrics>div{background:var(--ui-panel-soft);border-color:var(--ui-border)}
 @media(max-width:800px){.air-to-wall-flow{grid-template-columns:1fr}.air-flow-arrow b{transform:rotate(90deg)}.air-to-wall-metrics{grid-template-columns:1fr}}
+
+/* V8.2.9 · volumen flexible + balde de agua */
+.volume-mode-box{margin:9px 0 12px;padding:10px;border:1px solid #dbe7e9;border-radius:11px;background:#f9fbfc}
+.volume-mode-head{display:flex;justify-content:space-between;gap:8px;align-items:end}.volume-mode-head b{font-size:.68rem;color:#244a56}.volume-mode-head span{font-size:.52rem;color:#6c8087}
+.volume-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.volume-mode-tabs button{border:1px solid #c9dce1;border-radius:8px;background:white;padding:7px;font-size:.56rem;font-weight:850;color:#567079;cursor:pointer}.volume-mode-tabs button.active{background:#e8f6f9;border-color:#6fb8ca;color:#0c6a84}
+.volume-dims-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.volume-dims-grid label span,.volume-manual-label span{display:block;font-size:.51rem;font-weight:800;color:#5b737b;margin-bottom:3px}.volume-dims-grid input,.volume-manual-label input{width:100%}
+.volume-result-live{display:flex;justify-content:space-between;align-items:center;margin-top:7px;padding:7px 9px;border-radius:8px;background:#edf6f7}.volume-result-live span{font-size:.54rem;color:#5d747c}.volume-result-live strong{font-size:.75rem;color:#125268}
+.volume-mode-box>small{display:block;font-size:.49rem;color:#708289;line-height:1.4;margin-top:6px}
+.air-water-visual{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;margin:8px 0 12px}
+.water-bucket{position:relative;min-height:175px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.bucket-handle{position:absolute;top:5px;width:92px;height:56px;border:6px solid #80959d;border-bottom:0;border-radius:55px 55px 0 0;opacity:.65}
+.bucket-shell{position:relative;width:105px;height:118px;border:4px solid #5c747d;border-top-width:3px;border-radius:8px 8px 24px 24px;overflow:hidden;background:linear-gradient(90deg,#f8fbfc,#e8f0f2 50%,#f8fbfc);box-shadow:inset 0 0 18px rgba(28,77,91,.08),0 8px 18px rgba(24,65,77,.08)}
+.bucket-shell:before{content:"";position:absolute;left:-5px;right:-5px;top:-4px;height:12px;border:4px solid #5c747d;border-radius:50%;background:#f7fafb;z-index:3}
+.bucket-water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,#5fc0dc,#1987aa);transition:height .35s ease;opacity:.88}
+.bucket-water:before{content:"";position:absolute;left:-5%;top:-5px;width:110%;height:12px;background:#70cae1;border-radius:50%}
+.bucket-lines{position:absolute;inset:18px 12px 12px;z-index:2;display:flex;flex-direction:column;justify-content:space-around}.bucket-lines i{display:block;border-top:1px solid rgba(40,75,84,.22)}
+.bucket-readout{text-align:center;margin-top:7px}.bucket-readout strong{display:block;font-size:1.05rem;color:#0d6782}.bucket-readout span{display:block;font-size:.49rem;color:#667c84}
+html[data-theme=dark] .volume-mode-box,html[data-theme=dark] .volume-mode-tabs button,html[data-theme=dark] .bucket-shell{background:var(--ui-panel-soft);border-color:var(--ui-border)}
+@media(max-width:600px){.volume-dims-grid{grid-template-columns:1fr}.air-water-visual{grid-template-columns:1fr}.water-bucket{min-height:165px}}

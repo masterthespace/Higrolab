@@ -166,21 +166,46 @@
         <span>Calculado con Ti + HR ingresadas</span>
       </div>
 
-      <div class="field compact-volume">
-        <label>Volumen del recinto [m³]</label>
-        <input id="vaporRoomVolume" type="number" min="5" max="1000" step="1" value="40">
-        <small>Solo se utiliza para expresar en litros equivalentes la cantidad de vapor contenida en el aire.</small>
+      <div class="volume-mode-box">
+        <div class="volume-mode-head">
+          <b>Volumen del recinto</b>
+          <span>Elige cómo quieres ingresarlo</span>
+        </div>
+        <div class="volume-mode-tabs">
+          <button id="volumeModeDims" type="button" class="active">Largo × ancho × alto</button>
+          <button id="volumeModeManual" type="button">Conozco el volumen</button>
+        </div>
+        <div id="volumeDimsPanel" class="volume-dims-grid">
+          <label><span>Largo [m]</span><input id="roomLength" type="number" min="1" max="100" step=".1" value="4"></label>
+          <label><span>Ancho [m]</span><input id="roomWidth" type="number" min="1" max="100" step=".1" value="4"></label>
+          <label><span>Alto [m]</span><input id="roomHeight" type="number" min="1.8" max="10" step=".1" value="2.5"></label>
+        </div>
+        <div id="volumeManualPanel" class="hidden">
+          <label class="volume-manual-label"><span>Volumen conocido [m³]</span><input id="vaporRoomVolume" type="number" min="5" max="1000" step="1" value="40"></label>
+        </div>
+        <div class="volume-result-live"><span>Volumen usado</span><strong id="roomVolumeOut">40,0 m³</strong></div>
+        <small>El volumen solo se usa para convertir la concentración de vapor del aire (g/m³) a una cantidad equivalente total en litros.</small>
       </div>
 
-      <div class="air-water-gauge">
-        <div class="air-water-track">
-          <div id="airWaterFill" class="air-water-fill"></div>
-          <span id="airWaterPercent">—%</span>
+      <div class="air-water-visual">
+        <div class="water-bucket" aria-label="Representación de agua equivalente contenida en el aire">
+          <div class="bucket-handle"></div>
+          <div class="bucket-shell">
+            <div id="bucketWater" class="bucket-water"></div>
+            <div class="bucket-lines"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="bucket-readout"><strong id="bucketLiters">— L</strong><span>agua equivalente en el aire</span></div>
         </div>
-        <div>
-          <small>Humedad absoluta interior</small>
-          <strong id="airWaterAh">— g/m³</strong>
-          <em id="airWaterState">—</em>
+        <div class="air-water-gauge">
+          <div class="air-water-track">
+            <div id="airWaterFill" class="air-water-fill"></div>
+            <span id="airWaterPercent">—%</span>
+          </div>
+          <div>
+            <small>Humedad absoluta interior</small>
+            <strong id="airWaterAh">— g/m³</strong>
+            <em id="airWaterState">—</em>
+          </div>
         </div>
       </div>
 

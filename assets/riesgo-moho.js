@@ -247,8 +247,23 @@ function renderMoistureWall(d,v){
   svg.innerHTML=s;
 }
 
+
+let roomVolumeMode='dims';
+function currentRoomVolume(){
+  if(roomVolumeMode==='manual')return clamp(+$('vaporRoomVolume')?.value||40,5,1000);
+  const L=clamp(+$('roomLength')?.value||4,1,100),W=clamp(+$('roomWidth')?.value||4,1,100),H=clamp(+$('roomHeight')?.value||2.5,1.8,10);
+  return L*W*H;
+}
+function setRoomVolumeMode(mode){
+  roomVolumeMode=mode==='manual'?'manual':'dims';
+  $('volumeModeDims')?.classList.toggle('active',roomVolumeMode==='dims');
+  $('volumeModeManual')?.classList.toggle('active',roomVolumeMode==='manual');
+  $('volumeDimsPanel')?.classList.toggle('hidden',roomVolumeMode!=='dims');
+  $('volumeManualPanel')?.classList.toggle('hidden',roomVolumeMode!=='manual');
+  render();
+}
 function renderCurrentMoistureState(d){
-  const V=clamp(+$('vaporRoomVolume')?.value||40,5,1000);
+  const V=currentRoomVolume();
   const ah=absHumidity(d.ta,d.rh);
   const sat=absHumidity(d.ta,100);
   const currentG=ah*V;
@@ -256,6 +271,7 @@ function renderCurrentMoistureState(d){
   const reserveG=Math.max(0,capacityG-currentG);
   const pct=clamp(ah/sat*100,0,100);
 
+  if($('roomVolumeOut'))$('roomVolumeOut').textContent=fmt(V,1)+' m³';
   if($('airWaterAh'))$('airWaterAh').textContent=fmt(ah,1)+' g/m³';
   if($('airWaterCurrent'))$('airWaterCurrent').textContent=fmt(currentG/1000,2);
   if($('airWaterCapacity'))$('airWaterCapacity').textContent=fmt(capacityG/1000,2);
@@ -263,6 +279,8 @@ function renderCurrentMoistureState(d){
   if($('airWaterDew'))$('airWaterDew').textContent=fmt(d.d,1);
   if($('airWaterPercent'))$('airWaterPercent').textContent=fmt(pct,0)+'%';
   if($('airWaterPercent')?.parentElement)$('airWaterPercent').parentElement.style.setProperty('--p',pct+'%');
+  if($('bucketLiters'))$('bucketLiters').textContent=fmt(currentG/1000,2)+' L';
+  if($('bucketWater'))$('bucketWater').style.height=clamp(pct,4,100)+'%';
 
   let state='Margen amplio',cls='good';
   if(d.rh>=80){state='Carga de humedad alta';cls='warn'}
@@ -610,7 +628,12 @@ window.HIDROLAB_RISK_REPORT=()=>{
     thermal:{rsi:R_SI,rse:R_SE,rLayers:d.rLayers,rTotal:d.rTotal,U:d.U},
     layers:layers.map((l,i)=>({order:i+1,position:i===0?'Exterior':i===layers.length-1?'Interior':'Intermedia',
       name:l.product||l.name,thickness:l.thickness,lambda:l.lambda,Rdeclared:l.R,Rlayer:layerR(l),kind:l.kind,source:l.source||'Preset HIDROLAB'})),
-    airState:{volume:clamp(+$('vaporRoomVolume').value||40,5,1000),absoluteHumidity:absHumidity(d.ta,d.rh),saturationHumidity:absHumidity(d.ta,100),surfaceRH:d.rhs,dew:d.d}
+    airState:{volume:currentRoomVolume(),volumeMode:roomVolumeMode,
+      length:+$('roomLength')?.value||null,width:+$('roomWidth')?.value||null,height:+$('roomHeight')?.value||null,
+      absoluteHumidity:absHumidity(d.ta,d.rh),saturationHumidity:absHumidity(d.ta,100),surfaceRH:d.rhs,dew:d.d,
+      currentLiters:absHumidity(d.ta,d.rh)*currentRoomVolume()/1000,
+      saturationLiters:absHumidity(d.ta,100)*currentRoomVolume()/1000,
+      reserveLiters:Math.max(0,(absHumidity(d.ta,100)-absHumidity(d.ta,d.rh))*currentRoomVolume()/1000)}
   }
 };
 
@@ -642,6 +665,9 @@ $('addLayer').onclick=()=>{layers.push(makeLayer('custom',20));$('wallTemplate')
 $('tsSlider').oninput=()=>{$('ts').value=$('tsSlider').value;render()};
 ['ta','rh','ts','te'].forEach(id=>$(id).addEventListener('input',render));
 $('vaporRoomVolume')?.addEventListener('input',render);
+['roomLength','roomWidth','roomHeight'].forEach(id=>$(id)?.addEventListener('input',render));
+$('volumeModeDims')?.addEventListener('click',()=>setRoomVolumeMode('dims'));
+$('volumeModeManual')?.addEventListener('click',()=>setRoomVolumeMode('manual'));
 $('duration').addEventListener('change',()=>{syncPersistenceUI();render()});
 $('durationHours').addEventListener('input',()=>{const h=clamp(+$('durationHours').value||0,0,24);$('durationHoursSlider').value=h;syncPersistenceUI();render()});
 $('durationHoursSlider').addEventListener('input',()=>{$('durationHours').value=$('durationHoursSlider').value;syncPersistenceUI();render()});
