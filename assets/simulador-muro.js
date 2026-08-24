@@ -83,7 +83,29 @@ function renderFrameDiagram(c){
 
 const ZONE_COLORS={A:'#e6c84d',B:'#e5a24a',C:'#d67b49',D:'#7bbd6d',E:'#54a88a',F:'#4d9fc0',G:'#557fc0',H:'#7465b3',I:'#87568f'};
 function selectThermalZone(z){if(!WALL_LIMITS_RESIDENTIAL[z])return;$('thermalZone').value=z;document.querySelectorAll('[data-zone]').forEach(e=>e.classList.toggle('selected',e.dataset.zone===z));render()}
-function renderChileThermalMap(){const svg=$('chileThermalMap');if(!svg)return;const zs='ABCDEFGHI'.split(''),names=['Arica/Iquique','Atacama','Coquimbo/costa','Valle central','Costa centro-sur','Chillán/Temuco','Valdivia/Pto. Montt','Cordillera','Aysén/Magallanes'];svg.innerHTML=zs.map((z,i)=>{const y=30+i*78,x=120+Math.sin(i)*18;return `<g data-zone="${z}" class="zone-map-shape"><path d="M${x} ${y} C${x-18} ${y+22},${x-17} ${y+52},${x-5} ${y+68} L${x+9} ${y+68} C${x+20} ${y+48},${x+16} ${y+20},${x+7} ${y} Z" fill="${ZONE_COLORS[z]}"/><circle cx="${x+48}" cy="${y+34}" r="13" fill="${ZONE_COLORS[z]}"/><text x="${x+48}" y="${y+38}" text-anchor="middle">${z}</text><text class="zone-place" x="${x+68}" y="${y+38}">${names[i]}</text></g>`}).join('');svg.querySelectorAll('[data-zone]').forEach(g=>g.onclick=()=>selectThermalZone(g.dataset.zone));const l=$('zoneMapLegend');l.innerHTML=zs.map(z=>`<button type="button" data-zone="${z}" style="--zc:${ZONE_COLORS[z]}">${z}</button>`).join('');l.querySelectorAll('button').forEach(b=>b.onclick=()=>selectThermalZone(b.dataset.zone))}
+function renderChileThermalMap(){
+  const svg=$('chileThermalMap');if(!svg)return;
+  const zs='ABCDEFGHI'.split('');
+  const names=['Norte costero','Norte interior','Norte chico / costa central','Valle central','Centro-sur costero','Centro-sur interior','Sur lluvioso','Cordillera / gran altura','Austral'];
+  const subtitles=['Arica · Iquique','Atacama interior','Coquimbo · Valparaíso','Santiago · Rancagua · Talca','Concepción y costa sur','Chillán · Temuco','Valdivia · Osorno · Puerto Montt','Sectores cordilleranos','Aysén · Magallanes'];
+  const y0=24,h=72,gap=7;
+  svg.setAttribute('viewBox','0 0 520 740');
+  svg.innerHTML=`<defs><filter id="zoneShadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".12"/></filter></defs>`+
+  zs.map((z,i)=>{
+    const y=y0+i*(h+gap),x=50+(i%2?18:0),w=390;
+    return `<g data-zone="${z}" class="zone-map-shape zone-ribbon" tabindex="0">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="${ZONE_COLORS[z]}" opacity=".14"/>
+      <rect x="${x}" y="${y}" width="62" height="${h}" rx="18" fill="${ZONE_COLORS[z]}" filter="url(#zoneShadow)"/>
+      <text class="zone-letter-big" x="${x+31}" y="${y+46}" text-anchor="middle">${z}</text>
+      <text class="zone-title-big" x="${x+82}" y="${y+28}">${names[i]}</text>
+      <text class="zone-subtitle-big" x="${x+82}" y="${y+51}">${subtitles[i]}</text>
+      <text class="zone-click-hint" x="${x+w-14}" y="${y+43}" text-anchor="end">seleccionar ›</text>
+    </g>`
+  }).join('');
+  svg.querySelectorAll('[data-zone]').forEach(g=>{g.onclick=()=>selectThermalZone(g.dataset.zone);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')selectThermalZone(g.dataset.zone)}});
+  const l=$('zoneMapLegend');l.innerHTML=zs.map(z=>`<button type="button" data-zone="${z}" style="--zc:${ZONE_COLORS[z]}"><b>${z}</b><span>Zona ${z}</span></button>`).join('');
+  l.querySelectorAll('button').forEach(btn=>btn.onclick=()=>selectThermalZone(btn.dataset.zone));
+}
 function initThermalLocationSelectors(){
   const data=window.HIDROLAB_THERMAL_ZONES||[];
   const reg=$('thermalRegion'),com=$('thermalCommune');
@@ -124,7 +146,7 @@ function renderResistanceContribution(c){
     return `<div class="r-contrib-row"><div><b>${l.m}</b><span>${fmt(r,3)} m²K/W${note}</span></div><div class="r-contrib-bar"><i style="width:${Math.max(2,pct)}%"></i></div><strong>${fmt(pct,0)}%</strong></div>`
   }).join('')+`<div class="r-contrib-note">Porcentaje calculado sobre la suma de resistencias de las capas, sin incluir Rsi/Rse.</div>`;
 }
-function stackHtml(addInsulation=false){const insE=addInsulation?+$('insThickness').value:0;const insName=$('insulation').options[$('insulation').selectedIndex]?.textContent.split('·')[0].trim()||'Aislación';const all=addInsulation&&insE>0?[{m:insName,e:insE,l:+$('insulation').value,ins:true},...layers]:layers.map(x=>({...x}));const total=Math.max(1,all.reduce((a,x)=>a+x.e,0));return all.map((x,i)=>{const hue=[195,35,25,210,45,100,65,160][i%8];const w=Math.max(7,x.e/total*100);return `<div class="layer-block${x.ins?' insulation-highlight':''}" title="${x.m} · ${x.e} mm" style="width:${w}%;background:hsl(${hue} 38% 78%)"><span>${x.m} · ${x.e}mm</span></div>`}).join('')}
+function stackHtml(addInsulation=false){const insE=addInsulation&&improvementMode==='insulate'?+$('insThickness').value:0;const insName=$('insulation').options[$('insulation').selectedIndex]?.textContent.split('·')[0].trim()||'Aislación';const all=addInsulation&&insE>0?[{m:insName,e:insE,l:+$('insulation').value,ins:true},...layers]:layers.map(x=>({...x}));const total=Math.max(1,all.reduce((a,x)=>a+x.e,0));return all.map((x,i)=>{const hue=[195,35,25,210,45,100,65,160][i%8];const w=Math.max(7,x.e/total*100);return `<div class="layer-block${x.ins?' insulation-highlight':''}" title="${x.m} · ${x.e} mm" style="width:${w}%;background:hsl(${hue} 38% 78%)"><span>${x.m} · ${x.e}mm</span></div>`}).join('')}
 function renderStack(){if($('stack'))$('stack').innerHTML=stackHtml(false);if($('stackCurrent'))$('stackCurrent').innerHTML=stackHtml(false);if($('stackImproved'))$('stackImproved').innerHTML=stackHtml(true)}
 function riskFor(ts,dew,rhs){const m=ts-dew;if(m<=0)return ['Condensación superficial posible','danger'];if(m<2)return ['Margen crítico respecto del rocío','warn'];if(rhs>=80)return ['HR superficial elevada','warn'];return ['Margen favorable','safe']}
 function profileSvg(c,dew){
@@ -178,13 +200,79 @@ function profileSvg(c,dew){
   $('profile').innerHTML=s;
 }
 function describeMargin(m){if(m<0)return `${fmt(Math.abs(m),1)} °C por debajo del punto de rocío`;if(m<2)return `${fmt(m,1)} °C sobre el rocío · margen crítico`;return `+${fmt(m,1)} °C sobre el punto de rocío`}
-function renderDewGauge(c,n,dew,rhOld,rhNew){const lo=Math.min(dew-4,c.Tsi-2,n.Tsi-2);const hi=Math.max(c.Ti+1,dew+5,c.Tsi+2,n.Tsi+2);const pos=t=>clamp((t-lo)/(hi-lo)*100,0,100);const dewPos=pos(dew),warnPos=pos(dew+2);$('dewDangerZone').style.width=dewPos+'%';$('dewWarningZone').style.left=dewPos+'%';$('dewWarningZone').style.width=Math.max(0,warnPos-dewPos)+'%';[['dewMarker',dew],['oldMarker',c.Tsi],['newMarker',n.Tsi]].forEach(([id,t])=>$(id).style.left=pos(t)+'%');$('dewMarkerValue').textContent=fmt(dew,1)+' °C';$('oldMarkerValue').textContent=fmt(c.Tsi,1)+' °C';$('newMarkerValue').textContent=fmt(n.Tsi,1)+' °C';$('gaugeMin').textContent=fmt(lo,1)+' °C';$('gaugeMax').textContent=fmt(hi,1)+' °C';const marginOld=c.Tsi-dew,marginNew=n.Tsi-dew;$('marginOld').textContent=(marginOld>=0?'+':'')+fmt(marginOld,1)+' °C';$('marginNew').textContent=(marginNew>=0?'+':'')+fmt(marginNew,1)+' °C';$('surfaceRhOld').textContent='HR superficial estimada: '+fmt(Math.min(rhOld,199),0)+' %';$('surfaceRhNew').textContent='HR superficial estimada: '+fmt(Math.min(rhNew,199),0)+' %';$('dewCompare').textContent=fmt(dew,1)+' °C';$('dewContext').textContent='Con HR interior de '+fmt(+$('rh').value,0)+' %';$('wallCurrentLabel').textContent=fmt(c.Tsi,1)+' °C · '+fmt(rhOld,0)+' % HR sup.';$('wallImprovedLabel').textContent=fmt(n.Tsi,1)+' °C · '+fmt(rhNew,0)+' % HR sup.';const [msg,cls]=riskFor(n.Tsi,dew,rhNew);$('condensationStatus').className='condensation-status '+(cls==='safe'?'':cls);$('condensationStatus').textContent=`${msg}. Con ${$('insThickness').value} mm: ${describeMargin(marginNew)}. La superficie aumenta ${fmt(n.Tsi-c.Tsi,1)} °C respecto del muro actual.`}
+
+let improvementMode='insulate';
+let minimumGoal='dew';
+function setImprovementMode(mode){
+  improvementMode=mode==='original'?'original':'insulate';
+  $('modeOriginal')?.classList.toggle('active',improvementMode==='original');
+  $('modeInsulate')?.classList.toggle('active',improvementMode==='insulate');
+  $('insulationControls')?.classList.toggle('hidden',improvementMode==='original');
+  $('originalModeNote')?.classList.toggle('hidden',improvementMode!=='original');
+  ['improvedCompareCard','improvementPanel','dewImprovedCard','improvedWallCard','wallCompareArrow'].forEach(id=>$(id)?.classList.toggle('hidden',improvementMode==='original'));
+  if(improvementMode==='original')$('insThickness').value=0;
+  render();
+}
+function setMinimumGoal(goal){
+  minimumGoal=goal==='zone'?'zone':'dew';
+  $('goalDew')?.classList.toggle('active',minimumGoal==='dew');
+  $('goalZone')?.classList.toggle('active',minimumGoal==='zone');
+  $('dewGoalControls')?.classList.toggle('hidden',minimumGoal!=='dew');
+  $('zoneGoalControls')?.classList.toggle('hidden',minimumGoal!=='zone');
+  renderMinimumGoalInfo();
+}
+function renderMinimumGoalInfo(){
+  if(!$('zoneGoalText'))return;
+  const z=$('thermalZone')?.value,lim=WALL_LIMITS_RESIDENTIAL[z];
+  if(z&&lim){$('zoneGoalText').textContent=`Zona ${z}: U objetivo ≤ ${fmt(lim.u,2)} W/m²K`;$('zoneGoalHint').textContent=`Rt mínimo de referencia: ${fmt(lim.rt,2)} m²K/W.`}
+  else{$('zoneGoalText').textContent='Selecciona una zona térmica en la sección 04.';$('zoneGoalHint').textContent='HIDROLAB utilizará el U máximo de esa zona como objetivo.'}
+}
+function renderDewGauge(c,n,dew,rhOld,rhNew){const lo=Math.min(dew-4,c.Tsi-2,n.Tsi-2);const hi=Math.max(c.Ti+1,dew+5,c.Tsi+2,n.Tsi+2);const pos=t=>clamp((t-lo)/(hi-lo)*100,0,100);const dewPos=pos(dew),warnPos=pos(dew+2);$('dewDangerZone').style.width=dewPos+'%';$('dewWarningZone').style.left=dewPos+'%';$('dewWarningZone').style.width=Math.max(0,warnPos-dewPos)+'%';[['dewMarker',dew],['oldMarker',c.Tsi],['newMarker',n.Tsi]].forEach(([id,t])=>{const el=$(id);el.style.left=pos(t)+'%';el.classList.remove('marker-left','marker-right','marker-combined')});
+  const oldPos=pos(c.Tsi),newPos=pos(n.Tsi);
+  if(improvementMode==='insulate'&&Math.abs(oldPos-newPos)<6){
+    $('oldMarker').classList.add('marker-left');$('newMarker').classList.add('marker-right');
+    if(Math.abs(c.Tsi-n.Tsi)<.08){$('oldMarker').classList.add('marker-combined');$('newMarker').classList.add('marker-combined')}
+  }$('dewMarkerValue').textContent=fmt(dew,1)+' °C';$('oldMarkerValue').textContent=fmt(c.Tsi,1)+' °C';$('newMarkerValue').textContent=fmt(n.Tsi,1)+' °C';$('gaugeMin').textContent=fmt(lo,1)+' °C';$('gaugeMax').textContent=fmt(hi,1)+' °C';const marginOld=c.Tsi-dew,marginNew=n.Tsi-dew;$('marginOld').textContent=(marginOld>=0?'+':'')+fmt(marginOld,1)+' °C';$('marginNew').textContent=(marginNew>=0?'+':'')+fmt(marginNew,1)+' °C';$('surfaceRhOld').textContent='HR superficial estimada: '+fmt(Math.min(rhOld,199),0)+' %';$('surfaceRhNew').textContent='HR superficial estimada: '+fmt(Math.min(rhNew,199),0)+' %';$('dewCompare').textContent=fmt(dew,1)+' °C';$('dewContext').textContent='Con HR interior de '+fmt(+$('rh').value,0)+' %';$('wallCurrentLabel').textContent=fmt(c.Tsi,1)+' °C · '+fmt(rhOld,0)+' % HR sup.';$('wallImprovedLabel').textContent=fmt(n.Tsi,1)+' °C · '+fmt(rhNew,0)+' % HR sup.';const targetState=improvementMode==='original'?{ts:c.Tsi,rh:rhOld,margin:marginOld}:{ts:n.Tsi,rh:rhNew,margin:marginNew};
+  const [msg,cls]=riskFor(targetState.ts,dew,targetState.rh);$('condensationStatus').className='condensation-status '+(cls==='safe'?'':cls);
+  $('condensationStatus').textContent=improvementMode==='original'
+    ?`${msg}. Muro original: ${describeMargin(marginOld)} sobre el punto de rocío.`
+    :`${msg}. Con ${$('insThickness').value} mm: ${describeMargin(marginNew)}. La superficie aumenta ${fmt(n.Tsi-c.Tsi,1)} °C respecto del muro actual.`}
 function minimumThickness(lambda,targetMargin){const c=calc(),dew=dewPoint(c.Ti,+$('rh').value),target=dew+targetMargin;if(target>=c.Ti-.05)return {ok:false,reason:'El margen solicitado alcanza o supera prácticamente la temperatura interior y no es alcanzable con este modelo.'};if(c.Tsi>=target)return {ok:true,mm:0,target,dew};const denominator=c.Ti-target;if(denominator<=0)return {ok:false,reason:'Objetivo térmico no alcanzable.'};const requiredRt=Math.abs(c.Ti-c.Te)*RSI/denominator;const extraR=Math.max(0,requiredRt-c.Rt);const mm=extraR*lambda*1000;return Number.isFinite(mm)?{ok:true,mm,target,dew}:{ok:false,reason:'No fue posible determinar el espesor.'}}
+
+function minimumThicknessForZone(lambda){
+  const z=$('thermalZone')?.value,lim=WALL_LIMITS_RESIDENTIAL[z];
+  if(!z||!lim)return {ok:false,reason:'Primero selecciona una zona térmica en la sección 04.'};
+  const c=calc();
+  if(c.U<=lim.u)return {ok:true,mm:0,zone:z,limitU:lim.u};
+  const requiredRt=1/lim.u;
+  const extraR=Math.max(0,requiredRt-c.Rt);
+  const mm=extraR*lambda*1000;
+  return Number.isFinite(mm)?{ok:true,mm,zone:z,limitU:lim.u}:{ok:false,reason:'No fue posible determinar el espesor.'};
+}
 let animationToken=0;
 function animateThickness(target){animationToken++;const token=animationToken;const range=$('insThickness');const start=+range.value,end=clamp(target,+range.min,+range.max);const duration=700,startTime=performance.now();function step(now){if(token!==animationToken)return;const p=clamp((now-startTime)/duration,0,1),ease=1-Math.pow(1-p,3);range.value=Math.round((start+(end-start)*ease)/5)*5;render();if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
-function findMinimum(){const lambda=+$('insulation').value,targetMargin=+$('targetMargin').value,res=minimumThickness(lambda,targetMargin),box=$('minimumResult');if(!res.ok){box.className='minimum-result warning';box.querySelector('strong').textContent='Objetivo no alcanzable';box.querySelector('span').textContent=res.reason;return}const rounded=Math.ceil(res.mm/5)*5;if(rounded>+$('insThickness').max){box.className='minimum-result warning';box.querySelector('strong').textContent='> '+$('insThickness').max+' mm';box.querySelector('span').textContent=`Se estiman ${fmt(res.mm,0)} mm para lograr +${fmt(targetMargin,1)} °C. Amplía el rango o revisa la solución constructiva.`;return}box.className='minimum-result success';box.querySelector('strong').textContent=rounded+' mm';box.querySelector('span').textContent=`Espesor estimado para mantener la superficie al menos +${fmt(targetMargin,1)} °C sobre el punto de rocío. Se moverá el simulador a ese valor.`;animateThickness(rounded)}
+function findMinimum(){
+  const lambda=+$('insulation').value,box=$('minimumResult');
+  const res=minimumGoal==='zone'?minimumThicknessForZone(lambda):minimumThickness(lambda,+$('targetMargin').value);
+  if(!res.ok){box.className='minimum-result warning';box.querySelector('strong').textContent='No se puede calcular todavía';box.querySelector('span').textContent=res.reason;return}
+  const rounded=Math.ceil(res.mm/5)*5;
+  if(rounded>+$('insThickness').max){box.className='minimum-result warning';box.querySelector('strong').textContent='Más de '+$('insThickness').max+' mm';box.querySelector('span').textContent=`La estimación requiere aproximadamente ${fmt(res.mm,0)} mm. Revisa el material o la solución constructiva.`;return}
+  box.className='minimum-result success';
+  if(rounded===0){
+    box.querySelector('strong').textContent='0 mm adicionales';
+    box.querySelector('span').textContent=minimumGoal==='zone'
+      ?`Tu muro original ya alcanza el valor U exigido para la zona ${res.zone}.`
+      :`Tu muro original ya mantiene el margen de +${fmt(+$('targetMargin').value,1)} °C solicitado.`;
+    setImprovementMode('original');return;
+  }
+  box.querySelector('strong').textContent=rounded+' mm';
+  box.querySelector('span').textContent=minimumGoal==='zone'
+    ?`Espesor mínimo estimado de ${$('insulation').selectedOptions[0].textContent.split('·')[0].trim()} para alcanzar U ≤ ${fmt(res.limitU,2)} W/m²K en zona ${res.zone}.`
+    :`Espesor mínimo estimado para que la superficie quede al menos +${fmt(+$('targetMargin').value,1)} °C sobre el punto de rocío.`;
+  setImprovementMode('insulate');animateThickness(rounded);
+}
 function render(){document.querySelectorAll('.rval').forEach((el,i)=>{if(layers[i])el.textContent=fmt(effectiveLayerR(layers[i],i),3)});const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),rhOld=surfaceRH(c.Ti,RH,c.Tsi);renderFrameLayerOptions();renderNormative(c);renderFrameDiagram(c);renderResistanceContribution(c);$('rt').textContent=fmt(c.Rt,3);$('u').textContent=fmt(c.U,2);if($('uExplain'))$('uExplain').textContent=`Por cada 1 m² de muro y cada 1 °C de diferencia, atraviesan aproximadamente ${fmt(c.U,2)} W en régimen estacionario.`;$('tsi').textContent=fmt(c.Tsi,1);$('loss').textContent=c.area>0?fmt(c.loss,0):'—';$('uOld').textContent=fmt(c.U,2);$('tsiOld').textContent=fmt(c.Tsi,1)+' °C';$('lossOld').textContent=c.area>0?fmt(c.loss,0)+' W':'—';$('dew').textContent=fmt(dew,1)+' °C';$('dewMargin').textContent=(c.Tsi-dew>=0?'+':'')+fmt(c.Tsi-dew,1)+' °C';$('q').textContent=fmt(c.q,1)+' W/m²';$('totalThickness').textContent=layers.reduce((a,x)=>a+x.e,0)+' mm';const [msg,cls]=riskFor(c.Tsi,dew,rhOld);$('dewCallout').className='callout '+cls;$('dewCallout').innerHTML=`<b>${msg}.</b> Superficie interior estimada: ${fmt(c.Tsi,1)} °C · punto de rocío: ${fmt(dew,1)} °C · margen: ${fmt(c.Tsi-dew,1)} °C · HR superficial estimada: ${fmt(Math.min(rhOld,199),0)} %.`;
-const insE=+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insR=(insE/1000)/(+$('insulation').value);const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
+const insE=improvementMode==='original'?0:+$('insThickness').value;$('insLabel').textContent=insE+' mm';const insR=(insE/1000)/(+$('insulation').value);const n=calc(insR),rhNew=surfaceRH(c.Ti,RH,n.Tsi);renderMinimumGoalInfo();$('uNew').textContent=fmt(n.U,2);$('tsiNew').textContent=fmt(n.Tsi,1)+' °C';$('lossNew').textContent=c.area>0?fmt(n.loss,0)+' W':'—';const imp=clamp((1-n.U/c.U)*100,0,100);$('improvement').textContent=fmt(imp,0)+' %';$('improvementBar').style.width=imp+'%';const [nmsg,ncls]=riskFor(n.Tsi,dew,rhNew);$('riskChange').className='status-pill '+ncls;$('riskChange').textContent=nmsg;renderStack();renderDewGauge(c,n,dew,rhOld,rhNew);profileSvg(c,dew)}
 $('addLayer').addEventListener('click',()=>{layers.push({m:'Lana mineral',e:50,l:.04});renderRows();render()});$('presetBrick').addEventListener('click',()=>{layers=[{m:'Estuco cementicio',e:20,l:.87},{m:'Ladrillo cerámico',e:140,l:.72},{m:'Yeso-cartón',e:15,l:.25}];renderRows();render()});$('presetTimber').addEventListener('click',()=>{layers=[{m:'Yeso-cartón',e:15,l:.25},{m:'Lana mineral',e:90,l:.04},{m:'OSB',e:11,l:.13},{m:'Madera',e:20,l:.13}];renderRows();render()});['ti','te','rh','area','insulation','insThickness'].forEach(id=>$(id).addEventListener('input',render));
 function syncTargetMargin(source){
   const range=$('targetMargin'),num=$('targetMarginN');
@@ -196,6 +284,10 @@ function syncTargetMargin(source){
 $('targetMargin').addEventListener('input',()=>syncTargetMargin('range'));
 $('targetMarginN').addEventListener('input',()=>syncTargetMargin('number'));
 $('findMinimum').addEventListener('click',findMinimum);syncTargetMargin('range');
+$('modeOriginal')?.addEventListener('click',()=>setImprovementMode('original'));
+$('modeInsulate')?.addEventListener('click',()=>setImprovementMode('insulate'));
+$('goalDew')?.addEventListener('click',()=>setMinimumGoal('dew'));
+$('goalZone')?.addEventListener('click',()=>setMinimumGoal('zone'));
 
 window.HIDROLAB_WALL_REPORT=()=>{
   const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),zone=$('thermalZone')?.value||'',lim=WALL_LIMITS_RESIDENTIAL[zone]||{u:null,rt:null};

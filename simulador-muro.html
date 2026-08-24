@@ -32,42 +32,79 @@
 <div class="section-head compact-head"><div><p class="kicker">Lectura didáctica</p><h3>¿Qué capa aporta la resistencia térmica?</h3></div></div>
 <div id="resistanceContribution" class="resistance-contribution"></div>
 </section>
-<section class="card full" id="mejora"><div class="section-head"><div><p class="kicker">03 · Comparador</p><h2>¿Qué pasa si agrego aislación?</h2></div><span class="note">La mejora se agrega por el exterior para este simulador.</span></div><div class="form-grid"><div class="field"><label>Aislante propuesto</label><select id="insulation"><option value="0.036">EPS · λ 0,036</option><option value="0.032">XPS · λ 0,032</option><option value="0.040">Lana mineral · λ 0,040</option><option value="0.025">Poliuretano · λ 0,025</option><option value="0.045">Fibra de madera · λ 0,045</option></select></div><div class="field"><label>Espesor de aislación: <b id="insLabel">50 mm</b></label><input class="range" id="insThickness" max="300" min="0" step="5" type="range" value="50"/><div class="split-labels"><span>0 mm</span><span>300 mm</span></div></div></div><div class="compare-cards" style="margin-top:16px"><div class="compare-card"><h3>Muro actual</h3><div class="summary-grid three"><div class="stat"><small>U</small><strong id="uOld">—</strong></div><div class="stat"><small>T° superficie</small><strong id="tsiOld">—</strong></div><div class="stat"><small>Pérdida</small><strong id="lossOld">—</strong></div></div></div><div class="compare-card"><h3>Muro mejorado</h3><div class="summary-grid three"><div class="stat"><small>U</small><strong id="uNew">—</strong></div><div class="stat"><small>T° superficie</small><strong id="tsiNew">—</strong></div><div class="stat"><small>Pérdida</small><strong id="lossNew">—</strong></div></div></div></div><div class="interactive-panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:end"><div><small class="note">Reducción de transmitancia</small><strong id="improvement" style="display:block;font-size:1.6rem">—</strong></div><span class="status-pill" id="riskChange">—</span></div><div class="bar" style="margin-top:10px"><span id="improvementBar"></span></div></div>
-
-<div class="condensation-lab" id="condensationLab">
-  <div class="section-head compact-head"><div><p class="kicker">Condensación superficial</p><h3>Distancia al punto de rocío</h3></div><span class="tool-tag new">Tiempo real</span></div>
-  <p class="note">Al mover el espesor de aislación, observa cómo aumenta la temperatura de la cara interior y se aleja del punto de rocío.</p>
-  <div class="dew-summary-grid">
-    <div class="dew-card current"><small>Muro actual</small><strong id="marginOld">—</strong><span id="surfaceRhOld">—</span></div>
-    <div class="dew-card improved"><small>Con aislación propuesta</small><strong id="marginNew">—</strong><span id="surfaceRhNew">—</span></div>
-    <div class="dew-card dew"><small>Punto de rocío interior</small><strong id="dewCompare">—</strong><span id="dewContext">—</span></div>
+<section class="card full" id="mejora">
+  <div class="section-head">
+    <div><p class="kicker">03 · Comparador</p><h2>¿Qué quieres evaluar?</h2></div>
+    <span class="note">La aislación adicional se ubica por el exterior en este simulador.</span>
   </div>
-  <div class="dew-gauge" aria-label="Escala de temperatura superficial respecto del punto de rocío">
-    <div class="dew-track"><div class="dew-zone-danger" id="dewDangerZone"></div><div class="dew-zone-warning" id="dewWarningZone"></div></div>
-    <div class="dew-marker dew-point" id="dewMarker"><i></i><b>Rocío</b><span id="dewMarkerValue">—</span></div>
-    <div class="dew-marker wall-current" id="oldMarker"><i></i><b>Actual</b><span id="oldMarkerValue">—</span></div>
-    <div class="dew-marker wall-new" id="newMarker"><i></i><b>Mejorado</b><span id="newMarkerValue">—</span></div>
-    <div class="dew-axis"><span id="gaugeMin">—</span><span>Temperatura superficial</span><span id="gaugeMax">—</span></div>
+
+  <div class="compare-mode-tabs">
+    <button id="modeOriginal" type="button" class="compare-mode-btn"><small>OPCIÓN 1</small><b>Seguir con mi muro original</b><span>Revisar su comportamiento sin agregar capas.</span></button>
+    <button id="modeInsulate" type="button" class="compare-mode-btn active"><small>OPCIÓN 2</small><b>¿Qué pasa si agrego aislación?</b><span>Comparar U, T° superficial y pérdida térmica.</span></button>
   </div>
-  <div class="condensation-status" id="condensationStatus">—</div>
-</div>
 
-<div class="wall-improvement-visual">
-  <div class="visual-wall-card"><div class="visual-wall-title"><b>Muro actual</b><span id="wallCurrentLabel">—</span></div><div class="material-stack enhanced" id="stackCurrent"></div></div>
-  <div class="visual-arrow">→</div>
-  <div class="visual-wall-card improved-wall"><div class="visual-wall-title"><b>Con aislación</b><span id="wallImprovedLabel">—</span></div><div class="material-stack enhanced" id="stackImproved"></div></div>
-</div>
+  <div id="insulationControls" class="form-grid">
+    <div class="field"><label>Aislante propuesto</label><select id="insulation"><option value="0.036">EPS · λ 0,036</option><option value="0.032">XPS · λ 0,032</option><option value="0.040">Lana mineral · λ 0,040</option><option value="0.025">Poliuretano · λ 0,025</option><option value="0.045">Fibra de madera · λ 0,045</option></select></div>
+    <div class="field"><label>Espesor de aislación: <b id="insLabel">50 mm</b></label><input class="range" id="insThickness" max="300" min="0" step="5" type="range" value="50"/><div class="split-labels"><span>0 mm</span><span>300 mm</span></div></div>
+  </div>
 
-<div class="minimum-insulation">
-  <div><p class="kicker">Objetivo automático</p><h3>Encontrar aislación mínima estimada</h3><p class="note">Busca el espesor necesario para que la superficie interior quede el margen elegido por encima del punto de rocío, bajo este modelo 1D.</p></div>
-  <div class="min-controls target-margin-controls"><div class="field target-margin-field"><label for="targetMargin">Margen objetivo sobre el punto de rocío: <b id="targetMarginLabel">+2,0 °C</b></label><input class="range" id="targetMargin" type="range" min="0.5" max="10" step="0.5" value="2"/><div class="split-labels"><span>+0,5 °C</span><span>+10 °C</span></div></div><div class="field target-margin-number"><label for="targetMarginN">Valor exacto</label><div class="unit-input"><input id="targetMarginN" type="number" min="0.5" max="10" step="0.5" value="2" inputmode="decimal"/><span>°C</span></div></div><button class="btn btn-dark" id="findMinimum" type="button">Encontrar espesor mínimo</button></div>
-  <div class="minimum-result" id="minimumResult"><strong>—</strong><span>Selecciona un margen y calcula.</span></div>
-</div>
+  <div id="originalModeNote" class="original-mode-note hidden"><b>Muro original seleccionado.</b><span>No se agrega aislación. Los resultados siguientes corresponden únicamente a la solución que construiste en la sección 01.</span></div>
+
+  <div class="compare-cards" style="margin-top:16px">
+    <div class="compare-card"><h3>Muro actual</h3><div class="summary-grid three"><div class="stat"><small>U</small><strong id="uOld">—</strong></div><div class="stat"><small>T° superficie</small><strong id="tsiOld">—</strong></div><div class="stat"><small>Pérdida</small><strong id="lossOld">—</strong></div></div></div>
+    <div class="compare-card" id="improvedCompareCard"><h3>Muro con aislación propuesta</h3><div class="summary-grid three"><div class="stat"><small>U</small><strong id="uNew">—</strong></div><div class="stat"><small>T° superficie</small><strong id="tsiNew">—</strong></div><div class="stat"><small>Pérdida</small><strong id="lossNew">—</strong></div></div></div>
+  </div>
+
+  <div id="improvementPanel" class="interactive-panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:end"><div><small class="note">Reducción de transmitancia</small><strong id="improvement" style="display:block;font-size:1.6rem">—</strong></div><span class="status-pill" id="riskChange">—</span></div><div class="bar" style="margin-top:10px"><span id="improvementBar"></span></div></div>
+
+  <div class="condensation-lab" id="condensationLab">
+    <div class="section-head compact-head"><div><p class="kicker">Condensación superficial</p><h3>Distancia al punto de rocío</h3></div><span class="tool-tag new">Tiempo real</span></div>
+    <p class="note">La escala compara la temperatura de la superficie interior con el punto de rocío. Cuando los indicadores quedan muy próximos, HIDROLAB los separa visualmente para que ambos sigan siendo legibles.</p>
+    <div class="dew-summary-grid">
+      <div class="dew-card current"><small>Muro actual</small><strong id="marginOld">—</strong><span id="surfaceRhOld">—</span></div>
+      <div class="dew-card improved" id="dewImprovedCard"><small>Con aislación propuesta</small><strong id="marginNew">—</strong><span id="surfaceRhNew">—</span></div>
+      <div class="dew-card dew"><small>Punto de rocío interior</small><strong id="dewCompare">—</strong><span id="dewContext">—</span></div>
+    </div>
+    <div class="dew-gauge" aria-label="Escala de temperatura superficial respecto del punto de rocío">
+      <div class="dew-track"><div class="dew-zone-danger" id="dewDangerZone"></div><div class="dew-zone-warning" id="dewWarningZone"></div></div>
+      <div class="dew-marker dew-point" id="dewMarker"><i></i><b>Rocío</b><span id="dewMarkerValue">—</span></div>
+      <div class="dew-marker wall-current" id="oldMarker"><i></i><b>Actual</b><span id="oldMarkerValue">—</span></div>
+      <div class="dew-marker wall-new" id="newMarker"><i></i><b>Mejorado</b><span id="newMarkerValue">—</span></div>
+      <div class="dew-axis"><span id="gaugeMin">—</span><span>Temperatura superficial</span><span id="gaugeMax">—</span></div>
+    </div>
+    <div class="condensation-status" id="condensationStatus">—</div>
+  </div>
+
+  <div class="wall-improvement-visual">
+    <div class="visual-wall-card"><div class="visual-wall-title"><b>Muro actual</b><span id="wallCurrentLabel">—</span></div><div class="material-stack enhanced" id="stackCurrent"></div></div>
+    <div class="visual-arrow" id="wallCompareArrow">→</div>
+    <div class="visual-wall-card improved-wall" id="improvedWallCard"><div class="visual-wall-title"><b>Con aislación</b><span id="wallImprovedLabel">—</span></div><div class="material-stack enhanced" id="stackImproved"></div></div>
+  </div>
+
+  <div class="minimum-insulation">
+    <div class="minimum-head"><div><p class="kicker">Asistente de espesor</p><h3>¿Cuánta aislación necesito aproximadamente?</h3><p class="note">Elige qué quieres lograr y HIDROLAB estima el espesor mínimo del aislante seleccionado.</p></div></div>
+
+    <div class="minimum-goal-tabs">
+      <button id="goalDew" type="button" class="goal-btn active"><b>Alejarme del punto de rocío</b><span>Busca una T° superficial con margen de seguridad.</span></button>
+      <button id="goalZone" type="button" class="goal-btn"><b>Alcanzar la zona térmica seleccionada</b><span>Busca una U igual o menor al máximo de la zona.</span></button>
+    </div>
+
+    <div id="dewGoalControls" class="min-controls target-margin-controls">
+      <div class="field target-margin-field"><label for="targetMargin">Margen deseado sobre el punto de rocío: <b id="targetMarginLabel">+2,0 °C</b></label><input class="range" id="targetMargin" type="range" min="0.5" max="10" step="0.5" value="2"/><div class="split-labels"><span>+0,5 °C</span><span>+10 °C</span></div><small>Ejemplo: +2 °C significa que la superficie interior quedará 2 °C por encima del punto de rocío estimado.</small></div>
+      <div class="field target-margin-number"><label for="targetMarginN">Margen exacto</label><div class="unit-input"><input id="targetMarginN" type="number" min="0.5" max="10" step="0.5" value="2" inputmode="decimal"/><span>°C</span></div></div>
+    </div>
+
+    <div id="zoneGoalControls" class="zone-goal-controls hidden"><div class="zone-goal-summary"><small>OBJETIVO REGLAMENTARIO SELECCIONADO</small><strong id="zoneGoalText">Selecciona una zona térmica en la sección 04.</strong><span id="zoneGoalHint">HIDROLAB utilizará el U máximo de esa zona como objetivo.</span></div></div>
+
+    <button class="btn btn-dark minimum-action" id="findMinimum" type="button">Calcular espesor mínimo estimado</button>
+    <div class="minimum-result" id="minimumResult"><strong>—</strong><span>Elige un objetivo y presiona “Calcular espesor mínimo estimado”.</span></div>
+    <p class="minimum-footnote">Resultado orientativo bajo el modelo estacionario del simulador. Debe verificarse con la solución real, puentes térmicos y propiedades declaradas de los materiales.</p>
+  </div>
 </section>
 <section class="card full" id="normativa-muro">
 <div class="section-head"><div><p class="kicker">04 · Comparación reglamentaria opcional</p><h2>¿Cómo se comporta tu muro en su zona térmica?</h2></div><span class="calc-origin normative">OGUC art. 4.1.10 · vigente</span></div>
 <div class="thermal-zone-explorer">
-<div class="zone-map-card"><div class="zone-map-head"><div><b>Zonificación térmica de Chile</b><span>9 zonas A–I · selector didáctico</span></div><small>MINVU · vigente desde nov. 2025</small></div>
+<div class="zone-map-card"><div class="zone-map-head"><div><b>Zonificación térmica de Chile</b><span>9 zonas A–I · selecciona una zona o usa Región → Comuna</span></div><small>MINVU · vigente desde nov. 2025</small></div>
 <svg id="chileThermalMap" viewBox="0 0 300 760" class="chile-thermal-map"></svg><div id="zoneMapLegend" class="zone-map-legend"></div>
 <p class="zone-map-note">Mapa esquemático. Algunas comunas cambian de zona por altitud, longitud u otra condición territorial; para memoria técnica debe confirmarse con la tabla/plano oficial MINVU.</p></div>
 <div class="zone-selector-card"><label class="norm-toggle"><input id="normEnabled" type="checkbox" checked><span>Comparar mi muro</span></label><div id="normControls">
