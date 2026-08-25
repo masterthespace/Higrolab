@@ -4,190 +4,371 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>HIDROLAB · Ciencia de la vivienda</title>
-  <link rel="stylesheet" href="landing-tailwind.css">
   <meta name="description" content="Herramientas interactivas para humedad, condensación, envolvente térmica, confort, energía y análisis solar 3D.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --hl-black:#18181b;
+      --hl-zinc:#27272a;
+      --hl-orange:#f97316;
+      --hl-blue:#2563eb;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .font-display{font-family:Oswald,Inter,sans-serif}
+    .arch-grid{
+      background-image:
+        linear-gradient(rgba(24,24,27,.055) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(24,24,27,.055) 1px,transparent 1px);
+      background-size:32px 32px;
+    }
+    .micro-grid{
+      background-image:
+        linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
+      background-size:28px 28px;
+    }
+    #home-solar-preview{display:block;width:100%;height:100%;cursor:grab}
+    #home-solar-preview:active{cursor:grabbing}
+    .module-card{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+    .module-card:hover{transform:translateY(-5px)}
+    @media (prefers-reduced-motion:reduce){
+      *{scroll-behavior:auto!important}
+      .module-card{transition:none}
+    }
+  </style>
 </head>
 
-<body class="home-v7 font-sans text-navy-950 antialiased">
+<body class="bg-zinc-100 text-zinc-900 antialiased">
 
-<header class="border-b border-slatex-200 bg-white">
-  <div class="sticky top-0 z-50 border-b border-slatex-200/80 bg-white/95 backdrop-blur">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 lg:px-8">
-      <a class="brand flex items-center gap-3 no-underline" href="index.html">
-        <span class="grid h-10 w-10 place-items-center rounded-lg border border-navy-800 bg-navy-950 text-xs font-extrabold tracking-wide text-white">HL</span>
-        <span class="text-[15px] font-extrabold tracking-[0.12em] text-navy-950">HIDRO<em class="not-italic text-tech-cyan">LAB</em></span>
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 border-b border-zinc-300 bg-zinc-100/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-4 lg:px-10">
+      <a href="index.html" class="flex items-center gap-3 no-underline">
+        <span class="grid h-10 w-10 place-items-center bg-zinc-900 text-xs font-extrabold tracking-widest text-white">HL</span>
+        <span class="text-sm font-extrabold tracking-[0.16em] text-zinc-900">HIDRO<span class="text-orange-600">LAB</span></span>
       </a>
 
-      <nav class="navlinks hidden items-center gap-2 md:flex">
-        <a class="active rounded-lg bg-slatex-100 px-3.5 py-2 text-sm font-semibold text-navy-950 no-underline" href="index.html">Inicio</a>
-        <a class="rounded-lg px-3.5 py-2 text-sm font-semibold text-slatex-700 no-underline transition hover:bg-slatex-50 hover:text-navy-950" href="calculadoras.html">Herramientas</a>
-        <a class="rounded-lg px-3.5 py-2 text-sm font-semibold text-slatex-700 no-underline transition hover:bg-slatex-50 hover:text-navy-950" href="zona-interactiva.html">Zona interactiva</a>
+      <nav class="hidden items-center gap-8 md:flex" aria-label="Navegación principal">
+        <a class="border-b-2 border-zinc-900 pb-1 text-sm font-bold text-zinc-900 no-underline" href="index.html">Inicio</a>
+        <a class="pb-1 text-sm font-semibold text-zinc-600 no-underline transition hover:text-zinc-900" href="calculadoras.html">Herramientas</a>
+        <a class="pb-1 text-sm font-semibold text-zinc-600 no-underline transition hover:text-zinc-900" href="zona-interactiva.html">Zona interactiva</a>
       </nav>
-    </div>
-  </div>
 
-  <div class="technical-grid">
-    <div class="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[.93fr_1.07fr] lg:items-center lg:px-8 lg:py-24">
-      <div class="hero-copy">
-        <div class="eyebrow mb-5 inline-flex items-center gap-2 rounded-full border border-slatex-200 bg-slatex-50 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-slatex-700">
-          Scientific housing toolkit · V7
-        </div>
-
-        <h1 class="max-w-3xl text-4xl font-extrabold leading-[1.03] tracking-[-0.04em] text-navy-950 sm:text-5xl lg:text-6xl">
-          La vivienda convertida en <span class="accent text-tech-cyan">datos útiles.</span>
-        </h1>
-
-        <p class="mt-6 max-w-2xl text-base leading-7 text-slatex-700 sm:text-lg">
-          Analiza humedad, condensación, transmitancia térmica, pérdidas, ventilación, confort, energía y asoleamiento desde una suite técnica interactiva.
-        </p>
-
-        <div class="hero-actions mt-8 flex flex-col gap-3 sm:flex-row">
-          <a class="btn btn-primary inline-flex items-center justify-center rounded-lg bg-navy-950 px-5 py-3.5 text-sm font-bold text-white no-underline shadow-sm transition hover:bg-navy-800" href="calculadoras.html">
-            Explorar herramientas
-          </a>
-          <a class="btn btn-soft inline-flex items-center justify-center rounded-lg border border-slatex-300 bg-white px-5 py-3.5 text-sm font-bold text-navy-900 no-underline transition hover:border-tech-cyan hover:bg-tech-cyanSoft" href="simulador-solar.html">
-            Abrir Solar Studio 3D
-          </a>
-        </div>
-
-        <div class="hero-badges mt-9 grid max-w-2xl grid-cols-2 overflow-hidden rounded-xl border border-slatex-200 bg-slatex-200 sm:grid-cols-4">
-          <span class="hero-badge bg-white px-4 py-3 text-center text-[11px] font-semibold text-slatex-700">Cálculo en navegador</span>
-          <span class="hero-badge bg-white px-4 py-3 text-center text-[11px] font-semibold text-slatex-700">Informes PDF</span>
-          <span class="hero-badge bg-white px-4 py-3 text-center text-[11px] font-semibold text-slatex-700">Modo claro / oscuro</span>
-          <span class="hero-badge bg-white px-4 py-3 text-center text-[11px] font-semibold text-slatex-700">Visualización interactiva</span>
-        </div>
-      </div>
-
-      <div class="solar-preview relative aspect-[16/11] min-h-[360px] overflow-hidden rounded-2xl border border-slatex-300 bg-navy-900 shadow-panel" aria-label="Vista previa interactiva del simulador solar">
-        <canvas id="home-solar-preview"></canvas>
-
-        <div class="preview-head pointer-events-none absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
-          <div class="preview-title rounded-lg border border-white/15 bg-navy-950/75 px-3 py-2.5 text-white backdrop-blur-md">
-            <b class="block text-sm font-bold">Solar Studio 3D</b>
-            <span class="mt-1 block text-[11px] text-white/70">Preview interactivo · arrastra para orbitar</span>
-          </div>
-          <span class="preview-live rounded-md border border-white/15 bg-white/10 px-2 py-1.5 font-mono text-[10px] font-bold tracking-[0.08em] text-white backdrop-blur-md">LIVE</span>
-        </div>
-
-        <div class="preview-foot pointer-events-none absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-lg border border-white/15 bg-navy-950/75 px-3 py-2.5 text-[11px] text-white/75 backdrop-blur-md">
-          <span>Trayectoria solar · fachadas · cubierta</span>
-          <span class="preview-orbit font-mono font-semibold text-white">◌ Orbit</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main class="home-main">
-  <section class="section-v7 mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-20">
-    <div class="section-v7-head grid gap-6 lg:grid-cols-[.95fr_1.05fr] lg:items-end">
-      <div>
-        <p class="kicker text-[11px] font-extrabold uppercase tracking-[0.14em] text-tech-cyan">Suite HIDROLAB</p>
-        <h2 class="mt-3 max-w-2xl text-3xl font-extrabold tracking-[-0.03em] text-navy-950 sm:text-4xl">
-          Herramientas técnicas que explican lo que ocurre
-        </h2>
-      </div>
-      <p class="max-w-2xl text-base leading-7 text-slatex-700 lg:justify-self-end">
-        Cada módulo conserva su independencia, pero comparte una misma lógica visual: modelo, fenómeno, resultado e interpretación.
-      </p>
-    </div>
-
-    <div class="bento mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-      <a class="bento-card solar group relative overflow-hidden rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel md:col-span-2 xl:col-span-2" href="simulador-solar.html">
-        <div class="flex items-start justify-between gap-4">
-          <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-tech-ochreSoft text-tech-ochre">
-            <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2M20 12h2M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/></svg>
-          </div>
-          <div class="bento-big-number font-mono text-[11px] font-bold tracking-[0.12em] text-tech-ochre">SOLAR / 3D</div>
-        </div>
-        <h3 class="mt-6 text-xl font-bold text-navy-950">Simulador Solar 3D</h3>
-        <p class="mt-3 max-w-2xl text-sm leading-6 text-slatex-700">Modela una planta, calibra orientación, analiza horas de asoleamiento por fachada y cubierta y exporta un informe técnico.</p>
-        <div class="bento-meta mt-5 flex flex-wrap gap-2">
-          <span class="rounded-md border border-slatex-200 bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Three.js</span>
-          <span class="rounded-md border border-slatex-200 bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Fachadas F1…</span>
-          <span class="rounded-md border border-slatex-200 bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Cubierta C1</span>
-          <span class="rounded-md border border-slatex-200 bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">PDF</span>
-        </div>
-        <div class="solar-mini-scene pointer-events-none absolute bottom-3 right-4 hidden w-44 opacity-70 lg:block">
-          <svg viewBox="0 0 300 220" aria-hidden="true">
-            <path d="M42 160 146 115 250 155 145 203Z" fill="rgba(167,118,56,.06)" stroke="rgba(167,118,56,.22)"/>
-            <path d="M92 141 146 116 205 140 146 168Z" fill="#F2E8D9" stroke="#C49A64"/>
-            <path d="M92 141v42l54 25v-40z" fill="#DCE6E9" stroke="#839AA3"/>
-            <path d="M205 140v42l-59 26v-40z" fill="#C7D5DA" stroke="#839AA3"/>
-            <circle cx="238" cy="62" r="15" fill="#C79A51"/>
-            <path d="M224 74 190 105" stroke="#C79A51" stroke-dasharray="4 5"/>
+      <div class="flex items-center gap-2">
+        <a href="simulador-solar.html" class="hidden bg-zinc-900 px-4 py-2.5 text-xs font-extrabold uppercase tracking-[.08em] text-white no-underline transition hover:bg-orange-600 sm:inline-flex">
+          Solar Studio 3D
+        </a>
+        <button id="menuBtn" class="grid h-10 w-10 place-items-center border border-zinc-400 bg-white text-zinc-900 md:hidden" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Abrir menú">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/>
           </svg>
-        </div>
-      </a>
-
-      <a class="bento-card humidity group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="calculadoras.html#humedad">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-tech-cyanSoft text-tech-cyan">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 2.5S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.5-6-11.5Z"/><path d="M9.2 15.2a3 3 0 0 0 3 2.8"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Humedad y condensación</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">Punto de rocío, humedad superficial, moho y balance de vapor.</p>
-        <div class="bento-meta mt-5 flex flex-wrap gap-2"><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">HR</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">T° superficial</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Riesgo</span></div>
-      </a>
-
-      <a class="bento-card thermal group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="calculadoras.html#envolvente">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-slatex-100 text-navy-800">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3 5h18v14H3zM3 10h18M3 15h18M8 5v5M16 10v5M8 15v4"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Envolvente térmica</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">Muros multicapa, U, R, pérdidas, puentes térmicos y simulación de mejoras.</p>
-        <div class="bento-meta mt-5 flex flex-wrap gap-2"><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">W/m²K</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Capas</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Aislación</span></div>
-      </a>
-
-      <a class="bento-card comfort group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="confort-termico.html">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-slatex-100 text-navy-800">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M8.5 10h.01M15.5 10h.01M8.5 14.5c2 1.8 5 1.8 7 0"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Confort</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">PMV/PPD y variables que influyen en la sensación térmica interior.</p>
-      </a>
-
-      <a class="bento-card ventilation group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="ventilacion-humedad.html">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-tech-cyanSoft text-tech-cyan">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Ventilación</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">Caudal, ACH, generación de vapor y humedad de equilibrio.</p>
-      </a>
-
-      <a class="bento-card interactive group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="zona-interactiva.html">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-slatex-100 text-navy-800">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 8 6 4-6 4z"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Zona interactiva</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">Contenido audiovisual de HIDROLAB para complementar la interpretación de los resultados técnicos.</p>
-        <div class="bento-meta mt-5 flex flex-wrap gap-2"><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Videos</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">Explicaciones</span><span class="rounded-md bg-slatex-50 px-2 py-1 text-[10px] font-bold text-slatex-700">HIDROLAB</span></div>
-      </a>
-
-      <a class="bento-card architecture group rounded-2xl border border-slatex-200 bg-white p-6 text-inherit no-underline shadow-soft transition hover:-translate-y-1 hover:border-slatex-300 hover:shadow-panel" href="calculadoras.html">
-        <div class="bento-icon grid h-12 w-12 place-items-center rounded-xl bg-slatex-100 text-navy-800">
-          <svg class="h-6 w-6 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </div>
-        <h3 class="mt-6 text-lg font-bold text-navy-950">Arquitectura modular</h3>
-        <p class="mt-3 text-sm leading-6 text-slatex-700">Cada herramienta funciona como módulo independiente y puede evolucionar sin rehacer la plataforma.</p>
-      </a>
+        </button>
+      </div>
     </div>
-  </section>
-</main>
 
-<footer class="border-t border-slatex-200 bg-navy-950 text-white">
-  <div class="mx-auto grid max-w-7xl gap-6 px-5 py-10 sm:grid-cols-2 lg:px-8">
-    <div class="text-sm font-semibold text-white/90">HIDROLAB · Ciencia de la vivienda para diagnosticar mejor</div>
-    <div class="footer-legal text-sm leading-6 text-white/65 sm:text-right">
-      © 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV<br>
-      <a class="text-[#8CB8C2] no-underline transition hover:text-white" href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
+    <nav id="mobileNav" class="hidden border-t border-zinc-300 bg-white px-5 py-4 md:hidden">
+      <div class="mx-auto grid max-w-[1500px] gap-1">
+        <a class="px-3 py-3 text-sm font-bold text-zinc-900 no-underline" href="index.html">Inicio</a>
+        <a class="px-3 py-3 text-sm font-semibold text-zinc-700 no-underline" href="calculadoras.html">Herramientas</a>
+        <a class="px-3 py-3 text-sm font-semibold text-zinc-700 no-underline" href="zona-interactiva.html">Zona interactiva</a>
+        <a class="mt-2 bg-zinc-900 px-3 py-3 text-sm font-bold text-white no-underline" href="simulador-solar.html">Abrir Solar Studio 3D</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="arch-grid border-b border-zinc-300 bg-zinc-50">
+      <div class="mx-auto grid max-w-[1500px] lg:grid-cols-[0.88fr_1.12fr]">
+        <div class="flex min-h-[640px] flex-col justify-between border-zinc-300 px-5 py-12 lg:border-r lg:px-10 lg:py-16">
+          <div>
+            <div class="mb-8 flex items-center gap-3">
+              <span class="h-[2px] w-10 bg-orange-500"></span>
+              <span class="text-[11px] font-extrabold uppercase tracking-[.2em] text-zinc-500">Scientific housing toolkit · V7</span>
+            </div>
+
+            <h1 class="font-display max-w-[780px] text-[clamp(4rem,8vw,8.6rem)] font-bold uppercase leading-[.88] tracking-[-.035em] text-zinc-900">
+              La vivienda convertida en <span class="text-orange-600">datos útiles.</span>
+            </h1>
+
+            <p class="mt-8 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg">
+              Analiza humedad, condensación, transmitancia térmica, pérdidas, ventilación, confort, energía y asoleamiento desde una suite técnica interactiva.
+            </p>
+
+            <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+              <a href="calculadoras.html" class="inline-flex min-h-12 items-center justify-center bg-zinc-900 px-6 text-sm font-extrabold uppercase tracking-[.08em] text-white no-underline transition hover:bg-orange-600">
+                Explorar herramientas
+              </a>
+              <a href="simulador-solar.html" class="inline-flex min-h-12 items-center justify-center border border-zinc-400 bg-white px-6 text-sm font-extrabold uppercase tracking-[.08em] text-zinc-900 no-underline transition hover:border-zinc-900">
+                Abrir Solar Studio 3D
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-14 grid grid-cols-2 border border-zinc-300 bg-zinc-300 sm:grid-cols-4">
+            <div class="bg-zinc-50 p-4">
+              <div class="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-orange-600">01</div>
+              <div class="mt-2 text-xs font-bold text-zinc-900">Cálculo en navegador</div>
+            </div>
+            <div class="bg-zinc-50 p-4">
+              <div class="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-orange-600">02</div>
+              <div class="mt-2 text-xs font-bold text-zinc-900">Informes PDF</div>
+            </div>
+            <div class="bg-zinc-50 p-4">
+              <div class="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-orange-600">03</div>
+              <div class="mt-2 text-xs font-bold text-zinc-900">Modo claro / oscuro</div>
+            </div>
+            <div class="bg-zinc-50 p-4">
+              <div class="font-mono text-[10px] font-bold uppercase tracking-[.14em] text-orange-600">04</div>
+              <div class="mt-2 text-xs font-bold text-zinc-900">Visualización interactiva</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CANVAS / SOLAR -->
+        <div class="relative min-h-[540px] overflow-hidden bg-zinc-900 lg:min-h-[640px]">
+          <div class="micro-grid absolute inset-0"></div>
+          <canvas id="home-solar-preview" class="absolute inset-0"></canvas>
+
+          <div class="pointer-events-none absolute left-5 top-5 border border-white/20 bg-zinc-950/80 px-4 py-3 text-white backdrop-blur lg:left-8 lg:top-8">
+            <div class="font-display text-lg font-semibold uppercase tracking-[.04em]">Solar Studio 3D</div>
+            <div class="mt-1 text-[11px] text-white/60">Preview interactivo · arrastra para orbitar</div>
+          </div>
+
+          <div class="pointer-events-none absolute right-5 top-5 flex items-center gap-2 lg:right-8 lg:top-8">
+            <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-white">LIVE</span>
+          </div>
+
+          <div class="pointer-events-none absolute bottom-5 left-5 right-5 grid grid-cols-3 border border-white/15 bg-zinc-950/82 text-white backdrop-blur lg:bottom-8 lg:left-8 lg:right-8">
+            <div class="border-r border-white/10 p-3">
+              <div class="text-[9px] font-bold uppercase tracking-[.15em] text-white/45">Trayectoria</div>
+              <div class="mt-1 text-xs font-semibold">Solar</div>
+            </div>
+            <div class="border-r border-white/10 p-3">
+              <div class="text-[9px] font-bold uppercase tracking-[.15em] text-white/45">Elementos</div>
+              <div class="mt-1 text-xs font-semibold">Fachadas · cubierta</div>
+            </div>
+            <div class="p-3 text-right">
+              <div class="text-[9px] font-bold uppercase tracking-[.15em] text-white/45">Control</div>
+              <div class="mt-1 font-mono text-xs font-semibold text-orange-400">◌ Orbit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUITE INTRO -->
+    <section class="border-b border-zinc-300 bg-white">
+      <div class="mx-auto grid max-w-[1500px] gap-8 px-5 py-16 lg:grid-cols-[.8fr_1.2fr] lg:items-end lg:px-10 lg:py-20">
+        <div>
+          <div class="mb-5 flex items-center gap-3">
+            <span class="h-[2px] w-10 bg-blue-600"></span>
+            <p class="text-[11px] font-extrabold uppercase tracking-[.2em] text-zinc-500">Suite HIDROLAB</p>
+          </div>
+          <h2 class="font-display text-4xl font-bold uppercase leading-none tracking-[-.02em] text-zinc-900 sm:text-5xl lg:text-6xl">
+            Herramientas técnicas que explican lo que ocurre
+          </h2>
+        </div>
+
+        <p class="max-w-2xl text-base leading-7 text-zinc-600 lg:justify-self-end">
+          Cada módulo conserva su independencia, pero comparte una misma lógica visual: modelo, fenómeno, resultado e interpretación.
+        </p>
+      </div>
+    </section>
+
+    <!-- ASYMMETRIC MODULE GRID -->
+    <section class="bg-zinc-100">
+      <div class="mx-auto grid max-w-[1500px] gap-4 px-5 py-5 md:grid-cols-2 lg:grid-cols-12 lg:px-10 lg:py-10">
+
+        <!-- Solar -->
+        <a href="simulador-solar.html" class="module-card group relative min-h-[430px] overflow-hidden bg-zinc-900 p-7 text-white no-underline shadow-sm md:col-span-2 lg:col-span-7">
+          <div class="absolute right-0 top-0 h-40 w-40 bg-orange-500"></div>
+          <div class="absolute right-10 top-10 h-40 w-40 border border-white/20"></div>
+
+          <div class="relative z-10 flex h-full flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div class="grid h-12 w-12 place-items-center border border-white/25 text-white">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M2 12h2M20 12h2M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5"/>
+                </svg>
+              </div>
+              <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em]">SOLAR / 3D</span>
+            </div>
+
+            <div class="mt-16 max-w-2xl">
+              <h3 class="font-display text-4xl font-semibold uppercase leading-none tracking-[-.02em] sm:text-5xl">Simulador Solar 3D</h3>
+              <p class="mt-5 max-w-xl text-sm leading-6 text-white/65">
+                Modela una planta, calibra orientación, analiza horas de asoleamiento por fachada y cubierta y exporta un informe técnico.
+              </p>
+
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-bold">Three.js</span>
+                <span class="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-bold">Fachadas F1…</span>
+                <span class="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-bold">Cubierta C1</span>
+                <span class="rounded-full border border-white/20 px-3 py-1.5 text-[10px] font-bold">PDF</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- Humedad -->
+        <a href="calculadoras.html#humedad" class="module-card group min-h-[430px] border border-zinc-300 bg-white p-7 text-zinc-900 no-underline shadow-sm lg:col-span-5">
+          <div class="flex h-full flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div class="font-display text-6xl font-bold text-blue-600">H₂O</div>
+              <span class="rounded-full border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-zinc-600">Higrotérmico</span>
+            </div>
+
+            <div>
+              <h3 class="font-display text-3xl font-semibold uppercase leading-none tracking-[-.02em]">Humedad y condensación</h3>
+              <p class="mt-4 text-sm leading-6 text-zinc-600">Punto de rocío, humedad superficial, moho y balance de vapor.</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">HR</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">T° superficial</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">Riesgo</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">Cálculo en vivo</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- Envolvente -->
+        <a href="calculadoras.html#envolvente" class="module-card group min-h-[360px] border border-zinc-300 bg-zinc-50 p-7 text-zinc-900 no-underline shadow-sm lg:col-span-5">
+          <div class="flex h-full flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <div class="font-display text-7xl font-bold leading-none text-orange-600">U</div>
+              <div class="h-px w-24 bg-zinc-400"></div>
+            </div>
+            <div>
+              <h3 class="font-display text-3xl font-semibold uppercase leading-none tracking-[-.02em]">Envolvente térmica</h3>
+              <p class="mt-4 text-sm leading-6 text-zinc-600">Muros multicapa, U, R, pérdidas, puentes térmicos y simulación de mejoras.</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-[10px] font-bold">W/m²K</span>
+                <span class="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-[10px] font-bold">Capas</span>
+                <span class="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-[10px] font-bold">Aislación</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- Confort -->
+        <a href="confort-termico.html" class="module-card group min-h-[360px] bg-blue-600 p-7 text-white no-underline shadow-sm lg:col-span-3">
+          <div class="flex h-full flex-col justify-between">
+            <span class="font-display text-5xl font-bold">PMV</span>
+            <div>
+              <h3 class="font-display text-3xl font-semibold uppercase leading-none">Confort</h3>
+              <p class="mt-4 text-sm leading-6 text-blue-100">PMV/PPD y variables que influyen en la sensación térmica interior.</p>
+            </div>
+          </div>
+        </a>
+
+        <!-- Ventilación -->
+        <a href="ventilacion-humedad.html" class="module-card group min-h-[360px] border border-zinc-300 bg-white p-7 text-zinc-900 no-underline shadow-sm lg:col-span-4">
+          <div class="flex h-full flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="font-display text-5xl font-bold tracking-[-.04em] text-zinc-900">ACH</span>
+              <svg class="h-10 w-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display text-3xl font-semibold uppercase leading-none">Ventilación</h3>
+              <p class="mt-4 text-sm leading-6 text-zinc-600">Caudal, ACH, generación de vapor y humedad de equilibrio.</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">ACH</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">m³/h</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">Cálculo en vivo</span>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <!-- Zona -->
+        <a href="zona-interactiva.html" class="module-card group min-h-[300px] border border-zinc-300 bg-white p-7 text-zinc-900 no-underline shadow-sm lg:col-span-7">
+          <div class="grid h-full gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-[.18em] text-zinc-500">Contenido visual</span>
+              <h3 class="font-display mt-4 text-3xl font-semibold uppercase leading-none">Zona interactiva</h3>
+              <p class="mt-4 max-w-xl text-sm leading-6 text-zinc-600">Contenido audiovisual de HIDROLAB para complementar la interpretación de los resultados técnicos.</p>
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">Videos</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">Explicaciones</span>
+                <span class="rounded-full bg-zinc-100 px-3 py-1.5 text-[10px] font-bold">HIDROLAB</span>
+              </div>
+            </div>
+            <div class="hidden h-28 w-28 place-items-center border border-zinc-300 sm:grid">
+              <svg class="h-12 w-12 text-zinc-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <rect x="3" y="4" width="18" height="16" rx="1"/><path d="m10 8 6 4-6 4z"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+
+        <!-- Architecture -->
+        <a href="calculadoras.html" class="module-card group min-h-[300px] bg-orange-500 p-7 text-zinc-950 no-underline shadow-sm lg:col-span-5">
+          <div class="flex h-full flex-col justify-between">
+            <div class="grid grid-cols-4 gap-2">
+              <span class="h-8 border border-zinc-900/30"></span><span class="h-8 border border-zinc-900/30"></span><span class="h-8 border border-zinc-900/30"></span><span class="h-8 border border-zinc-900/30"></span>
+            </div>
+            <div>
+              <h3 class="font-display text-3xl font-semibold uppercase leading-none">Arquitectura modular</h3>
+              <p class="mt-4 text-sm leading-6 text-zinc-900/70">Cada herramienta funciona como módulo independiente y puede evolucionar sin rehacer la plataforma.</p>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- TECHNICAL STRIP -->
+    <section class="border-y border-zinc-800 bg-zinc-900 text-white">
+      <div class="mx-auto grid max-w-[1500px] md:grid-cols-4">
+        <div class="border-white/10 p-6 md:border-r">
+          <div class="font-mono text-[10px] font-bold text-orange-400">Td</div>
+          <div class="mt-2 text-sm font-semibold">Punto de rocío</div>
+        </div>
+        <div class="border-white/10 p-6 md:border-r">
+          <div class="font-mono text-[10px] font-bold text-orange-400">U</div>
+          <div class="mt-2 text-sm font-semibold">Transmitancia</div>
+        </div>
+        <div class="border-white/10 p-6 md:border-r">
+          <div class="font-mono text-[10px] font-bold text-orange-400">ACH</div>
+          <div class="mt-2 text-sm font-semibold">Renovaciones de aire</div>
+        </div>
+        <div class="p-6">
+          <div class="font-mono text-[10px] font-bold text-orange-400">PMV</div>
+          <div class="mt-2 text-sm font-semibold">Confort térmico</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-zinc-950 text-white">
+    <div class="mx-auto grid max-w-[1500px] gap-8 px-5 py-12 sm:grid-cols-2 lg:px-10">
+      <div>
+        <div class="text-sm font-extrabold tracking-[.16em]">HIDRO<span class="text-orange-500">LAB</span></div>
+        <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">Ciencia de la vivienda para diagnosticar mejor.</p>
+      </div>
+
+      <div class="text-sm leading-6 text-zinc-400 sm:text-right">
+        <div class="font-semibold text-white">© 2026 · Derechos reservados a Gonzalo Campos V.</div>
+        <div>Constructor Civil · Evaluador CEV</div>
+        <a class="text-orange-400 no-underline hover:text-orange-300" href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<script>
-  try { localStorage.setItem('hidrolab-theme','light'); } catch(e) {}
-</script>
-<script src="modern-ui.js"></script>
+  <script src="landing-architecture.js"></script>
 </body>
 </html>
