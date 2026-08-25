@@ -8,130 +8,301 @@
 <link href="styles.css" rel="stylesheet"/>
 <meta content="strict-origin-when-cross-origin" name="referrer"/>
 <link rel="stylesheet" href="assets/hidrolab-light-ui.css">
+<link rel="stylesheet" href="assets/hidrolab-building-science.css">
 </head>
-<body class="hl-ui hl-home">
+<body class="hl-ui hl-home hl-building-science">
 
-<header class="top">
+<header class="top bs-top">
+  <div class="wrap nav bs-nav">
+    <a class="brand hl-brand" href="index.html" aria-label="HIDROLAB, inicio">
+      <span class="brand-icon" aria-hidden="true"></span>
+      <span class="hl-brand-copy">
+        <span>HIDRO<em>LAB</em></span>
+        <small>BUILDING SCIENCE</small>
+      </span>
+    </a>
 
-<div class="hl-header-motion" aria-hidden="true">
-  <svg class="hl-motion-svg" viewBox="0 0 720 250" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="hlGradCyan" x1="0" x2="1">
-        <stop offset="0%" stop-color="#16A6C7" stop-opacity="0"/>
-        <stop offset="45%" stop-color="#16A6C7" stop-opacity=".75"/>
-        <stop offset="100%" stop-color="#16A6C7" stop-opacity="0"/>
-      </linearGradient>
-      <linearGradient id="hlGradOrange" x1="0" x2="1">
-        <stop offset="0%" stop-color="#ED8A3A" stop-opacity="0"/>
-        <stop offset="50%" stop-color="#ED8A3A" stop-opacity=".72"/>
-        <stop offset="100%" stop-color="#ED8A3A" stop-opacity="0"/>
-      </linearGradient>
-      <linearGradient id="hlGradGreen" x1="0" x2="1">
-        <stop offset="0%" stop-color="#20B88A" stop-opacity="0"/>
-        <stop offset="48%" stop-color="#20B88A" stop-opacity=".64"/>
-        <stop offset="100%" stop-color="#20B88A" stop-opacity="0"/>
-      </linearGradient>
-      <filter id="hlGlow">
-        <feGaussianBlur stdDeviation="2.5" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <g class="hl-motion-grid">
-      <path d="M0 48H720M0 98H720M0 148H720M0 198H720"/>
-      <path d="M90 0V250M180 0V250M270 0V250M360 0V250M450 0V250M540 0V250M630 0V250"/>
-    </g>
-
-    <path class="hl-wave hl-wave-1" d="M-30 164 C65 116,132 192,226 145 S389 107,474 153 S635 190,760 120" stroke="url(#hlGradCyan)"/>
-    <path class="hl-wave hl-wave-2" d="M-40 112 C58 158,128 73,225 115 S390 169,481 113 S635 70,760 142" stroke="url(#hlGradOrange)"/>
-    <path class="hl-wave hl-wave-3" d="M-25 203 C75 170,149 214,245 186 S404 151,502 182 S645 218,755 171" stroke="url(#hlGradGreen)"/>
-
-    <g class="hl-sun-orbit">
-      <path d="M430 174 A142 142 0 0 1 688 74"/>
-      <circle class="hl-sun" cx="612" cy="90" r="9"/>
-      <circle class="hl-orbit-dot hl-orbit-dot-1" cx="473" cy="144" r="4"/>
-      <circle class="hl-orbit-dot hl-orbit-dot-2" cx="548" cy="104" r="4"/>
-    </g>
-
-    <g class="hl-motion-labels">
-      <g transform="translate(126 66)"><rect width="86" height="32" rx="7"/><text x="12" y="20">Td 12.7°C</text></g>
-      <g transform="translate(286 188)"><rect width="94" height="32" rx="7"/><text x="12" y="20">U 0.38</text></g>
-      <g transform="translate(500 40)"><rect width="102" height="32" rx="7"/><text x="12" y="20">ACH 0.52</text></g>
-      <g transform="translate(570 184)"><rect width="94" height="32" rx="7"/><text x="12" y="20">φsi 82%</text></g>
-    </g>
-
-    <g class="hl-pulse-nodes" filter="url(#hlGlow)">
-      <circle cx="226" cy="145" r="4"/>
-      <circle cx="474" cy="153" r="4"/>
-      <circle cx="390" cy="169" r="4"/>
-      <circle cx="502" cy="182" r="4"/>
-    </g>
-  </svg>
-</div>
-
-  <div class="wrap nav">
-    <a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a>
-    <nav class="navlinks">
+    <nav class="navlinks bs-navlinks" aria-label="Navegación principal">
       <a class="active" href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a>
       <a href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a>
       <a href="zona-interactiva.html"><span class="hl-nav-dot hl-dot-zone"></span>Zona interactiva</a>
-    </nav><a class="hl-nav-solar" href="simulador-solar.html"><span class="hl-nav-sun">☀</span><span class="hl-nav-solar-label">Solar Studio</span></a>
+    </nav>
+
+    <a class="hl-nav-solar bs-solar-nav" href="simulador-solar.html">
+      <span class="hl-nav-sun" aria-hidden="true">☀</span>
+      <span class="hl-nav-solar-label">Solar Studio</span>
+    </a>
   </div>
 
-  <div class="wrap hero">
-    <div class="eyebrow">Higrotécnica · envolvente · ventilación · solar</div>
-    <h1>La vivienda convertida en datos útiles</h1>
-    <p>Analiza humedad, condensación, transmitancia térmica, pérdidas, ventilación y asoleamiento desde una suite técnica interactiva.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="calculadoras.html">Explorar herramientas</a>
-      <a class="btn btn-soft" href="simulador-solar.html">Abrir Solar Studio 3D</a>
+  <div class="wrap bs-hero">
+    <div class="bs-hero-copy">
+      <div class="bs-overline">FÍSICA DE LA VIVIENDA · CHILE</div>
+      <h1>La vivienda convertida en <span>datos útiles.</span></h1>
+      <p class="bs-lead">Herramientas interactivas para comprender humedad, condensación, envolvente térmica, ventilación, pérdidas y asoleamiento con una lectura técnica clara.</p>
+
+      <div class="bs-hero-actions">
+        <a class="bs-btn bs-btn-primary" href="calculadoras.html">
+          Explorar herramientas
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a class="bs-btn bs-btn-ghost" href="simulador-solar.html">
+          Abrir Solar Studio 3D
+        </a>
+      </div>
+
+      <div class="bs-proof" aria-label="Capacidades de HIDROLAB">
+        <span><i class="bs-proof-dot cyan"></i>Cálculo interactivo</span>
+        <span><i class="bs-proof-dot orange"></i>Lectura técnica</span>
+        <span><i class="bs-proof-dot green"></i>Informes PDF</span>
+      </div>
+    </div>
+
+    <div class="bs-hero-visual" aria-label="Vista conceptual de Solar Studio">
+      <div class="bs-visual-topline">
+        <span>SOLAR STUDIO / ESTUDIO DE ASOLEAMIENTO</span>
+        <span class="bs-live"><i></i>SIMULACIÓN</span>
+      </div>
+
+      <div class="bs-solar-scene" aria-hidden="true">
+        <div class="bs-grid-plane"></div>
+        <div class="bs-sun-path"><span class="bs-sun"></span></div>
+
+        <div class="bs-house">
+          <div class="bs-roof"></div>
+          <div class="bs-wall bs-wall-front"></div>
+          <div class="bs-wall bs-wall-side"></div>
+          <span class="bs-window bs-window-a"></span>
+          <span class="bs-window bs-window-b"></span>
+        </div>
+
+        <div class="bs-orientation"><b>N</b><span></span></div>
+
+        <div class="bs-solar-readout">
+          <small>FACHADA F1 · NORTE</small>
+          <strong>5,8 h</strong>
+          <span>sol directo estimado</span>
+        </div>
+
+        <div class="bs-thermal-readout">
+          <span><small>AZIMUT</small><strong>004°</strong></span>
+          <span><small>FECHA</small><strong>21 JUN</strong></span>
+        </div>
+      </div>
+
+      <div class="bs-visual-footer">
+        <span>Planta CAD</span>
+        <span>Orientación</span>
+        <span>Sombras</span>
+        <span>Fachadas</span>
+      </div>
     </div>
   </div>
 </header>
 
-<main class="wrap main">
-  <section class="card">
-    <div class="section-head">
-      <div>
-        <p class="kicker">HIDROLAB</p>
-        <h2>Una suite técnica que reacciona a tus datos</h2>
-      </div>
-      <span class="tool-tag new">Suite interactiva</span>
+<main class="bs-main">
+  <section class="wrap bs-intro" aria-labelledby="suite-title">
+    <div class="bs-section-index">01</div>
+    <div>
+      <p class="bs-kicker">SUITE TÉCNICA</p>
+      <h2 id="suite-title">Un sistema visual para leer la vivienda.</h2>
     </div>
+    <p class="bs-section-copy">Cada módulo separa entradas, modelo y resultados para que el fenómeno físico sea más fácil de explorar sin perder trazabilidad técnica.</p>
+  </section>
 
-    <div class="cards">
-      <article class="tool-card">
-        <div class="tool-visual"><div class="tool-icon">H₂O</div></div>
-        <div class="tool-body">
-          <h3>Humedad y condensación</h3>
-          <p>Punto de rocío, humedad superficial, riesgo preventivo y ventilación.</p>
-          <a class="btn btn-dark" href="calculadoras.html#humedad">Ver herramientas</a>
-        </div>
-      </article>
+  <section class="wrap bs-bento" aria-label="Módulos principales de HIDROLAB">
+    <article class="bs-module bs-module-humidity">
+      <div class="bs-module-top">
+        <span class="bs-module-code">01 / HUMEDAD</span>
+        <span class="bs-module-symbol">Td</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Humedad y condensación</h3>
+        <p>Punto de rocío, humedad superficial, riesgo preventivo y lectura higrotérmica.</p>
+      </div>
+      <div class="bs-metric-sample">
+        <span>Ti 20°C</span>
+        <span>HR 65%</span>
+        <strong>Td 13,2°C</strong>
+      </div>
+      <div class="bs-tags">
+        <span>Cálculo en vivo</span>
+        <span>PDF</span>
+      </div>
+      <a class="bs-card-link" href="calculadoras.html#humedad">Ver herramientas <span>↗</span></a>
+    </article>
 
-      <article class="tool-card">
-        <div class="tool-visual"><div class="tool-icon">U</div></div>
-        <div class="tool-body">
-          <h3>Envolvente térmica</h3>
-          <p>Construye muros, calcula U, simula aislación y analiza pérdidas.</p>
-          <a class="btn btn-dark" href="simulador-muro.html">Simular muro</a>
+    <article class="bs-module bs-module-envelope">
+      <div class="bs-module-top">
+        <span class="bs-module-code">02 / ENVOLVENTE</span>
+        <span class="bs-module-symbol">U</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Envolvente térmica</h3>
+        <p>Construye muros por capas, compara aislantes y estudia transmitancia y resistencia térmica.</p>
+      </div>
+      <div class="bs-wall-schematic" aria-hidden="true">
+        <span style="--w:16%"></span>
+        <span style="--w:10%"></span>
+        <span style="--w:42%"></span>
+        <span style="--w:17%"></span>
+        <span style="--w:15%"></span>
+      </div>
+      <div class="bs-envelope-result">
+        <span><small>U</small><strong>0,38</strong><em>W/m²K</em></span>
+        <span><small>Rt</small><strong>2,63</strong><em>m²K/W</em></span>
+      </div>
+      <a class="bs-card-link" href="simulador-muro.html">Construir muro <span>↗</span></a>
+    </article>
+
+    <article class="bs-module bs-module-vent">
+      <div class="bs-module-top">
+        <span class="bs-module-code">03 / VENTILACIÓN</span>
+        <span class="bs-module-symbol">ACH</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Ventilación y humedad</h3>
+        <p>Relaciona renovación de aire, fuentes de vapor y condiciones interiores.</p>
+      </div>
+      <div class="bs-airflow" aria-hidden="true"><i></i><i></i><i></i></div>
+      <a class="bs-card-link" href="ventilacion-humedad.html">Analizar ventilación <span>↗</span></a>
+    </article>
+
+    <article class="bs-module bs-module-solar">
+      <div class="bs-module-top">
+        <span class="bs-module-code">04 / SOLAR</span>
+        <span class="bs-module-symbol">☀</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Solar Studio 3D</h3>
+        <p>Dibuja una planta, ubícala, define orientación y estudia el sol sobre fachadas y cubierta.</p>
+      </div>
+      <div class="bs-solar-mini" aria-hidden="true">
+        <div class="bs-mini-orbit"></div>
+        <div class="bs-mini-building"></div>
+      </div>
+      <div class="bs-tags">
+        <span>3D</span>
+        <span>Google Maps</span>
+        <span>PDF</span>
+      </div>
+      <a class="bs-card-link bs-card-link-light" href="simulador-solar.html">Abrir Solar Studio <span>↗</span></a>
+    </article>
+
+    <article class="bs-module bs-module-loss">
+      <div class="bs-module-top">
+        <span class="bs-module-code">05 / PÉRDIDAS</span>
+        <span class="bs-module-symbol">Q̇</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Pérdidas térmicas</h3>
+        <p>Descompone por elemento dónde se está perdiendo calor en una vivienda.</p>
+      </div>
+      <div class="bs-loss-bars" aria-hidden="true">
+        <span style="--p:82%"><i></i></span>
+        <span style="--p:61%"><i></i></span>
+        <span style="--p:44%"><i></i></span>
+      </div>
+      <a class="bs-card-link" href="perdidas-termicas.html">Estudiar pérdidas <span>↗</span></a>
+    </article>
+
+    <article class="bs-module bs-module-zone">
+      <div class="bs-module-top">
+        <span class="bs-module-code">06 / EXPLORAR</span>
+        <span class="bs-module-symbol">+</span>
+      </div>
+      <div class="bs-module-body">
+        <h3>Zona interactiva</h3>
+        <p>Un espacio de exploración visual para comprender fenómenos de la vivienda.</p>
+      </div>
+      <a class="bs-zone-button" href="zona-interactiva.html">Entrar a la zona interactiva <span>→</span></a>
+    </article>
+  </section>
+
+  <section class="bs-process">
+    <div class="wrap">
+      <div class="bs-process-head">
+        <div>
+          <p class="bs-kicker bs-kicker-light">MÉTODO HIDROLAB</p>
+          <h2>De la condición al diagnóstico.</h2>
         </div>
-      </article>
+        <p>La interfaz prioriza una secuencia simple: definir condiciones, modelar el elemento y leer el resultado con su alcance.</p>
+      </div>
+
+      <div class="bs-process-grid">
+        <article>
+          <span>01</span>
+          <h3>Condiciones</h3>
+          <p>Temperaturas, humedad, geometría, ubicación y parámetros de uso.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Modelo</h3>
+          <p>Capas, resistencias, ventilación, orientación y geometría de la vivienda.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Lectura</h3>
+          <p>Resultados jerarquizados, gráficos y advertencias sobre el alcance del cálculo.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Informe</h3>
+          <p>Salida PDF disponible en los módulos que incorporan reporte técnico.</p>
+        </article>
+      </div>
     </div>
   </section>
 
-  <section class="card">
-    <div class="section-head">
-      <div>
-        <p class="kicker">Solar Studio 3D</p>
-        <h2>Análisis solar interactivo</h2>
+  <section class="wrap bs-solar-feature" aria-labelledby="solar-feature-title">
+    <div class="bs-feature-copy">
+      <p class="bs-kicker">SOLAR STUDIO</p>
+      <h2 id="solar-feature-title">Del mapa a una vivienda 3D.</h2>
+      <p>Localiza el emplazamiento, usa una referencia satelital, calibra la planta, traza el perímetro y estudia el recorrido solar sobre el modelo.</p>
+      <div class="bs-feature-points">
+        <span><b>01</b> Emplazamiento</span>
+        <span><b>02</b> Planta</span>
+        <span><b>03</b> Orientación</span>
+        <span><b>04</b> Asoleamiento</span>
       </div>
-      <span class="tool-tag">3D</span>
+      <a class="bs-btn bs-btn-dark" href="simulador-solar.html">Iniciar estudio solar <span>↗</span></a>
     </div>
-    <p>Modela la planta de una vivienda, define orientación y fecha, analiza fachadas y cubierta, visualiza sombras y obtiene horas de asoleamiento.</p>
-    <div class="hero-actions">
-      <a class="btn btn-dark" href="simulador-solar.html">Abrir simulador solar</a>
+
+    <div class="bs-feature-board" aria-hidden="true">
+      <div class="bs-board-header">
+        <span>PLANTA / REFERENCIA</span>
+        <span>LAT -33.596 · LON -70.876</span>
+      </div>
+      <div class="bs-board-canvas">
+        <div class="bs-board-grid"></div>
+        <svg viewBox="0 0 520 330" preserveAspectRatio="xMidYMid meet">
+          <polygon points="108,226 124,116 289,72 414,132 397,246 218,277"
+                   fill="rgba(22,166,199,.10)" stroke="#16343d" stroke-width="5"/>
+          <line x1="124" y1="116" x2="397" y2="246" stroke="#ed8a3a" stroke-width="2" stroke-dasharray="7 8"/>
+          <line x1="108" y1="226" x2="414" y2="132" stroke="#16a6c7" stroke-width="2" stroke-dasharray="7 8"/>
+          <circle cx="124" cy="116" r="7" fill="#16a6c7"/>
+          <circle cx="289" cy="72" r="7" fill="#16a6c7"/>
+          <circle cx="414" cy="132" r="7" fill="#16a6c7"/>
+          <circle cx="397" cy="246" r="7" fill="#16a6c7"/>
+          <circle cx="218" cy="277" r="7" fill="#16a6c7"/>
+          <circle cx="108" cy="226" r="7" fill="#16a6c7"/>
+        </svg>
+        <div class="bs-board-north">N<span>↑</span></div>
+        <div class="bs-board-scale">10 m</div>
+      </div>
+      <div class="bs-board-footer">
+        <span>Escala calibrada</span>
+        <span>6 vértices</span>
+        <span>Azimut 004°</span>
+      </div>
     </div>
+  </section>
+
+  <section class="wrap bs-final-cta">
+    <div>
+      <p class="bs-kicker">HIDROLAB / BUILDING SCIENCE</p>
+      <h2>Explora la vivienda con criterio técnico.</h2>
+    </div>
+    <a class="bs-btn bs-btn-primary" href="calculadoras.html">Ver todas las herramientas <span>↗</span></a>
   </section>
 </main>
 
