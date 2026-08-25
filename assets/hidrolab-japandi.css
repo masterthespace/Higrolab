@@ -1,0 +1,515 @@
+
+/* =====================================================================
+   HIDROLAB V8.8.3 · JAPANDI CLOVER
+   Off-white + clover green + sage + sand + restrained solar gold
+   ===================================================================== */
+
+:root{
+  --jp-canvas:#F7F5EF;
+  --jp-surface:#FFFCF7;
+  --jp-surface-2:#F2F0E8;
+  --jp-ink:#111714;
+  --jp-text:#1B241F;
+  --jp-secondary:#34443A;
+  --jp-muted:#49584D;
+  --jp-line:#D9D8CF;
+
+  --jp-clover:#2F7D4E;
+  --jp-clover-deep:#245F3D;
+  --jp-clover-dark:#1D4E32;
+
+  --jp-sage:#DCE6DC;
+  --jp-sage-mid:#B7C9B5;
+  --jp-sage-strong:#8EAE8B;
+  --jp-mist:#E8F1E7;
+
+  --jp-sand:#E7D8C7;
+  --jp-clay:#C77E5C;
+  --jp-gold:#D4A83E;
+  --jp-olive:#69745E;
+  --jp-violet:#71658A;
+
+  --jp-shadow:0 14px 34px rgba(45,69,52,.075);
+}
+
+/* ---------------- Base + typography ---------------- */
+body.hl-japandi{
+  background:var(--jp-canvas)!important;
+  background-image:none!important;
+  color:var(--jp-text)!important;
+}
+body.hl-japandi::before,
+body.hl-japandi::after{display:none!important}
+
+body.hl-japandi,
+body.hl-japandi p,
+body.hl-japandi li,
+body.hl-japandi td,
+body.hl-japandi input,
+body.hl-japandi select,
+body.hl-japandi textarea{
+  color:var(--jp-text)!important;
+}
+body.hl-japandi h1,
+body.hl-japandi h2,
+body.hl-japandi h3,
+body.hl-japandi h4,
+body.hl-japandi strong,
+body.hl-japandi b{
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi .mini,
+body.hl-japandi .note,
+body.hl-japandi .help,
+body.hl-japandi .hint,
+body.hl-japandi .image-help,
+body.hl-japandi .section-note,
+body.hl-japandi .method-note,
+body.hl-japandi .material-source,
+body.hl-japandi .calc-origin,
+body.hl-japandi .legend-row,
+body.hl-japandi .trace-item p,
+body.hl-japandi .thermal-wall-footer,
+body.hl-japandi .empty{
+  color:var(--jp-secondary)!important;
+}
+body.hl-japandi label,
+body.hl-japandi .field label,
+body.hl-japandi .panel label{
+  color:#203027!important;
+}
+body.hl-japandi input::placeholder,
+body.hl-japandi textarea::placeholder{
+  color:#69746C!important;
+  opacity:1!important;
+}
+
+/* ---------------- Shared global nav ---------------- */
+body.hl-japandi .top{
+  background:transparent!important;
+}
+body.hl-japandi .nav{
+  border-color:#D8D8CF!important;
+  background:var(--jp-surface)!important;
+  box-shadow:0 8px 24px rgba(45,69,52,.055)!important;
+}
+
+body.hl-japandi .hl-brand .brand-icon{
+  background:linear-gradient(145deg,var(--jp-clover),var(--jp-clover-deep))!important;
+  box-shadow:0 5px 13px rgba(47,125,78,.18)!important;
+}
+body.hl-japandi .hl-brand .brand-icon::before{color:#fff!important}
+body.hl-japandi .hl-brand .brand-icon::after{
+  background:#C8DFB9!important;
+  border-color:#fff!important;
+}
+body.hl-japandi .hl-brand-copy>span{color:var(--jp-ink)!important}
+body.hl-japandi .hl-brand-copy>span em{color:var(--jp-clover)!important}
+body.hl-japandi .hl-brand-copy small{color:#45554A!important}
+
+body.hl-japandi .navlinks{
+  background:#F0F1EB!important;
+}
+body.hl-japandi .navlinks a{
+  color:#2D3B32!important;
+}
+body.hl-japandi .navlinks a:hover{
+  color:var(--jp-clover)!important;
+  background:#fff!important;
+}
+body.hl-japandi .navlinks a.active{
+  color:#fff!important;
+  background:var(--jp-clover)!important;
+  box-shadow:0 4px 11px rgba(47,125,78,.18)!important;
+}
+body.hl-japandi .navlinks a.active .hl-nav-dot{background:#fff!important}
+
+body.hl-japandi .hl-dot-home{background:var(--jp-clover)!important}
+body.hl-japandi .hl-dot-tools{background:#6F9A72!important}
+body.hl-japandi .hl-dot-zone{background:var(--jp-violet)!important}
+
+body.hl-japandi .hl-nav-solar{
+  border-color:#C8C8BD!important;
+  background:#172019!important;
+  color:#fff!important;
+}
+body.hl-japandi .hl-nav-solar:hover{
+  border-color:var(--jp-clover)!important;
+  background:var(--jp-clover)!important;
+}
+body.hl-japandi .hl-nav-sun{
+  background:#283229!important;
+  color:#E4BD4A!important;
+}
+
+body.hl-japandi .nav-back-btn{
+  border-color:#D1D0C8!important;
+  background:#fff!important;
+  color:#233027!important;
+}
+body.hl-japandi .nav-back-btn:hover{
+  border-color:#A9B4A8!important;
+  color:var(--jp-clover)!important;
+  background:#F5F5F0!important;
+}
+
+/* ---------------- HOME hero ---------------- */
+body.hl-japandi .v882-hero{
+  border-color:#C7D4C5!important;
+  background:
+    radial-gradient(circle at 86% 13%,rgba(255,255,255,.72),transparent 19rem),
+    linear-gradient(135deg,#E8EFE6 0%,#DCE6DC 100%)!important;
+  box-shadow:var(--jp-shadow)!important;
+}
+
+body.hl-japandi .compact-eyebrow{
+  color:var(--jp-clover-deep)!important;
+}
+body.hl-japandi .v882-hero h1{
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi .v882-hero h1 span{
+  color:var(--jp-clover)!important;
+}
+body.hl-japandi .v882-hero-copy>p:not(.compact-eyebrow){
+  color:#2A3A30!important;
+}
+
+body.hl-japandi .compact-btn-primary{
+  background:var(--jp-clover)!important;
+  border-color:var(--jp-clover)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(47,125,78,.17)!important;
+}
+body.hl-japandi .compact-btn-primary:hover{
+  background:var(--jp-clover-deep)!important;
+  border-color:var(--jp-clover-deep)!important;
+}
+body.hl-japandi .compact-btn-secondary{
+  background:#fff!important;
+  border-color:#B9C2B8!important;
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi .compact-btn-secondary:hover{
+  background:#172019!important;
+  border-color:#172019!important;
+  color:#fff!important;
+}
+
+/* Functional tags: all clickable, now visually coherent */
+body.hl-japandi .v882-quick-tags a{
+  background:rgba(255,252,247,.76)!important;
+  border-color:rgba(29,78,50,.14)!important;
+  color:#26332A!important;
+}
+body.hl-japandi .v882-quick-tags a:hover,
+body.hl-japandi .v882-quick-tags a:focus-visible{
+  background:#fff!important;
+  color:var(--tag-color,var(--jp-clover))!important;
+}
+body.hl-japandi .v882-quick-tags .tag-water{--tag-color:#3D8F72!important}
+body.hl-japandi .v882-quick-tags .tag-envelope{--tag-color:var(--jp-clover)!important}
+body.hl-japandi .v882-quick-tags .tag-vent{--tag-color:#5D8D69!important}
+body.hl-japandi .v882-quick-tags .tag-loss{--tag-color:#5C6859!important}
+body.hl-japandi .v882-quick-tags .tag-solar{--tag-color:#9A7617!important}
+body.hl-japandi .v882-quick-tags .tag-zone{--tag-color:var(--jp-violet)!important}
+
+/* ---------------- Hero solar stage ---------------- */
+body.hl-japandi .v882-solar-stage{
+  border-color:#C9D2C7!important;
+  background:rgba(255,252,247,.78)!important;
+  box-shadow:0 15px 34px rgba(48,77,57,.075)!important;
+}
+body.hl-japandi .v882-stage-head,
+body.hl-japandi .v882-stage-foot{
+  color:#26362B!important;
+}
+body.hl-japandi .v882-stage-state{color:#32785A!important}
+body.hl-japandi .v882-stage-state i{
+  background:#3A8B67!important;
+  box-shadow:0 0 0 3px rgba(58,139,103,.13)!important;
+}
+body.hl-japandi .v882-stage-svg{
+  background:#E5EBDD!important;
+}
+body.hl-japandi .v882-stage-foot{
+  border-top-color:#D7DDD4!important;
+}
+body.hl-japandi .v882-stage-foot a{
+  color:var(--jp-clover)!important;
+}
+
+/* ---------------- HOME main / module cards ---------------- */
+body.hl-japandi .v882-home-main{
+  border-color:#DDDAD1!important;
+  background:var(--jp-surface)!important;
+  box-shadow:0 12px 28px rgba(44,66,50,.05)!important;
+}
+body.hl-japandi .v882-section-head p{
+  color:#34443A!important;
+}
+body.hl-japandi .v882-section-head h2{color:var(--jp-ink)!important}
+body.hl-japandi .v882-section-head>a{
+  color:var(--jp-clover)!important;
+}
+
+body.hl-japandi .compact-module-card{
+  border-color:#DEDCD4!important;
+  background:var(--jp-surface)!important;
+}
+body.hl-japandi .compact-module-card:hover{
+  border-color:#BAC6B8!important;
+  box-shadow:0 11px 25px rgba(47,72,54,.07)!important;
+}
+
+/* Vivid Japandi module covers */
+body.hl-japandi .module-humidity .compact-module-cover{
+  background:linear-gradient(145deg,#E3F2EA,#CFE6D8)!important;
+}
+body.hl-japandi .module-humidity .compact-module-cover>span{color:#2D7E5E!important}
+
+body.hl-japandi .module-envelope .compact-module-cover{
+  background:linear-gradient(145deg,#E2EADB,#C6D7C1)!important;
+}
+body.hl-japandi .module-envelope .compact-module-cover>span{color:var(--jp-clover)!important}
+
+body.hl-japandi .module-solar .compact-module-cover{
+  background:linear-gradient(145deg,#FFF4D6,#ECD8A2)!important;
+}
+body.hl-japandi .module-solar .compact-module-cover>span{color:#8E6D17!important}
+
+body.hl-japandi .module-vent .compact-module-cover{
+  background:linear-gradient(145deg,#E1F0E2,#C8DFC9)!important;
+}
+body.hl-japandi .module-vent .compact-module-cover>span{color:#4F815B!important}
+
+body.hl-japandi .module-loss .compact-module-cover{
+  background:linear-gradient(145deg,#ECEAE2,#D9D8CC)!important;
+}
+body.hl-japandi .module-loss .compact-module-cover>span{color:#536252!important}
+
+body.hl-japandi .module-zone .compact-module-cover{
+  background:linear-gradient(145deg,#EFE9E2,#E2D4C5)!important;
+}
+body.hl-japandi .module-zone .compact-module-cover>span{color:#7E634F!important}
+
+body.hl-japandi .compact-module-copy small{
+  color:#3E4F43!important;
+}
+body.hl-japandi .compact-module-copy h3{
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi .compact-module-copy p{
+  color:#34443A!important;
+}
+body.hl-japandi .compact-module-copy a{
+  color:var(--jp-clover)!important;
+}
+body.hl-japandi .compact-module-copy a:hover{
+  color:var(--jp-clover-deep)!important;
+}
+
+/* mini graphics */
+body.hl-japandi .mini-droplet{background:rgba(61,143,114,.24)!important}
+body.hl-japandi .mini-orbit{border-color:#A68125!important}
+body.hl-japandi .mini-orbit::after{background:var(--jp-gold)!important}
+body.hl-japandi .mini-air i{background:linear-gradient(90deg,#5B8E67,transparent)!important}
+body.hl-japandi .mini-bars i{background:#63705F!important}
+body.hl-japandi .mini-nodes i{background:#9F806C!important}
+body.hl-japandi .mini-nodes::before,
+body.hl-japandi .mini-nodes::after{background:#B69B89!important}
+
+/* ---------------- Tools catalog ---------------- */
+body.hl-japandi.hl-tools .main>.card{
+  border-color:#DDDAD1!important;
+  background:var(--jp-surface)!important;
+}
+body.hl-japandi.hl-tools .category-head h2{color:var(--jp-ink)!important}
+body.hl-japandi.hl-tools .category-head>p{color:#34443A!important}
+
+body.hl-japandi.hl-tools .tool-card{
+  border-color:#DEDCD4!important;
+  background:#fff!important;
+}
+body.hl-japandi.hl-tools .tool-card:hover{
+  border-color:#BAC6B8!important;
+  box-shadow:0 9px 22px rgba(45,69,52,.07)!important;
+}
+body.hl-japandi.hl-tools .tool-body h3{color:var(--jp-ink)!important}
+body.hl-japandi.hl-tools .tool-body p{color:#34443A!important}
+
+/* humidity */
+body.hl-japandi.hl-tools #humedad .tool-card:nth-child(-n+3) .tool-visual{
+  background:linear-gradient(145deg,#E3F2EA,#CFE6D8)!important;
+}
+body.hl-japandi.hl-tools #humedad .tool-card:nth-child(-n+3) .tool-icon{
+  color:#2D7E5E!important;
+}
+/* ventilation */
+body.hl-japandi.hl-tools #humedad .tool-card:nth-child(4) .tool-visual{
+  background:linear-gradient(145deg,#E1F0E2,#C8DFC9)!important;
+}
+body.hl-japandi.hl-tools #humedad .tool-card:nth-child(4) .tool-icon{
+  color:#4F815B!important;
+}
+/* envelope */
+body.hl-japandi.hl-tools #envolvente .tool-card .tool-visual{
+  background:linear-gradient(145deg,#E2EADB,#C6D7C1)!important;
+}
+body.hl-japandi.hl-tools #envolvente .tool-card .tool-icon{
+  color:var(--jp-clover)!important;
+}
+/* solar */
+body.hl-japandi.hl-tools .category:last-of-type .tool-card .tool-visual{
+  background:linear-gradient(145deg,#FFF4D6,#ECD8A2)!important;
+}
+body.hl-japandi.hl-tools .category:last-of-type .tool-icon{
+  color:#8E6D17!important;
+}
+
+body.hl-japandi.hl-tools .btn-dark{
+  background:var(--jp-clover)!important;
+  color:#fff!important;
+}
+body.hl-japandi.hl-tools .btn-dark:hover{
+  background:var(--jp-clover-deep)!important;
+}
+
+/* ---------------- Internal module headers / cards ---------------- */
+body.hl-japandi:not(.hl-home) .hero{
+  border-color:#C6D2C3!important;
+  background:
+    radial-gradient(circle at 91% 16%,rgba(255,255,255,.68),transparent 13rem),
+    linear-gradient(135deg,#E8EFE6,#DCE6DC)!important;
+  box-shadow:0 10px 23px rgba(45,69,52,.055)!important;
+}
+body.hl-japandi:not(.hl-home) .hero .eyebrow{
+  color:var(--jp-clover-deep)!important;
+}
+body.hl-japandi:not(.hl-home) .hero h1{
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi:not(.hl-home) .hero p{
+  color:#2F4035!important;
+}
+body.hl-japandi:not(.hl-home) .kicker{
+  color:var(--jp-clover)!important;
+}
+
+body.hl-japandi:not(.hl-home) .card,
+body.hl-japandi:not(.hl-home) .panel{
+  border-color:#DEDCD4!important;
+  background:var(--jp-surface)!important;
+}
+body.hl-japandi:not(.hl-home) .btn-dark,
+body.hl-japandi:not(.hl-home) .btn-primary{
+  background:var(--jp-clover)!important;
+  color:#fff!important;
+}
+body.hl-japandi:not(.hl-home) .btn-dark:hover,
+body.hl-japandi:not(.hl-home) .btn-primary:hover{
+  background:var(--jp-clover-deep)!important;
+}
+body.hl-japandi:not(.hl-home) .btn-soft{
+  background:#EEF3EA!important;
+  color:var(--jp-clover-deep)!important;
+  border-color:#CDD9C9!important;
+}
+
+/* Form controls */
+body.hl-japandi input,
+body.hl-japandi select,
+body.hl-japandi textarea,
+body.hl-japandi .number-wrap{
+  background:#fff!important;
+  border-color:#CFCFC7!important;
+  color:var(--jp-ink)!important;
+}
+body.hl-japandi input:focus,
+body.hl-japandi select:focus,
+body.hl-japandi textarea:focus,
+body.hl-japandi .number-wrap:focus-within{
+  border-color:var(--jp-clover)!important;
+  box-shadow:0 0 0 3px rgba(47,125,78,.11)!important;
+}
+body.hl-japandi input[type="range"]{
+  accent-color:var(--jp-clover)!important;
+}
+
+/* Tables */
+body.hl-japandi th{
+  background:#F0F2EC!important;
+  color:#26352B!important;
+}
+body.hl-japandi td,
+body.hl-japandi th{
+  border-color:#DCDCD3!important;
+}
+
+/* ---------------- Solar Studio ---------------- */
+body.hl-japandi.hl-solar .studio{
+  background:#F1F1EB!important;
+}
+body.hl-japandi.hl-solar .panel{
+  background:#FFFCF7!important;
+}
+body.hl-japandi.hl-solar .panel h3{
+  color:#203027!important;
+}
+body.hl-japandi.hl-solar .panel .mini,
+body.hl-japandi.hl-solar .panel .image-help,
+body.hl-japandi.hl-solar .static-map-status{
+  color:#3B4A40!important;
+}
+body.hl-japandi.hl-solar .segmented{
+  background:#ECEDE7!important;
+}
+body.hl-japandi.hl-solar .segmented .active{
+  background:var(--jp-clover)!important;
+  color:#fff!important;
+}
+body.hl-japandi.hl-solar .toolrail{
+  background:#F2F1EA!important;
+}
+body.hl-japandi.hl-solar .toolrail button.active,
+body.hl-japandi.hl-solar .toolrail button:hover{
+  color:var(--jp-clover-deep)!important;
+  border-color:#C7D3C3!important;
+  background:#F6FAF4!important;
+}
+body.hl-japandi.hl-solar .solar-time button{
+  background:var(--jp-clover)!important;
+  color:#fff!important;
+}
+
+/* Capture / map cards */
+body.hl-japandi .map-capture-card{
+  border-color:#C9D7C6!important;
+  background:linear-gradient(145deg,#EEF5EB,#FFFDF8)!important;
+}
+body.hl-japandi .map-capture-badge{
+  background:var(--jp-clover)!important;
+}
+body.hl-japandi .map-capture-actions .capture-map-primary{
+  border-color:var(--jp-clover)!important;
+  background:linear-gradient(135deg,var(--jp-clover),var(--jp-clover-deep))!important;
+}
+body.hl-japandi .static-map-title{
+  border-color:#D9C89E!important;
+  background:#FFF7E3!important;
+}
+
+/* ---------------- Footer ---------------- */
+body.hl-japandi .footer{
+  color:#35443A!important;
+}
+body.hl-japandi .footer a{
+  color:var(--jp-clover)!important;
+}
+
+/* ---------------- Responsive: preserve existing behavior ---------------- */
+@media(max-width:760px){
+  body.hl-japandi .v882-hero{
+    background:linear-gradient(145deg,#E9F0E6,#DCE6DC)!important;
+  }
+}

@@ -10,8 +10,9 @@
 <link rel="stylesheet" href="assets/hidrolab-light-ui.css">
 <link rel="stylesheet" href="assets/hidrolab-compact.css">
 <link rel="stylesheet" href="assets/hidrolab-v882.css">
+<link rel="stylesheet" href="assets/hidrolab-japandi.css">
 </head>
-<body class="hl-ui hl-home hl-compact-v881 hl-v882">
+<body class="hl-ui hl-home hl-compact-v881 hl-v882 hl-japandi">
 
 <header class="top compact-top v882-top">
   <div class="wrap nav compact-nav">
@@ -62,25 +63,25 @@
       <svg class="v882-stage-svg" viewBox="0 0 620 320" role="img" aria-label="Edificio residencial contemporáneo y sol recorriendo una órbita">
         <defs>
           <linearGradient id="v882Sky" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#dcecff"/>
-            <stop offset="100%" stop-color="#eef6ff"/>
+            <stop offset="0%" stop-color="#E5EBDD"/>
+            <stop offset="100%" stop-color="#F5F2EA"/>
           </linearGradient>
           <linearGradient id="v882Glass" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#7bb7df"/>
-            <stop offset="55%" stop-color="#4a8fbe"/>
-            <stop offset="100%" stop-color="#286c9c"/>
+            <stop offset="0%" stop-color="#7EAD91"/>
+            <stop offset="55%" stop-color="#4A8063"/>
+            <stop offset="100%" stop-color="#2E674A"/>
           </linearGradient>
           <linearGradient id="v882Glass2" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#a6d1ed"/>
-            <stop offset="100%" stop-color="#5a9cc8"/>
+            <stop offset="0%" stop-color="#B7CBB8"/>
+            <stop offset="100%" stop-color="#6C9A79"/>
           </linearGradient>
           <radialGradient id="v882SunGlow">
-            <stop offset="0%" stop-color="#fff6b6" stop-opacity=".95"/>
-            <stop offset="42%" stop-color="#ffd758" stop-opacity=".65"/>
-            <stop offset="100%" stop-color="#ffd758" stop-opacity="0"/>
+            <stop offset="0%" stop-color="#FFF0B0" stop-opacity=".95"/>
+            <stop offset="42%" stop-color="#DDB64C" stop-opacity=".65"/>
+            <stop offset="100%" stop-color="#DDB64C" stop-opacity="0"/>
           </radialGradient>
           <filter id="v882SoftShadow" x="-30%" y="-30%" width="160%" height="180%">
-            <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#18324a" flood-opacity=".16"/>
+            <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#26372C" flood-opacity=".16"/>
           </filter>
           <filter id="v882SunBlur" x="-300%" y="-300%" width="700%" height="700%">
             <feGaussianBlur stdDeviation="6"/>
@@ -90,7 +91,7 @@
         <rect width="620" height="320" rx="26" fill="url(#v882Sky)"/>
 
         <!-- technical background -->
-        <g opacity=".34" stroke="#90afd0" stroke-width="1">
+        <g opacity=".34" stroke="#A9B6A7" stroke-width="1">
           <path d="M26 252 H592"/>
           <path d="M61 282 H560"/>
           <path d="M100 49 V283"/>
@@ -100,7 +101,7 @@
         <!-- real closed orbital path -->
         <path id="v882OrbitPath"
               d="M83,190 C126,46 454,25 536,168 C466,276 155,279 83,190"
-              fill="none" stroke="#6795c6" stroke-width="1.6" stroke-dasharray="6 8" opacity=".72"/>
+              fill="none" stroke="#6E9A78" stroke-width="1.6" stroke-dasharray="6 8" opacity=".72"/>
 
         <!-- sun actually moves along the full path -->
         <g>
@@ -115,29 +116,29 @@
         </g>
 
         <!-- moving projected shadow -->
-        <ellipse cx="320" cy="263" rx="154" ry="23" fill="#274a68" opacity=".12">
+        <ellipse cx="320" cy="263" rx="154" ry="23" fill="#4D5F51" opacity=".12">
           <animate attributeName="cx" values="346;284;333;346" dur="8s" repeatCount="indefinite"/>
           <animate attributeName="rx" values="128;169;138;128" dur="8s" repeatCount="indefinite"/>
         </ellipse>
 
         <!-- site platform -->
         <polygon points="116,241 225,188 473,213 392,281 155,280"
-                 fill="#ffffff" opacity=".76" stroke="#c9d9e8" stroke-width="1.2"/>
+                 fill="#ffffff" opacity=".76" stroke="#D8D8CE" stroke-width="1.2"/>
 
         <!-- contemporary two-storey residential building -->
         <g filter="url(#v882SoftShadow)">
           <!-- lower floor -->
           <rect x="184" y="162" width="235" height="91" rx="3" fill="#fbfdff"/>
-          <polygon points="419,162 473,189 473,253 419,253" fill="#dfe9f1"/>
+          <polygon points="419,162 473,189 473,253 419,253" fill="#E4E5DE"/>
 
           <!-- upper volume -->
           <rect x="224" y="102" width="171" height="72" rx="3" fill="#ffffff"/>
-          <polygon points="395,102 441,125 441,174 395,174" fill="#dfe9f1"/>
+          <polygon points="395,102 441,125 441,174 395,174" fill="#E4E5DE"/>
 
           <!-- flat roof slabs -->
-          <rect x="211" y="94" width="196" height="10" rx="3" fill="#d6e2ec"/>
-          <polygon points="407,94 450,115 440,125 395,103" fill="#c7d5e1"/>
-          <rect x="169" y="154" width="265" height="10" rx="3" fill="#d6e2ec"/>
+          <rect x="211" y="94" width="196" height="10" rx="3" fill="#D9DDD5"/>
+          <polygon points="407,94 450,115 440,125 395,103" fill="#C9D0C6"/>
+          <rect x="169" y="154" width="265" height="10" rx="3" fill="#D9DDD5"/>
 
           <!-- upper glazing -->
           <rect x="239" y="116" width="63" height="45" rx="2" fill="url(#v882Glass)"/>
@@ -148,9 +149,9 @@
           <!-- ground floor glazing -->
           <rect x="201" y="181" width="86" height="55" rx="2" fill="url(#v882Glass2)"/>
           <rect x="298" y="181" width="68" height="55" rx="2" fill="url(#v882Glass)"/>
-          <rect x="376" y="181" width="27" height="72" rx="2" fill="#244f70"/>
-          <line x1="244" y1="181" x2="244" y2="236" stroke="#e1f1fa" stroke-width="2"/>
-          <line x1="332" y1="181" x2="332" y2="236" stroke="#e1f1fa" stroke-width="2"/>
+          <rect x="376" y="181" width="27" height="72" rx="2" fill="#315843"/>
+          <line x1="244" y1="181" x2="244" y2="236" stroke="#EDF2EA" stroke-width="2"/>
+          <line x1="332" y1="181" x2="332" y2="236" stroke="#EDF2EA" stroke-width="2"/>
 
           <!-- balcony -->
           <rect x="219" y="167" width="182" height="7" rx="2" fill="#cbd9e4"/>
@@ -158,29 +159,29 @@
           <line x1="389" y1="174" x2="389" y2="185" stroke="#aec3d3" stroke-width="2"/>
 
           <!-- entrance canopy -->
-          <rect x="366" y="174" width="55" height="6" rx="2" fill="#b8cbd9"/>
+          <rect x="366" y="174" width="55" height="6" rx="2" fill="#BFC9BD"/>
 
           <!-- small side glazing -->
-          <polygon points="432,188 458,199 458,224 432,218" fill="#7faecc"/>
+          <polygon points="432,188 458,199 458,224 432,218" fill="#7FA68C"/>
         </g>
 
         <!-- minimal landscaping -->
         <g>
-          <rect x="151" y="228" width="6" height="29" rx="3" fill="#728d7e"/>
-          <circle cx="154" cy="222" r="15" fill="#9bc5ad"/>
-          <rect x="488" y="233" width="5" height="25" rx="3" fill="#728d7e"/>
-          <circle cx="490" cy="228" r="13" fill="#a4ccb7"/>
+          <rect x="151" y="228" width="6" height="29" rx="3" fill="#6A755F"/>
+          <circle cx="154" cy="222" r="15" fill="#9EBD99"/>
+          <rect x="488" y="233" width="5" height="25" rx="3" fill="#6A755F"/>
+          <circle cx="490" cy="228" r="13" fill="#A8C4A3"/>
         </g>
 
         <!-- north marker -->
         <g transform="translate(37 236)">
-          <circle cx="22" cy="22" r="20" fill="#fff" opacity=".94" stroke="#aebfd2"/>
-          <path d="M22 33 V10" stroke="#101923" stroke-width="2"/>
-          <path d="M22 8 L17 16 H27 Z" fill="#101923"/>
-          <text x="22" y="4" text-anchor="middle" font-size="10" font-weight="900" fill="#101923">N</text>
+          <circle cx="22" cy="22" r="20" fill="#fff" opacity=".94" stroke="#BEC6B8"/>
+          <path d="M22 33 V10" stroke="#111714" stroke-width="2"/>
+          <path d="M22 8 L17 16 H27 Z" fill="#111714"/>
+          <text x="22" y="4" text-anchor="middle" font-size="10" font-weight="900" fill="#111714">N</text>
         </g>
 
-        <g font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="800" fill="#263747">
+        <g font-family="Inter,system-ui,sans-serif" font-size="10" font-weight="800" fill="#28342D">
           <text x="27" y="31">TRAYECTORIA SOLAR</text>
           <text x="446" y="297">ORIENTACIÓN · SOMBRAS</text>
         </g>
