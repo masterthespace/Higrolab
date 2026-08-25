@@ -601,3 +601,71 @@ html[data-theme=dark] .volume-mode-box,html[data-theme=dark] .volume-mode-tabs b
   .tool-back-row{padding-top:12px}
   .tool-back-btn,.tool-home-link{min-height:42px;font-size:.82rem}
 }
+
+
+/* V8.7.2 · botón Atrás integrado en la navegación */
+.nav-actions{display:flex;align-items:center;gap:7px}
+.nav-back-btn{
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:9px;
+  background:rgba(255,255,255,.07);
+  color:#dceaf0;
+  padding:8px 10px;
+  min-height:34px;
+  font:800 .82rem/1 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  cursor:pointer
+}
+.nav-back-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+.nav-back-btn span{margin-right:4px}
+.tool-back-row{display:none!important}
+@media(max-width:620px){
+  .nav-actions{margin-left:auto}
+  .nav-back-btn{min-height:38px;padding:8px 11px;font-size:.78rem}
+}
+
+
+/* V8.7.2 · selector de emplazamiento + Google Maps */
+.solar-map-layout{display:grid;grid-template-columns:minmax(0,.88fr) minmax(380px,1.12fr);gap:18px;align-items:stretch}
+.solar-map-controls{min-width:0}
+.solar-map-controls>p{margin-top:0;color:var(--muted);font-size:.9rem;line-height:1.6}
+.solar-location-title{margin:18px 0 12px;padding-top:15px;border-top:1px solid var(--line)}
+.solar-location-title b{display:block;font-size:.9rem;color:var(--ink)}
+.solar-location-title span{display:block;margin-top:4px;color:var(--muted);font-size:.72rem;line-height:1.45}
+.solar-location-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.solar-location-fields .field{min-width:0}
+.solar-location-fields label{display:block;margin-bottom:5px;color:#526970;font-size:.68rem;font-weight:800}
+.solar-location-fields select,.solar-location-fields input{
+  width:100%;min-height:42px;border:1px solid #ced9de;border-radius:10px;
+  background:#fbfcfc;color:var(--ink);padding:9px 10px;font:inherit
+}
+.solar-location-fields select:focus,.solar-location-fields input:focus{
+  outline:0;border-color:#72aabd;box-shadow:0 0 0 3px rgba(58,147,197,.10)
+}
+.solar-map-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.solar-map-actions .btn{min-height:42px}
+.solar-map-meta{
+  display:flex;justify-content:space-between;gap:12px;margin-top:13px;padding:10px 11px;
+  border:1px solid var(--line);border-radius:10px;background:#f7fafb;font-size:.68rem
+}
+.solar-map-meta span{color:#48636d;font-weight:800}
+.solar-map-meta a{color:#17617a;font-weight:800;text-decoration:none;white-space:nowrap}
+.solar-map-note{margin:11px 0 0!important}
+.google-map-panel{
+  min-height:390px;border:1px solid #ced9de;border-radius:16px;overflow:hidden;
+  background:#e8eff2;display:grid;grid-template-rows:auto 1fr
+}
+.google-map-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;
+  border-bottom:1px solid #d7e0e4;background:#f8fbfc;color:#60747c;font-size:.65rem
+}
+.google-map-toolbar b{color:#173e4c;letter-spacing:.08em}
+.google-map-toolbar span:last-child{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+.google-map-panel iframe{display:block;width:100%;height:100%;min-height:348px;border:0;background:#dfe8eb}
+@media(max-width:900px){.solar-map-layout{grid-template-columns:1fr}.google-map-panel{min-height:360px}}
+@media(max-width:620px){
+  .solar-location-fields{grid-template-columns:1fr}
+  .solar-map-meta{display:block}
+  .solar-map-meta a{display:block;margin-top:6px}
+  .google-map-toolbar{display:block}
+  .google-map-toolbar span:last-child{display:block;margin-top:3px}
+}

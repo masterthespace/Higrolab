@@ -537,6 +537,35 @@ function updateSolar(){
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
 function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
 
+
+function applyLocationFromQuery(){
+  const qs=new URLSearchParams(location.search);
+  const qLat=Number(qs.get('lat')),qLon=Number(qs.get('lon'));
+  const qRegion=(qs.get('region')||'').trim();
+  const qCommune=(qs.get('comuna')||'').trim();
+  const reg=$('region-select'),com=$('commune-select');
+
+  if(qRegion&&reg){
+    const ro=[...reg.options].find(o=>o.textContent.trim()===qRegion);
+    if(ro){
+      reg.value=ro.value;
+      if(typeof reg.onchange==='function')reg.onchange();
+    }
+  }
+  if(qCommune&&com){
+    const co=[...com.options].find(o=>o.textContent.trim()===qCommune);
+    if(co){
+      com.value=co.value;
+      if(typeof com.onchange==='function')com.onchange();
+    }
+  }
+  if(Number.isFinite(qLat)&&qLat>=-90&&qLat<=90)$('lat').value=qLat.toFixed(6);
+  if(Number.isFinite(qLon)&&qLon>=-180&&qLon<=180)$('lon').value=qLon.toFixed(6);
+  if(Number.isFinite(qLat)&&Number.isFinite(qLon)){
+    $('coords').value=`${qLat.toFixed(6)}, ${qLon.toFixed(6)}`;
+  }
+}
+
 function updateImageControls(){
   const btn=$('clear-image');
   if(btn)btn.disabled=!S.img;
@@ -554,7 +583,7 @@ function clearReferenceImage(){
     :'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
 }
 
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
   const url=URL.createObjectURL(f),img=new Image();
