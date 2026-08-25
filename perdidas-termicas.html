@@ -125,50 +125,29 @@
       <div class="hl2-loss"><strong id="windowLoss">—</strong><span>W</span></div>
     </div>
     <details class="hl2-mini-builder builder-window">
-      <summary><span><b>Calculador de ventanas</b><small>Marco + vidrio + medidas → m² totales y U ponderado</small></span><i>+</i></summary>
-      <div class="hl2-builder-body">
-        <div class="hl2-source-chip">FUENTE OFICIAL · Manual CEV 2025 · Tablas 4, 5 y 6</div>
-        <div class="hl2-builder-config">
-          <div class="field">
-            <label>Marco</label>
-            <select id="winFrame">
-              <option value="wood">Madera · U marco 2,6 · vidrio 75%</option>
-              <option value="pvc" selected>PVC · U marco 2,8 · vidrio 80%</option>
-              <option value="steel">Acero · U marco 5,8 · vidrio 85%</option>
-              <option value="alu">Aluminio sin RPT · U marco 5,8 · vidrio 85%</option>
-              <option value="aluRpt">Aluminio con RPT · U marco 3,3 · vidrio 80%</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Vidrio / termopanel</label>
-            <select id="winGlass">
-              <option value="mono">Monolítico · U vidrio 5,80</option>
-              <option value="dvhUnknown">DVH espaciador &lt;6 mm / sin dato · U 3,58</option>
-              <option value="dvh6">DVH 6 mm · U 3,28</option>
-              <option value="dvh9">DVH 9 mm · U 3,01</option>
-              <option value="dvh12">DVH 12 mm · U 2,85</option>
-              <option value="dvh15" selected>DVH 15 mm · U 2,80</option>
-            </select>
-          </div>
-          <div class="hl2-builder-result">
-            <small>U complejo calculado</small><strong id="winCalcU">—</strong><span>W/m²K</span>
-          </div>
-        </div>
+  <summary><span><b>Calculador de ventanas</b><small>Cada ventana puede tener marco, vidrio y dimensiones diferentes</small></span><i>+</i></summary>
+  <div class="hl2-builder-body">
+    <div class="hl2-source-chip">FUENTE OFICIAL · Manual CEV 2025 · valores por defecto de ventanas</div>
+    <p class="method-note">Agrega cada tipo de ventana de la vivienda. HIDROLAB calcula su superficie y U individual, luego obtiene un <b>U ponderado por área</b> para el módulo madre.</p>
 
-        <div class="hl2-dim-toolbar">
-          <b>Medidas de ventanas</b>
-          <label>Unidad <select id="winUnit"><option value="cm" selected>cm</option><option value="m">m</option></select></label>
-          <button id="addWindowRow" type="button">+ Agregar ventana</button>
-        </div>
-        <div class="hl2-dim-head"><span>Nombre</span><span>Ancho</span><span>Alto</span><span>Cantidad</span><span>Subtotal</span><span></span></div>
-        <div id="windowDimensionRows" class="hl2-dim-rows"></div>
-        <div class="hl2-builder-footer">
-          <div><small>Superficie total calculada</small><strong id="winCalcArea">— m²</strong></div>
-          <button id="applyWindows" class="hl2-apply" type="button">Aplicar área + U al módulo madre</button>
-        </div>
-        <p class="method-note">HIDROLAB pondera el U del vidrio y del marco por sus fracciones de área. El Manual CEV denomina “factor de marco” al porcentaje de superficie traslúcida del vano. Para una evaluación formal, un U distinto de los valores por defecto debe respaldarse con documentación aceptada por CEV.</p>
-      </div>
-    </details>
+    <div class="hl2-dim-toolbar">
+      <b>Ventanas de la vivienda</b>
+      <label>Unidad <select id="winUnit"><option value="cm" selected>cm</option><option value="m">m</option></select></label>
+      <button id="addWindowRow" type="button">+ Agregar ventana</button>
+    </div>
+    <div class="hl2-window-head">
+      <span>Nombre</span><span>Ancho</span><span>Alto</span><span>Cant.</span><span>Marco</span><span>Vidrio</span><span>U</span><span>m²</span><span></span>
+    </div>
+    <div id="windowDimensionRows" class="hl2-window-rows"></div>
+
+    <div class="hl2-builder-footer">
+      <div><small>Superficie total</small><strong id="winCalcArea">— m²</strong></div>
+      <div><small>U ponderado</small><strong id="winCalcU">— W/m²K</strong></div>
+      <button id="applyWindows" class="hl2-apply" type="button">Aplicar al módulo madre</button>
+    </div>
+    <p class="method-note">Los valores de marco, fracción vidriada y vidrio son valores por defecto del Manual CEV. Si dispones del U certificado/declarado del producto completo, puedes mantener el ingreso manual en la fila madre.</p>
+  </div>
+</details>
 
     <!-- DOORS -->
     <div class="hl2-row hl2-door">
@@ -186,46 +165,29 @@
       <div class="hl2-loss"><strong id="doorLoss">—</strong><span>W</span></div>
     </div>
     <details class="hl2-mini-builder builder-door">
-      <summary><span><b>Calculador de puertas</b><small>Soluciones por defecto CEV + dimensiones</small></span><i>+</i></summary>
-      <div class="hl2-builder-body">
-        <div class="hl2-source-chip source-magenta">FUENTE OFICIAL · Manual CEV 2025 · Tabla 7</div>
-        <div class="hl2-builder-config door-config">
-          <div class="field">
-            <label>Solución de puerta</label>
-            <select id="doorPreset">
-              <option value="solid0" selected>Madera sólida · opaca</option>
-              <option value="solid40">Madera sólida · 40% vidriada</option>
-              <option value="solid85">Madera sólida · 85% vidriada</option>
-              <option value="panel0">Madera entablerada · opaca</option>
-              <option value="panel45">Madera entablerada · 45% vidriada</option>
-              <option value="panel85">Madera entablerada · 85% vidriada</option>
-              <option value="custom">U total personalizado / declarado</option>
-            </select>
-            <small id="doorPresetExplain">—</small>
-          </div>
-          <div class="field" id="doorCustomUWrap">
-            <label>U personalizado [W/m²K]</label>
-            <input id="doorCustomU" type="number" min=".1" step=".01" value="2.20" disabled>
-          </div>
-          <div class="hl2-builder-result">
-            <small>U complejo calculado</small><strong id="doorCalcU">—</strong><span>W/m²K</span>
-          </div>
-        </div>
+  <summary><span><b>Calculador de puertas</b><small>Cada puerta puede usar una solución térmica diferente</small></span><i>+</i></summary>
+  <div class="hl2-builder-body">
+    <div class="hl2-source-chip source-magenta">FUENTE OFICIAL · Manual CEV 2025 · soluciones de puertas por defecto</div>
+    <p class="method-note">Agrega las puertas exteriores. Cada fila calcula su propio U y superficie; el resultado final es un U ponderado por área.</p>
 
-        <div class="hl2-dim-toolbar">
-          <b>Medidas de puertas</b>
-          <label>Unidad <select id="doorUnit"><option value="cm" selected>cm</option><option value="m">m</option></select></label>
-          <button id="addDoorRow" type="button">+ Agregar puerta</button>
-        </div>
-        <div class="hl2-dim-head"><span>Nombre</span><span>Ancho</span><span>Alto</span><span>Cantidad</span><span>Subtotal</span><span></span></div>
-        <div id="doorDimensionRows" class="hl2-dim-rows"></div>
-        <div class="hl2-builder-footer">
-          <div><small>Superficie total calculada</small><strong id="doorCalcArea">— m²</strong></div>
-          <button id="applyDoors" class="hl2-apply magenta" type="button">Aplicar área + U al módulo madre</button>
-        </div>
-        <p class="method-note">Las puertas CEV se caracterizan por hoja opaca, marco y zona vidriada. Los presets usan los componentes y porcentajes por defecto de la Tabla 7; HIDROLAB calcula el U ponderado por área. Si tu puerta es distinta, usa U declarado/personalizado.</p>
-      </div>
-    </details>
+    <div class="hl2-dim-toolbar">
+      <b>Puertas exteriores</b>
+      <label>Unidad <select id="doorUnit"><option value="cm" selected>cm</option><option value="m">m</option></select></label>
+      <button id="addDoorRow" type="button">+ Agregar puerta</button>
+    </div>
+    <div class="hl2-door-head">
+      <span>Nombre</span><span>Ancho</span><span>Alto</span><span>Cant.</span><span>Tipo / material</span><span>U</span><span>m²</span><span></span>
+    </div>
+    <div id="doorDimensionRows" class="hl2-door-rows"></div>
+
+    <div class="hl2-builder-footer">
+      <div><small>Superficie total</small><strong id="doorCalcArea">— m²</strong></div>
+      <div><small>U ponderado</small><strong id="doorCalcU">— W/m²K</strong></div>
+      <button id="applyDoors" class="hl2-apply magenta" type="button">Aplicar al módulo madre</button>
+    </div>
+    <p class="method-note">Si una puerta no corresponde a los valores por defecto, usa “U personalizado” en esa fila e ingresa el valor del fabricante o respaldo técnico.</p>
+  </div>
+</details>
 
     <!-- ROOF -->
     <div class="hl2-row hl2-roof">
@@ -245,10 +207,10 @@
     <details class="hl2-mini-builder builder-roof">
       <summary><span><b>Constructor de techumbre por capas</b><small>Yeso cartón · barreras · aislación · OSB · membrana · cubierta</small></span><i>+</i></summary>
       <div class="hl2-builder-body">
-        <div class="hl2-source-chip source-yellow">DATOS OFICIALES · LOSCAT E14 2026 + memorias térmicas MINVU</div>
+        <div class="hl2-source-chip source-yellow">BIBLIOTECA AMPLIADA · MINVU / LOSCAT E14 2026 / NCh853</div>
         <div class="hl2-layer-toolbar">
           <div>
-            <b>Capas desde interior → exterior</b>
+            <b>Capas desde interior → exterior · biblioteca ampliada de materiales</b>
             <small>R = e/λ · superficies: Rsi 0,10 y Rse 0,04 m²K/W</small>
           </div>
           <button id="addRoofLayer" type="button">+ Agregar capa</button>
@@ -286,26 +248,42 @@
       <div class="hl2-loss"><strong id="floorLoss">—</strong><span>W</span></div>
     </div>
     <details class="hl2-mini-builder builder-floor">
-      <summary><span><b>Constructor de piso ventilado por capas</b><small>Capas + aislación → Rt y U</small></span><i>+</i></summary>
-      <div class="hl2-builder-body">
-        <div class="hl2-source-chip source-lime">PISO VENTILADO · NCh853 / LOSCAT · Rsi 0,17 · Rse 0,04</div>
-        <div id="floorGroundWarning" class="hl2-ground-warning">
-          <b>Importante:</b> si seleccionas piso en contacto con terreno, este constructor no aplica. El Manual CEV calcula ese caso con base en NCh3117; utiliza el U equivalente obtenido con ese método o una fuente técnica respaldada.
-        </div>
-        <div class="hl2-layer-toolbar">
-          <div><b>Capas del piso ventilado</b><small>Desde interior → exterior</small></div>
-          <button id="addFloorLayer" type="button">+ Agregar capa</button>
-        </div>
-        <div class="hl2-layer-head"><span>Material</span><span>Espesor mm</span><span>λ W/mK</span><span>R m²K/W</span><span></span></div>
-        <div id="floorLayers" class="hl2-layer-rows"></div>
-        <div class="hl2-builder-summary">
-          <div><small>R capas</small><strong id="floorLayersR">—</strong></div>
-          <div><small>Rt con superficies</small><strong id="floorRt">—</strong></div>
-          <div class="accent-lime"><small>U calculado</small><strong id="floorCalcU">— W/m²K</strong></div>
-          <button id="applyFloor" class="hl2-apply lime" type="button">Aplicar U al módulo madre</button>
-        </div>
+  <summary><span><b>Constructor de piso / radier aislado</b><small>Piso ventilado o análisis 1D de radier sobre terreno</small></span><i>+</i></summary>
+  <div class="hl2-builder-body">
+    <div class="hl2-source-chip source-lime">NCh853 · LOSCAT E14 · NCh3117 PARA CONTACTO CON TERRENO</div>
+
+    <div class="hl2-floor-builder-mode">
+      <label><input type="radio" name="floorBuilderMode" value="ventilated" checked> Piso ventilado</label>
+      <label><input type="radio" name="floorBuilderMode" value="ground"> Radier aislado sobre terreno</label>
+    </div>
+
+    <div id="floorBuilderNotice" class="hl2-ground-warning">
+      <b>Piso ventilado:</b> el U puede obtenerse por capas homogéneas con NCh853.
+    </div>
+
+    <div class="hl2-layer-toolbar">
+      <div><b id="floorLayerTitle">Capas del piso ventilado</b><small>Orden desde interior → exterior / terreno</small></div>
+      <div class="hl2-layer-actions">
+        <button id="loadSlabPreset" type="button">Preset radier aislado</button>
+        <button id="addFloorLayer" type="button">+ Agregar capa</button>
       </div>
-    </details>
+    </div>
+    <div class="hl2-layer-head"><span>Material</span><span>Espesor mm</span><span>λ W/mK</span><span>R m²K/W</span><span></span></div>
+    <div id="floorLayers" class="hl2-layer-rows"></div>
+
+    <div class="hl2-builder-summary">
+      <div><small>R capas</small><strong id="floorLayersR">—</strong></div>
+      <div><small>Rt 1D</small><strong id="floorRt">—</strong></div>
+      <div class="accent-lime"><small id="floorUCalcLabel">U calculado</small><strong id="floorCalcU">— W/m²K</strong></div>
+      <button id="applyFloor" class="hl2-apply lime" type="button">Aplicar al módulo madre</button>
+    </div>
+
+    <div id="groundApplyOptions" class="hl2-ground-apply hl2-hidden">
+      <label><input id="allowGround1D" type="checkbox"> Permitir aplicar el U 1D como <b>estimación didáctica</b></label>
+      <p>Para un piso realmente en contacto con terreno, la transmisión no se reduce correctamente a una simple suma 1D de capas. La evaluación técnica debe usar NCh3117. HIDROLAB muestra el U 1D para estudiar el efecto de la aislación, pero no lo aplica al módulo madre salvo autorización explícita.</p>
+    </div>
+  </div>
+</details>
 
     <!-- AIR -->
     <div class="hl2-row hl2-air">
@@ -386,6 +364,71 @@
     <div class="hl2-hm-item" data-part="doors"><span>PUERTAS</span><b id="hmDoors">—</b></div>
     <div class="hl2-hm-item" data-part="bridges"><span>PUENTES</span><b id="hmBridges">—</b></div>
   </div>
+
+  <details class="hl2-energy-sim">
+    <summary><span><b>Simular horario, kWh y costo</b><small>Prueba uno o varios períodos con temperaturas diferentes.</small></span><i>+</i></summary>
+    <div class="hl2-energy-body">
+      <div class="hl2-energy-intro">
+        <b>Del kW instantáneo a energía acumulada</b>
+        <span>HIDROLAB conserva las características térmicas de la vivienda y recalcula la potencia para cada período según su ΔT.</span>
+      </div>
+
+      <div class="hl2-period-toolbar">
+        <b>Períodos</b>
+        <button id="addEnergyPeriod" type="button">+ Agregar período</button>
+      </div>
+      <div class="hl2-period-head"><span>Desde</span><span>Hasta</span><span>Interior °C</span><span>Exterior °C</span><span>Horas</span><span>Pérdida</span><span></span></div>
+      <div id="energyPeriods" class="hl2-period-rows"></div>
+
+      <div class="hl2-energy-summary">
+        <div class="energy-main"><small>Energía térmica perdida</small><strong id="energyTotalKwh">—</strong><span>kWh térmicos</span></div>
+        <div><small>Horas simuladas</small><strong id="energyTotalHours">— h</strong></div>
+        <div><small>Potencia promedio</small><strong id="energyAverageKw">— kW</strong></div>
+      </div>
+
+      <div class="hl2-equivalence-grid">
+        <article>
+          <span class="eq-icon">⚡</span><b>Estufa eléctrica</b>
+          <label>Potencia [kW] <input id="electricHeaterKw" type="number" min=".1" step=".1" value="2.0"></label>
+          <strong id="electricHours">— h</strong>
+          <small>Tiempo equivalente entregando la misma cantidad de calor.</small>
+        </article>
+        <article>
+          <span class="eq-icon">↻</span><b>Aire acondicionado / bomba de calor</b>
+          <label>Potencia térmica [kW] <input id="heatPumpKw" type="number" min=".1" step=".1" value="3.5"></label>
+          <label>COP <input id="heatPumpCop" type="number" min="1" step=".1" value="3.2"></label>
+          <strong id="heatPumpHours">— h</strong>
+          <small id="heatPumpElectricity">— kWh eléctricos equivalentes</small>
+        </article>
+        <article>
+          <span class="eq-icon">🔥</span><b>Estufa a parafina</b>
+          <label>Energía combustible [kWh/L] <input id="keroseneKwhL" type="number" min="1" step=".1" value="10.0"></label>
+          <label>Rendimiento [%] <input id="keroseneEff" type="number" min="1" max="100" step="1" value="85"></label>
+          <label>Consumo estufa [L/h] <input id="keroseneLph" type="number" min=".01" step=".01" value=".25"></label>
+          <strong id="keroseneHours">— h</strong>
+          <small id="keroseneLiters">— L equivalentes</small>
+        </article>
+      </div>
+
+      <div class="hl2-cost-grid">
+        <div>
+          <label>Tarifa eléctrica [$/kWh]</label>
+          <input id="electricPrice" type="number" min="0" step="1" value="0">
+          <small>Ingresa el valor real de tu boleta para estimar costo.</small>
+        </div>
+        <div>
+          <label>Precio parafina [$/L]</label>
+          <input id="kerosenePrice" type="number" min="0" step="1" value="0">
+          <small>Ingresa el precio local por litro.</small>
+        </div>
+        <div class="hl2-cost-result"><small>Compensar con estufa eléctrica</small><strong id="electricCost">Ingresa tarifa</strong></div>
+        <div class="hl2-cost-result"><small>Compensar con bomba de calor</small><strong id="heatPumpCost">Ingresa tarifa</strong></div>
+        <div class="hl2-cost-result"><small>Compensar con parafina</small><strong id="keroseneCost">Ingresa precio</strong></div>
+      </div>
+
+      <p class="method-note">Estas equivalencias comparan energía térmica. No representan ciclos reales de termostato, pérdidas del equipo, ventilación adicional ni comportamiento horario dinámico de la vivienda. Los precios son ingresados por el usuario en pesos chilenos.</p>
+    </div>
+  </details>
 </section>
 
 <section class="card full hl2-improve">
@@ -443,7 +486,7 @@
       </label>
     </div>
     <p class="hl2-preset-note">Los escenarios son comparativos/orientativos. El valor real debe definirse según la solución constructiva o producto seleccionado.</p>
-    <div id="improvementRanking" class="improvement-ranking"></div>
+    <div id="improvementRanking" class="improvement-ranking"></div><div id="improvementApplied" class="hl2-improvement-applied hl2-hidden"></div>
     <p class="method-note">Cada escenario modifica solo un parámetro a la vez y muestra el ahorro instantáneo estimado.</p>
   </details>
 </section>

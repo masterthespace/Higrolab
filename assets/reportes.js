@@ -619,6 +619,17 @@
 
     s4.append(el(doc,'p','section-note','El resultado representa una pérdida térmica instantánea bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción.'));
     s4.append(el(doc,'p','section-note','Los valores U ingresados deben representar los elementos completos y contar con respaldo apropiado cuando se utilicen técnicamente. Para piso sobre terreno HIDROLAB utiliza el U equivalente ingresado por el usuario y no aplica un factor oculto.'));
+    if(x.energySchedule){
+      const s5=addSection(doc,root,'5. Simulación horaria orientativa');
+      const t5=el(doc,'table','kv'),b5=el(doc,'tbody');
+      [
+        ['Horas simuladas',`${fmtNum(x.energySchedule.totalHours,1)} h`],
+        ['Energía térmica perdida',`${fmtNum(x.energySchedule.totalKwh,2)} kWh térmicos`],
+        ['Electricidad equivalente bomba de calor',`${fmtNum(x.energySchedule.hpElec,2)} kWh eléctricos`],
+        ['Parafina equivalente',`${fmtNum(x.energySchedule.liters,2)} L`]
+      ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);s5.append(t5);
+      s5.append(el(doc,'p','section-note','Equivalencias energéticas orientativas; no representan ciclos reales del equipo ni comportamiento dinámico horario de la vivienda.'));
+    }
     return true
   }
 
