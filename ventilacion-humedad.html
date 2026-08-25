@@ -10,6 +10,63 @@
 </head>
 <body class="hl-ui hl-humidity">
 <header class="top">
+
+<div class="hl-header-motion" aria-hidden="true">
+  <svg class="hl-motion-svg" viewBox="0 0 720 250" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="hlGradCyan" x1="0" x2="1">
+        <stop offset="0%" stop-color="#16A6C7" stop-opacity="0"/>
+        <stop offset="45%" stop-color="#16A6C7" stop-opacity=".75"/>
+        <stop offset="100%" stop-color="#16A6C7" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="hlGradOrange" x1="0" x2="1">
+        <stop offset="0%" stop-color="#ED8A3A" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#ED8A3A" stop-opacity=".72"/>
+        <stop offset="100%" stop-color="#ED8A3A" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="hlGradGreen" x1="0" x2="1">
+        <stop offset="0%" stop-color="#20B88A" stop-opacity="0"/>
+        <stop offset="48%" stop-color="#20B88A" stop-opacity=".64"/>
+        <stop offset="100%" stop-color="#20B88A" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="hlGlow">
+        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <g class="hl-motion-grid">
+      <path d="M0 48H720M0 98H720M0 148H720M0 198H720"/>
+      <path d="M90 0V250M180 0V250M270 0V250M360 0V250M450 0V250M540 0V250M630 0V250"/>
+    </g>
+
+    <path class="hl-wave hl-wave-1" d="M-30 164 C65 116,132 192,226 145 S389 107,474 153 S635 190,760 120" stroke="url(#hlGradCyan)"/>
+    <path class="hl-wave hl-wave-2" d="M-40 112 C58 158,128 73,225 115 S390 169,481 113 S635 70,760 142" stroke="url(#hlGradOrange)"/>
+    <path class="hl-wave hl-wave-3" d="M-25 203 C75 170,149 214,245 186 S404 151,502 182 S645 218,755 171" stroke="url(#hlGradGreen)"/>
+
+    <g class="hl-sun-orbit">
+      <path d="M430 174 A142 142 0 0 1 688 74"/>
+      <circle class="hl-sun" cx="612" cy="90" r="9"/>
+      <circle class="hl-orbit-dot hl-orbit-dot-1" cx="473" cy="144" r="4"/>
+      <circle class="hl-orbit-dot hl-orbit-dot-2" cx="548" cy="104" r="4"/>
+    </g>
+
+    <g class="hl-motion-labels">
+      <g transform="translate(126 66)"><rect width="86" height="32" rx="7"/><text x="12" y="20">Td 12.7°C</text></g>
+      <g transform="translate(286 188)"><rect width="94" height="32" rx="7"/><text x="12" y="20">U 0.38</text></g>
+      <g transform="translate(500 40)"><rect width="102" height="32" rx="7"/><text x="12" y="20">ACH 0.52</text></g>
+      <g transform="translate(570 184)"><rect width="94" height="32" rx="7"/><text x="12" y="20">φsi 82%</text></g>
+    </g>
+
+    <g class="hl-pulse-nodes" filter="url(#hlGlow)">
+      <circle cx="226" cy="145" r="4"/>
+      <circle cx="474" cy="153" r="4"/>
+      <circle cx="390" cy="169" r="4"/>
+      <circle cx="502" cy="182" r="4"/>
+    </g>
+  </svg>
+</div>
+
   <div class="wrap nav">
     <a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
     <div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
@@ -551,5 +608,6 @@
 <script defer src="assets/ventilacion-humedad.js"></script>
 <script defer src="assets/reportes.js"></script>
 <script src="assets/navigation.js"></script>
+<script src="assets/header-motion.js"></script>
 </body>
 </html>
