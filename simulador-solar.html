@@ -1,6 +1,6 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIDROLAB · Solar Studio 3D</title><link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="assets/solar-studio.css"><meta name="referrer" content="strict-origin-when-cross-origin"></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div><div class="wrap hero"><div class="eyebrow">V6.3.13 · SOLAR STUDIO</div><h1>Simulador Solar Avanzado de Vivienda</h1><p>Editor de planta tipo CAD + modelo WebGL 3D fiel + orientación geográfica + sombras solares.</p></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div><div class="wrap hero"><div class="eyebrow">V6.3.13 · SOLAR STUDIO</div><h1>Simulador Solar Avanzado de Vivienda</h1><p>Editor de planta tipo CAD + modelo WebGL 3D fiel + orientación geográfica + sombras solares.</p></div></header>
 <main class="studio">
 <section class="studio-topbar"><div class="segmented"><button class="tab active" data-view="plan">PLANTA</button><button class="tab" data-view="model">3D</button><button class="tab" data-view="solar">ANÁLISIS SOLAR</button></div><div class="project-meta"><span id="status-pill">Cargando módulo…</span><button id="reset-project">Nuevo</button></div></section>
 <section class="workspace">
@@ -13,9 +13,39 @@
 <aside class="inspector">
 <div class="panel"><h3>EMPLAZAMIENTO</h3><label>Región<select id="region-select"></select></label><label>Comuna<select id="commune-select"></select></label><label>Coordenadas Google Maps<input id="coords" placeholder="33°35'46.9&quot;S 70°52'32.2&quot;W"></label><div class="grid2"><label>Latitud<input id="lat" type="number" step=".000001" value="-33.596361"></label><label>Longitud<input id="lon" type="number" step=".000001" value="-70.875611"></label></div><div class="grid2"><label>Fecha<input id="date" type="date"></label><label>UTC<select id="tz"><option>-3</option><option selected>-4</option><option>-5</option><option>-6</option></select></label></div></div>
 <div class="panel"><h3>REFERENCIA SATELITAL</h3>
-<label class="upload">Cargar JPG / PNG<input id="image-file" type="file" accept="image/*"></label>
-<div class="image-actions"><button id="clear-image" type="button" disabled>Eliminar imagen de fondo</button></div>
-<div class="mini image-help">Elimina solo la imagen satelital. Conserva la planta dibujada, la calibración, el Norte y el modelo 3D.</div>
+<div class="reference-tabs" role="tablist" aria-label="Tipo de referencia satelital">
+  <button class="reference-tab active" id="reference-image-tab" type="button" data-reference-mode="image" role="tab" aria-selected="true">JPG / PNG</button>
+  <button class="reference-tab" id="reference-map-tab" type="button" data-reference-mode="map" role="tab" aria-selected="false">Google Maps</button>
+</div>
+
+<div class="reference-pane active" id="reference-image-pane" data-reference-pane="image">
+  <label class="upload">Cargar JPG / PNG<input id="image-file" type="file" accept="image/*"></label>
+  <div class="image-actions"><button id="clear-image" type="button" disabled>Eliminar imagen de fondo</button></div>
+  <div class="mini image-help">Elimina solo la imagen satelital. Conserva la planta dibujada, la calibración, el Norte y el modelo 3D.</div>
+</div>
+
+<div class="reference-pane" id="reference-map-pane" data-reference-pane="map">
+  <div class="solar-google-map">
+    <div class="solar-google-map-head">
+      <span>Ubicación del emplazamiento</span>
+      <span id="solar-map-coords">—</span>
+    </div>
+    <iframe
+      id="solar-google-map-frame"
+      title="Google Maps del emplazamiento"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+      src="https://maps.google.com/maps?q=-33.596361,-70.875611&amp;z=17&amp;output=embed">
+    </iframe>
+  </div>
+  <div class="image-actions map-actions">
+    <button id="update-google-map" type="button">Actualizar mapa</button>
+    <a id="open-google-map" class="map-link-button" href="https://www.google.com/maps?q=-33.596361,-70.875611" target="_blank" rel="noopener noreferrer">Abrir Google Maps ↗</a>
+  </div>
+  <div class="mini image-help">El mapa usa las coordenadas del bloque Emplazamiento. Puedes cambiar Región/Comuna o escribir latitud y longitud y luego actualizar.</div>
+</div>
+
 <label>Distancia de calibración [m]<input id="cal-distance" type="number" min=".1" step=".01" value="10"></label>
 <div class="mini" id="scale-info">Sin calibrar</div></div>
 <div class="panel"><h3>EDIFICIO</h3><label>Altura de muros [m]<input id="wall-height" type="number" min="1" step=".1" value="2.4"></label><label>Azimut adicional del edificio [°]<input id="building-az" type="number" min="0" max="359" step="1" value="0"></label><label class="switch"><input id="snap90" type="checkbox" checked> Snap ortogonal 90°</label><div class="metrics"><div><span>Área</span><strong id="area-out">—</strong></div><div><span>Perímetro</span><strong id="perim-out">—</strong></div><div><span>Fachadas</span><strong id="faces-out">—</strong></div></div></div>
@@ -60,17 +90,5 @@
 © 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV<br>
 <a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
 </div></footer>
-
-<script>
-function hidrolabGoBack(){
-  try{
-    if(document.referrer && new URL(document.referrer).origin === location.origin){
-      history.back();
-      return;
-    }
-  }catch(e){}
-  location.href='index.html';
-}
-</script>
-
+<script src="assets/navigation.js"></script>
 </body></html>

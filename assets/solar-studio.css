@@ -66,3 +66,81 @@
 /* V8.3.2 · legibilidad Solar Studio */
 .solar-app,.solar-app label,.solar-app input,.solar-app select,.solar-app button,.panel,.panel label,.panel input,.panel select,.panel button{font-size:.78rem!important}
 .panel h3{font-size:.88rem!important}.panel small,.solar-app small{font-size:.68rem!important;line-height:1.35!important}
+
+
+/* V8.7.3 · referencia satelital: imagen o Google Maps */
+.reference-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  margin:2px 0 10px;
+  padding:4px;
+  border:1px solid #d5e0e4;
+  border-radius:10px;
+  background:#eef4f6
+}
+.reference-tab{
+  min-height:34px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:#61757d;
+  font:800 .68rem/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+  cursor:pointer
+}
+.reference-tab.active{
+  background:#fff;
+  color:#123f50;
+  box-shadow:0 2px 7px rgba(14,54,68,.08)
+}
+.reference-pane{display:none}
+.reference-pane.active{display:block}
+.solar-google-map{
+  overflow:hidden;
+  border:1px solid #cbd9de;
+  border-radius:10px;
+  background:#e8eff1
+}
+.solar-google-map-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 9px;
+  border-bottom:1px solid #d6e1e5;
+  background:#f8fbfc;
+  color:#536b74;
+  font-size:.62rem;
+  font-weight:800
+}
+.solar-google-map-head span:last-child{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-variant-numeric:tabular-nums;
+  font-weight:600
+}
+.solar-google-map iframe{
+  display:block;
+  width:100%;
+  height:255px;
+  border:0;
+  background:#dce7ea
+}
+.map-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+  margin-top:8px
+}
+.map-link-button{
+  display:flex;
+  min-height:36px;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #cbd9de;
+  border-radius:8px;
+  background:#f7fafb;
+  color:#124c61;
+  font-size:.68rem;
+  font-weight:850;
+  text-decoration:none
+}
+.map-link-button:hover{background:#edf5f7}

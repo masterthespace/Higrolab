@@ -11,7 +11,7 @@
 <header class="top">
   <div class="wrap nav">
     <a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a>
-    <div class="nav-actions"><button class="nav-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
+    <div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div>
   </div>
   <div class="wrap hero mini-hero">
     <div class="eyebrow">Ventilación · balance de vapor · V8.1 · estufa práctica + tiempos ampliados</div>
@@ -549,18 +549,6 @@
 </div></footer>
 <script defer src="assets/ventilacion-humedad.js"></script>
 <script defer src="assets/reportes.js"></script>
-
-<script>
-function hidrolabGoBack(){
-  try{
-    if(document.referrer && new URL(document.referrer).origin === location.origin){
-      history.back();
-      return;
-    }
-  }catch(e){}
-  location.href='index.html';
-}
-</script>
-
+<script src="assets/navigation.js"></script>
 </body>
 </html>

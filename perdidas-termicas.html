@@ -9,7 +9,7 @@
 </head>
 <body>
 <header class="top">
-  <div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div>
+  <div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div>
   <div class="wrap hero mini-hero"><div class="eyebrow">Envolvente completa · lectura instantánea</div><h1>Pérdidas térmicas de la vivienda</h1><p>Construye la envolvente, define cómo es el muro y observa de forma gráfica por dónde escapa el calor. El módulo funciona de forma independiente y no toma datos de otros simuladores.</p></div>
 </header>
 <main class="wrap main">
@@ -198,18 +198,6 @@
 </div></footer>
 <script defer src="assets/perdidas-termicas.js"></script>
 <script defer src="assets/reportes.js"></script>
-
-<script>
-function hidrolabGoBack(){
-  try{
-    if(document.referrer && new URL(document.referrer).origin === location.origin){
-      history.back();
-      return;
-    }
-  }catch(e){}
-  location.href='index.html';
-}
-</script>
-
+<script src="assets/navigation.js"></script>
 </body>
 </html>

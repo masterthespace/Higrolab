@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Punto de rocío</title><link href="styles.css" rel="stylesheet"/>
-<meta content="strict-origin-when-cross-origin" name="referrer"/></head><body><header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div><div class="wrap hero"><div class="eyebrow">Calculadora con medición superficial</div><h1>Riesgo de condensación y punto de rocío</h1><p>Compara la temperatura mínima de una superficie con el punto de rocío del aire interior.</p></div></header>
+<meta content="strict-origin-when-cross-origin" name="referrer"/></head><body><header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div><div class="wrap hero"><div class="eyebrow">Calculadora con medición superficial</div><h1>Riesgo de condensación y punto de rocío</h1><p>Compara la temperatura mínima de una superficie con el punto de rocío del aire interior.</p></div></header>
 <main class="wrap main"><div class="calc-grid"><section class="card"><div class="section-head"><div><p class="kicker">01 · Datos</p><h2>Condiciones medidas</h2></div></div>
 <div class="input-block"><div class="input-top"><label>Temperatura ambiente</label><div class="number-wrap"><input id="taN" step=".1" type="number"/><span>°C</span></div></div><input class="range" id="ta" max="35" min="-5" step=".1" type="range"/></div>
 <div class="input-block"><div class="input-top"><label>Humedad relativa</label><div class="number-wrap"><input id="rhN" step="1" type="number"/><span>%</span></div></div><input class="range" id="rh" max="100" min="20" step="1" type="range"/></div>
@@ -11,17 +11,5 @@
 © 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV<br>
 <a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
 </div></footer><script src="rocio.js"></script><script defer src="assets/reportes.js"></script>
-
-<script>
-function hidrolabGoBack(){
-  try{
-    if(document.referrer && new URL(document.referrer).origin === location.origin){
-      history.back();
-      return;
-    }
-  }catch(e){}
-  location.href='index.html';
-}
-</script>
-
+<script src="assets/navigation.js"></script>
 </body></html>

@@ -535,7 +535,7 @@ function updateSolar(){
   if(SEL.type==='facade')renderSelectionInspector()
 }
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
-function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
+function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
 
 
 function applyLocationFromQuery(){
@@ -564,6 +564,45 @@ function applyLocationFromQuery(){
   if(Number.isFinite(qLat)&&Number.isFinite(qLon)){
     $('coords').value=`${qLat.toFixed(6)}, ${qLon.toFixed(6)}`;
   }
+  updateGoogleMapReference();
+}
+
+
+function setReferenceMode(mode){
+  const imageMode=mode!=='map';
+  qsa('[data-reference-mode]').forEach(btn=>{
+    const active=btn.dataset.referenceMode===mode;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-selected',active?'true':'false');
+  });
+  qsa('[data-reference-pane]').forEach(pane=>{
+    pane.classList.toggle('active',pane.dataset.referencePane===mode);
+  });
+}
+
+function updateGoogleMapReference(){
+  const la=Number($('lat').value),lo=Number($('lon').value);
+  if(!Number.isFinite(la)||!Number.isFinite(lo)||la<-90||la>90||lo<-180||lo>180)return;
+  const latText=la.toFixed(6),lonText=lo.toFixed(6);
+  const frame=$('solar-google-map-frame');
+  const out=$('solar-map-coords');
+  const link=$('open-google-map');
+  if(frame)frame.src=`https://maps.google.com/maps?q=${encodeURIComponent(latText+','+lonText)}&z=17&output=embed`;
+  if(out)out.textContent=`${latText}, ${lonText}`;
+  if(link)link.href=`https://www.google.com/maps?q=${encodeURIComponent(latText+','+lonText)}`;
+}
+
+function initReferenceModes(){
+  qsa('[data-reference-mode]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      setReferenceMode(btn.dataset.referenceMode);
+      if(btn.dataset.referenceMode==='map')updateGoogleMapReference();
+    });
+  });
+  const mapBtn=$('update-google-map');
+  if(mapBtn)mapBtn.addEventListener('click',updateGoogleMapReference);
+  setReferenceMode('image');
+  updateGoogleMapReference();
 }
 
 function updateImageControls(){
@@ -583,7 +622,7 @@ function clearReferenceImage(){
     :'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
 }
 
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
   const url=URL.createObjectURL(f),img=new Image();
@@ -594,7 +633,7 @@ function init(){$('status-pill').textContent='Módulo activo';initCommunes();app
   };
   img.onerror=()=>{try{URL.revokeObjectURL(url)}catch(_){};S.imgURL=null;updateImageControls()};
   img.src=url
-};$('clear-image').onclick=clearReferenceImage;updateImageControls();$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));$('time').addEventListener('input',updateSolar);['wall-height'].forEach(id=>$(id).addEventListener('input',()=>{autoFit3D=true;rebuild3D()}));$('building-az').addEventListener('input',rebuild3D);$('reset-project').onclick=()=>{autoFit3D=true;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{
+};$('clear-image').onclick=clearReferenceImage;updateImageControls();$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));['lat','lon'].forEach(id=>$(id).addEventListener('change',updateGoogleMapReference));$('time').addEventListener('input',updateSolar);['wall-height'].forEach(id=>$(id).addEventListener('input',()=>{autoFit3D=true;rebuild3D()}));$('building-az').addEventListener('input',rebuild3D);$('reset-project').onclick=()=>{autoFit3D=true;S.pts=[];S.closed=false;S.scale=null;S.calPts=[];S.northPts=[];drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{
       const v=b.dataset.cam||'iso';
       if(buildingGroup)fitCameraToModel(camera,controls,buildingGroup,v);
     });initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}

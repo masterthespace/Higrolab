@@ -13,7 +13,7 @@
 <header class="top">
 <div class="wrap nav">
 <div class="brand"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></div>
-<div class="nav-actions"><button class="nav-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks">
+<div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks">
 <a href="index.html">Inicio</a>
 <a href="calculadoras.html">Herramientas</a>
 <a class="active" href="calculadora-sin-muro.html">Sin T° de muro</a>
@@ -119,18 +119,6 @@
 </div></footer>
 <script defer="" src="assets/calculadora-sin-muro.js"></script>
 <script defer src="assets/reportes.js"></script>
-
-<script>
-function hidrolabGoBack(){
-  try{
-    if(document.referrer && new URL(document.referrer).origin === location.origin){
-      history.back();
-      return;
-    }
-  }catch(e){}
-  location.href='index.html';
-}
-</script>
-
+<script src="assets/navigation.js"></script>
 </body>
 </html>
