@@ -1,12 +1,13 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIDROLAB · Solar Studio 3D</title><link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="assets/solar-studio.css"><meta name="referrer" content="strict-origin-when-cross-origin"></head><body>
+<link rel="stylesheet" href="assets/solar-studio.css"><meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="assets/hidrolab-light-ui.css">
+</head><body class="hl-ui hl-solar">
 <header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div></div><div class="wrap hero"><div class="eyebrow">V6.3.13 · SOLAR STUDIO</div><h1>Simulador Solar Avanzado de Vivienda</h1><p>Editor de planta tipo CAD + modelo WebGL 3D fiel + orientación geográfica + sombras solares.</p></div></header>
 <main class="studio">
 <section class="studio-topbar"><div class="segmented"><button class="tab active" data-view="plan">PLANTA</button><button class="tab" data-view="model">3D</button><button class="tab" data-view="solar">ANÁLISIS SOLAR</button></div><div class="project-meta"><span id="status-pill">Cargando módulo…</span><button id="reset-project">Nuevo</button></div></section>
 <section class="workspace">
 <aside class="toolrail"><button data-tool="select" class="active" title="Seleccionar">↖<span>Seleccionar</span></button><button data-tool="wall" title="Dibujar perímetro">⌁<span>Perímetro</span></button><button data-tool="measure" title="Medir / calibrar">↔<span>Calibrar</span></button><button data-tool="north" title="Definir norte">N↑<span>Norte</span></button><button id="undo" title="Deshacer">↶<span>Deshacer</span></button><button id="fit" title="Ajustar vista">⌗<span>Ajustar</span></button></aside>
 <div class="viewport-wrap">
-<div id="plan-view" class="viewport active"><canvas id="cad"></canvas><div class="hud top-left"><strong>PLANTA</strong><span id="cad-hint">Carga una imagen y calibra una distancia conocida.</span></div><div class="hud bottom-left"><span>Rueda: zoom · arrastrar botón central/derecho: desplazar · clic: dibujar</span></div></div>
+<div id="plan-view" class="viewport active"><img id="google-plan-reference" class="plan-map-reference" alt="" aria-hidden="true"><canvas id="cad"></canvas><div class="hud top-left"><strong>PLANTA</strong><span id="cad-hint">Carga una imagen y calibra una distancia conocida.</span></div><div class="hud bottom-left"><span>Rueda: zoom · arrastrar botón central/derecho: desplazar · clic: dibujar</span></div></div>
 <div id="model-view" class="viewport"><div id="three-stage"></div><div id="labels-3d" class="facade-label-layer"></div><div id="scale-3d-hud" class="model-scale-hud">Cuadrícula: 1 m</div><div id="scale-warning-3d" class="scale-warning hidden">ESCALA DE PLANTA NO CALIBRADA</div><div class="hud top-left model-hint"><strong>MODELO 3D</strong><span>Haz clic en una fachada o vértice para inspeccionarlo.</span></div><div class="viewcube"><button data-cam="top">TOP</button><div><button data-cam="west">O</button><button data-cam="iso">3D</button><button data-cam="east">E</button></div><button data-cam="north">N</button></div><div class="hud bottom-left"><span>Izquierdo: orbitar · rueda: zoom · derecho: desplazar</span></div></div>
 <div id="solar-view" class="viewport"><div id="three-solar"></div><div id="labels-solar" class="facade-label-layer"></div><div id="scale-solar-hud" class="model-scale-hud">Cuadrícula: 1 m</div><div id="scale-warning-solar" class="scale-warning hidden">ESCALA DE PLANTA NO CALIBRADA</div><div class="solar-legend"><span><i class="dot sun"></i> Sol actual</span><span><i class="line path"></i> Trayectoria diaria</span><span><i class="swatch selected"></i> Fachada seleccionada</span></div><div class="solar-time"><button id="play">▶</button><input id="time" type="range" min="300" max="1260" step="5" value="720"><strong id="time-out">12:00</strong></div><div class="hud top-left solar-readout"><strong id="sun-title">Sol</strong><span id="sun-data">—</span></div></div>
 </div>
@@ -44,6 +45,44 @@
     <a id="open-google-map" class="map-link-button" href="https://www.google.com/maps?q=-33.596361,-70.875611" target="_blank" rel="noopener noreferrer">Abrir Google Maps ↗</a>
   </div>
   <div class="mini image-help">El mapa usa las coordenadas del bloque Emplazamiento. Puedes cambiar Región/Comuna o escribir latitud y longitud y luego actualizar.</div>
+
+  <div class="static-map-loader">
+    <div class="static-map-title">
+      <b>Usar imagen satelital en la planta</b>
+      <span>Para trazar directamente sobre Google necesitas una imagen estática. Esta opción usa Google Maps Static API.</span>
+    </div>
+
+    <label>Google Maps API key
+      <input id="static-map-key" type="password" autocomplete="off" placeholder="AIza…">
+    </label>
+
+    <div class="grid2">
+      <label>Zoom
+        <select id="static-map-zoom">
+          <option>17</option>
+          <option selected>18</option>
+          <option>19</option>
+          <option>20</option>
+        </select>
+      </label>
+      <label>Tipo
+        <select id="static-map-type">
+          <option value="satellite">Satélite</option>
+          <option value="hybrid" selected>Híbrido</option>
+          <option value="roadmap">Mapa</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="static-key-memory"><input id="remember-static-key" type="checkbox"> Recordar esta clave solo en este navegador</label>
+
+    <div class="static-map-actions">
+      <button id="load-static-map-plan" type="button">Cargar referencia en PLANTA</button>
+      <button id="clear-static-map-plan" type="button" disabled>Quitar referencia del plano</button>
+    </div>
+
+    <div class="mini static-map-status" id="static-map-status">Requiere Maps Static API habilitada en tu proyecto de Google Cloud. La imagen se usa como fondo visual para trazar; la geometría y la calibración siguen siendo de HIDROLAB.</div>
+  </div>
 </div>
 
 <label>Distancia de calibración [m]<input id="cal-distance" type="number" min=".1" step=".01" value="10"></label>

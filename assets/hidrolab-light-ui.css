@@ -1,0 +1,316 @@
+
+/* ============================================================
+   HIDROLAB V8.7.4 · LIGHT INTERACTIVE UI
+   Capa visual aditiva. No modifica lógica ni cálculos.
+   ============================================================ */
+
+:root{
+  --hl-bg:#f3f6f8;
+  --hl-surface:#ffffff;
+  --hl-surface-soft:#f8fafb;
+  --hl-ink:#17313b;
+  --hl-muted:#657a83;
+  --hl-border:#dce5e8;
+  --hl-border-strong:#c6d4d9;
+  --hl-cyan:#16a6c7;
+  --hl-orange:#ed8a3a;
+  --hl-green:#20b88a;
+  --hl-solar:#dfa52c;
+  --hl-violet:#7568c8;
+  --hl-red:#d85c59;
+  --hl-shadow:0 10px 28px rgba(19,49,59,.055);
+  --hl-shadow-hover:0 16px 38px rgba(19,49,59,.10);
+  --hl-accent:var(--hl-cyan);
+  --navy:#17313b;
+  --navy2:#214653;
+  --blue:#16a6c7;
+  --green:#20a873;
+  --bg:#f3f6f8;
+  --card:#fff;
+  --ink:#17313b;
+  --muted:#657a83;
+  --line:#dce5e8;
+  --shadow:var(--hl-shadow);
+}
+body.hl-ui{
+  background:
+    radial-gradient(circle at 7% 3%, color-mix(in srgb,var(--hl-accent) 7%,transparent), transparent 26rem),
+    var(--hl-bg);
+  color:var(--hl-ink);
+  font-size:16px;
+  line-height:1.55;
+}
+body.hl-humidity{--hl-accent:var(--hl-cyan)}
+body.hl-envelope{--hl-accent:var(--hl-orange)}
+body.hl-solar{--hl-accent:var(--hl-solar)}
+body.hl-interactive{--hl-accent:var(--hl-violet)}
+body.hl-home,body.hl-tools{--hl-accent:var(--hl-cyan)}
+
+/* Header: white, defined typography, interaction by accent color */
+body.hl-ui .top{
+  background:#fff!important;
+  color:var(--hl-ink)!important;
+  border-bottom:1px solid var(--hl-border);
+  box-shadow:0 4px 18px rgba(19,49,59,.035);
+}
+body.hl-ui .brand{color:var(--hl-ink)!important}
+body.hl-ui .brand-icon{
+  border-color:var(--hl-ink)!important;
+  background:#fff;
+}
+body.hl-ui .brand-icon:after{background:var(--hl-accent)!important}
+body.hl-ui .brand em{color:var(--hl-accent)!important}
+body.hl-ui .nav{padding-top:14px;padding-bottom:14px}
+body.hl-ui .navlinks a{
+  color:#58707a!important;
+  font-weight:720;
+}
+body.hl-ui .navlinks a:hover,
+body.hl-ui .navlinks a.active{
+  color:var(--hl-ink)!important;
+  background:color-mix(in srgb,var(--hl-accent) 10%,white)!important;
+}
+body.hl-ui .nav-back-btn{
+  color:var(--hl-ink)!important;
+  background:#fff!important;
+  border-color:var(--hl-border-strong)!important;
+  box-shadow:none!important;
+}
+body.hl-ui .nav-back-btn:hover{
+  color:var(--hl-accent)!important;
+  border-color:color-mix(in srgb,var(--hl-accent) 45%,var(--hl-border))!important;
+  background:color-mix(in srgb,var(--hl-accent) 6%,white)!important;
+}
+
+/* Hero */
+body.hl-ui .hero{padding-top:40px;padding-bottom:50px}
+body.hl-ui .eyebrow{color:var(--hl-accent)!important;font-weight:900}
+body.hl-ui .hero h1{
+  color:var(--hl-ink)!important;
+  font-weight:800;
+  letter-spacing:-.045em;
+}
+body.hl-ui .hero p{
+  color:#58707a!important;
+  font-size:1rem;
+  max-width:860px;
+}
+body.hl-ui .main{margin-top:-18px}
+
+/* Surfaces */
+body.hl-ui .card,
+body.hl-ui .panel,
+body.hl-ui .chart-wrap,
+body.hl-ui .sim,
+body.hl-ui .video-card,
+body.hl-ui .trace-item{
+  border-color:var(--hl-border)!important;
+  box-shadow:var(--hl-shadow);
+}
+body.hl-ui .card{
+  border-radius:18px;
+  background:rgba(255,255,255,.96);
+}
+body.hl-ui .section-head h2,
+body.hl-ui h2,
+body.hl-ui h3{color:var(--hl-ink)}
+body.hl-ui .kicker{color:var(--hl-accent)!important}
+
+/* Buttons */
+body.hl-ui .btn,
+body.hl-ui button{
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease,color .15s ease;
+}
+body.hl-ui .btn:hover,
+body.hl-ui button:hover:not(:disabled){transform:translateY(-1px)}
+body.hl-ui .btn-dark,
+body.hl-ui .btn-primary{
+  background:var(--hl-accent)!important;
+  color:#fff!important;
+  box-shadow:0 6px 16px color-mix(in srgb,var(--hl-accent) 18%,transparent);
+}
+body.hl-ui .btn-dark:hover,
+body.hl-ui .btn-primary:hover{
+  background:color-mix(in srgb,var(--hl-accent) 86%,#17313b)!important;
+  box-shadow:0 9px 22px color-mix(in srgb,var(--hl-accent) 24%,transparent);
+}
+body.hl-ui .btn-soft,
+body.hl-ui .btn-outline{
+  background:color-mix(in srgb,var(--hl-accent) 7%,white)!important;
+  color:color-mix(in srgb,var(--hl-accent) 72%,#17313b)!important;
+  border-color:color-mix(in srgb,var(--hl-accent) 24%,var(--hl-border))!important;
+}
+
+/* Inputs */
+body.hl-ui input,
+body.hl-ui select,
+body.hl-ui textarea,
+body.hl-ui .number-wrap{
+  background:#fff!important;
+  border-color:var(--hl-border-strong)!important;
+  color:var(--hl-ink)!important;
+}
+body.hl-ui input:focus,
+body.hl-ui select:focus,
+body.hl-ui textarea:focus,
+body.hl-ui .number-wrap:focus-within{
+  outline:0!important;
+  border-color:color-mix(in srgb,var(--hl-accent) 65%,var(--hl-border))!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--hl-accent) 11%,transparent)!important;
+}
+body.hl-ui input[type="range"]{accent-color:var(--hl-accent)}
+
+/* Tool cards: more alive, but still technical */
+body.hl-ui .tool-card{
+  border-color:var(--hl-border)!important;
+  border-radius:16px;
+  box-shadow:var(--hl-shadow);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+body.hl-ui .tool-card:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--hl-shadow-hover);
+  border-color:color-mix(in srgb,var(--hl-accent) 35%,var(--hl-border))!important;
+}
+body.hl-ui .tool-visual{
+  height:112px;
+  background:
+    radial-gradient(circle at 84% 18%,color-mix(in srgb,var(--hl-accent) 20%,transparent),transparent 45%),
+    linear-gradient(135deg,color-mix(in srgb,var(--hl-accent) 7%,white),#fff)!important;
+  border-bottom:1px solid color-mix(in srgb,var(--hl-accent) 16%,var(--hl-border));
+}
+body.hl-ui .tool-visual:after{
+  border-color:color-mix(in srgb,var(--hl-accent) 16%,transparent)!important;
+  box-shadow:0 0 0 30px color-mix(in srgb,var(--hl-accent) 4%,transparent)!important;
+}
+body.hl-ui .tool-icon{
+  left:18px;
+  bottom:16px;
+  width:48px;
+  height:48px;
+  border-radius:13px;
+  background:var(--hl-accent)!important;
+  color:#fff!important;
+  font-size:20px;
+  font-weight:900;
+  box-shadow:0 7px 18px color-mix(in srgb,var(--hl-accent) 24%,transparent);
+}
+body.hl-ui .tool-body{padding:18px}
+body.hl-ui .tool-body h3{font-size:1rem}
+body.hl-ui .tool-body p{
+  color:var(--hl-muted);
+  font-size:.84rem;
+  line-height:1.55;
+  min-height:0;
+}
+body.hl-ui .tool-tag{
+  border-color:color-mix(in srgb,var(--hl-accent) 18%,var(--hl-border))!important;
+  background:color-mix(in srgb,var(--hl-accent) 7%,white)!important;
+  color:color-mix(in srgb,var(--hl-accent) 65%,#17313b)!important;
+}
+
+/* Per-category identity on the catalog */
+body.hl-tools #humedad{--hl-accent:var(--hl-cyan)}
+body.hl-tools #envolvente{--hl-accent:var(--hl-orange)}
+body.hl-tools .category:not([id]){--hl-accent:var(--hl-solar)}
+body.hl-home .cards .tool-card:nth-child(1){--hl-accent:var(--hl-cyan)}
+body.hl-home .cards .tool-card:nth-child(2){--hl-accent:var(--hl-orange)}
+body.hl-home .card:nth-of-type(2){--hl-accent:var(--hl-solar)}
+
+/* Results: hierarchy similar to modern dashboards */
+body.hl-ui .metric,
+body.hl-ui .stat,
+body.hl-ui .summary-grid>div,
+body.hl-ui .selected-metrics>div{
+  background:var(--hl-surface-soft)!important;
+  border-color:var(--hl-border)!important;
+}
+body.hl-ui .metric strong,
+body.hl-ui .stat strong,
+body.hl-ui .summary-grid strong{
+  color:var(--hl-ink)!important;
+  font-variant-numeric:tabular-nums;
+}
+body.hl-ui .metric span,
+body.hl-ui .stat small,
+body.hl-ui .summary-grid span{color:var(--hl-muted)!important}
+
+/* Tables and explanatory blocks */
+body.hl-ui table{background:#fff}
+body.hl-ui th{
+  background:#f2f6f7!important;
+  color:#526b75!important;
+}
+body.hl-ui td,body.hl-ui th{border-color:var(--hl-border)!important}
+body.hl-ui .trace-current,
+body.hl-ui .norm-scope,
+body.hl-ui .callout{
+  border-color:var(--hl-border)!important;
+}
+
+/* Footer */
+body.hl-ui .footer{
+  color:#71848c!important;
+}
+body.hl-ui .footer a{color:var(--hl-accent)!important}
+
+/* Solar Studio: preserve workspace geometry, modernize surfaces only */
+body.hl-solar .studio{background:var(--hl-bg)}
+body.hl-solar .studio-topbar,
+body.hl-solar .workspace,
+body.hl-solar .panel,
+body.hl-solar .sun-dashboard{
+  border-color:var(--hl-border)!important;
+}
+body.hl-solar .studio-topbar{box-shadow:var(--hl-shadow)}
+body.hl-solar .segmented{
+  background:#edf2f4!important;
+}
+body.hl-solar .segmented .active{
+  background:var(--hl-solar)!important;
+  color:#fff!important;
+}
+body.hl-solar .toolrail{background:#f7f9fa!important}
+body.hl-solar .toolrail button.active,
+body.hl-solar .toolrail button:hover{
+  color:#b67812!important;
+  border-color:#e8cb91!important;
+  background:#fffaf0!important;
+}
+body.hl-solar .panel{
+  background:#fff!important;
+  border-radius:12px!important;
+  box-shadow:0 5px 16px rgba(19,49,59,.035)!important;
+}
+body.hl-solar .panel h3{color:#4f6a74!important;font-size:.82rem!important}
+body.hl-solar .inspector{background:#f5f8f9!important}
+body.hl-solar .reference-tab.active{
+  color:#9a6410!important;
+  box-shadow:0 3px 10px rgba(178,118,18,.10)!important;
+}
+body.hl-solar .solar-time button{
+  background:var(--hl-solar)!important;
+  color:#fff!important;
+}
+
+/* Typography: keep technical notes readable */
+body.hl-ui .note,
+body.hl-ui .mini,
+body.hl-ui .empty,
+body.hl-ui .field small,
+body.hl-ui .trace-item p{
+  font-size:max(.68rem,11px)!important;
+  line-height:1.48!important;
+}
+body.hl-ui label,
+body.hl-ui .field label{font-size:max(.76rem,12px)!important}
+body.hl-ui .panel label{font-size:max(.74rem,12px)!important}
+
+/* Responsive */
+@media(max-width:760px){
+  body.hl-ui{font-size:15px}
+  body.hl-ui .hero{padding-top:30px;padding-bottom:40px}
+  body.hl-ui .main{margin-top:-10px}
+  body.hl-ui .tool-visual{height:92px}
+  body.hl-ui .tool-icon{width:44px;height:44px}
+}

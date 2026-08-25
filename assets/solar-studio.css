@@ -144,3 +144,88 @@
   text-decoration:none
 }
 .map-link-button:hover{background:#edf5f7}
+
+
+/* V8.7.4 · Google Static Maps como fondo trazable de la planta */
+#plan-view{overflow:hidden}
+.plan-map-reference{
+  position:absolute;
+  z-index:1;
+  display:none;
+  max-width:none;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+  object-fit:fill;
+  filter:saturate(.88) contrast(.96) brightness(1.04);
+}
+.plan-map-reference.active{display:block}
+#plan-view #cad{position:absolute;inset:0;z-index:2}
+#plan-view .hud{z-index:4}
+
+.static-map-loader{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid #dde6e9
+}
+.static-map-title{
+  margin-bottom:9px;
+  padding:9px 10px;
+  border-radius:9px;
+  background:#fff8eb;
+  border:1px solid #ead6aa
+}
+.static-map-title b{
+  display:block;
+  color:#735112;
+  font-size:.72rem
+}
+.static-map-title span{
+  display:block;
+  margin-top:3px;
+  color:#6d6557;
+  font-size:.62rem;
+  line-height:1.45
+}
+.static-key-memory{
+  display:flex!important;
+  align-items:center;
+  gap:7px;
+  font-size:.62rem!important;
+  font-weight:650!important;
+  color:#667981!important
+}
+.static-key-memory input{
+  width:auto!important;
+  margin:0!important
+}
+.static-map-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+  margin-top:8px
+}
+.static-map-actions button{
+  width:100%;
+  min-height:36px;
+  border:1px solid #cbd9de;
+  border-radius:8px;
+  background:#f7fafb;
+  color:#124c61;
+  font-size:.68rem;
+  font-weight:850;
+  cursor:pointer
+}
+.static-map-actions #load-static-map-plan{
+  background:#dfa52c;
+  border-color:#dfa52c;
+  color:#fff
+}
+.static-map-actions #load-static-map-plan:hover{background:#c88e16}
+.static-map-actions button:disabled{opacity:.45;cursor:not-allowed}
+.static-map-status{
+  margin-top:7px;
+  padding:8px 9px;
+  border-radius:8px;
+  background:#f6f8f9
+}

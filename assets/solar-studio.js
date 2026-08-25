@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 const $=id=>document.getElementById(id), qsa=s=>[...document.querySelectorAll(s)];
-const S={tool:'select',img:null,imgURL:null,imgW:0,imgH:0,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
+const S={tool:'select',img:null,imgURL:null,imgW:0,imgH:0,mapRef:false,mapRefURL:null,zoom:1,panX:0,panY:0,pts:[],closed:false,scale:null,calPts:[],northAngle:0,northPts:[],drag:null,hover:null};
 
 function createOrbitControls(cam, dom){
   const ctl={target:new THREE.Vector3(0,1,0),enabled:true};
@@ -54,8 +54,8 @@ function resizeCanvas(){const r=canvas.parentElement.getBoundingClientRect();can
 function screenToWorld(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left-S.panX)/S.zoom,y:(e.clientY-r.top-S.panY)/S.zoom}}
 function worldToScreen(p){return{x:p.x*S.zoom+S.panX,y:p.y*S.zoom+S.panY}}
 function snapPoint(p){if(!S.pts.length||!$('snap90').checked)return p;const a=S.pts[S.pts.length-1],dx=p.x-a.x,dy=p.y-a.y;if(Math.abs(dx)>Math.abs(dy)*3)return{x:p.x,y:a.y};if(Math.abs(dy)>Math.abs(dx)*3)return{x:a.x,y:p.y};return p}
-function fitImage(){const r=canvas.getBoundingClientRect();if(S.img){S.zoom=Math.min((r.width-50)/S.imgW,(r.height-50)/S.imgH);S.panX=(r.width-S.imgW*S.zoom)/2;S.panY=(r.height-S.imgH*S.zoom)/2}else{S.zoom=1;S.panX=r.width/2;S.panY=r.height/2}drawCAD()}
-function drawCAD(){const d=devicePixelRatio,r=canvas.getBoundingClientRect();ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle='#e9eef0';ctx.fillRect(0,0,r.width,r.height);ctx.save();ctx.translate(S.panX,S.panY);ctx.scale(S.zoom,S.zoom);if(S.img)ctx.drawImage(S.img,0,0,S.imgW,S.imgH);else drawGrid();if(S.scale&&S.calPts.length===2)drawLine(S.calPts[0],S.calPts[1],'#f0a500',3/S.zoom);if(S.northPts.length===2)drawLine(S.northPts[0],S.northPts[1],'#d93232',3/S.zoom);if(S.pts.length){ctx.beginPath();ctx.moveTo(S.pts[0].x,S.pts[0].y);for(let i=1;i<S.pts.length;i++)ctx.lineTo(S.pts[i].x,S.pts[i].y);if(S.closed)ctx.closePath();ctx.fillStyle='rgba(10,95,125,.16)';if(S.closed)ctx.fill();ctx.strokeStyle='#0b5f7d';ctx.lineWidth=3/S.zoom;ctx.stroke();S.pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,6/S.zoom,0,Math.PI*2);ctx.fillStyle=i===S.hover?'#86b817':'#fff';ctx.fill();ctx.strokeStyle='#0b5f7d';ctx.lineWidth=2/S.zoom;ctx.stroke()});drawDimensions()}ctx.restore();drawNorth();}
+function fitImage(){const r=canvas.getBoundingClientRect();if(S.img||S.mapRef){S.zoom=Math.min((r.width-50)/S.imgW,(r.height-50)/S.imgH);S.panX=(r.width-S.imgW*S.zoom)/2;S.panY=(r.height-S.imgH*S.zoom)/2}else{S.zoom=1;S.panX=r.width/2;S.panY=r.height/2}drawCAD()}
+function drawCAD(){const d=devicePixelRatio,r=canvas.getBoundingClientRect();ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);if(!S.mapRef){ctx.fillStyle='#e9eef0';ctx.fillRect(0,0,r.width,r.height)}syncPlanMapReference();ctx.save();ctx.translate(S.panX,S.panY);ctx.scale(S.zoom,S.zoom);if(S.img)ctx.drawImage(S.img,0,0,S.imgW,S.imgH);else if(!S.mapRef)drawGrid();if(S.scale&&S.calPts.length===2)drawLine(S.calPts[0],S.calPts[1],'#f0a500',3/S.zoom);if(S.northPts.length===2)drawLine(S.northPts[0],S.northPts[1],'#d93232',3/S.zoom);if(S.pts.length){ctx.beginPath();ctx.moveTo(S.pts[0].x,S.pts[0].y);for(let i=1;i<S.pts.length;i++)ctx.lineTo(S.pts[i].x,S.pts[i].y);if(S.closed)ctx.closePath();ctx.fillStyle='rgba(10,95,125,.16)';if(S.closed)ctx.fill();ctx.strokeStyle='#0b5f7d';ctx.lineWidth=3/S.zoom;ctx.stroke();S.pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,6/S.zoom,0,Math.PI*2);ctx.fillStyle=i===S.hover?'#86b817':'#fff';ctx.fill();ctx.strokeStyle='#0b5f7d';ctx.lineWidth=2/S.zoom;ctx.stroke()});drawDimensions()}ctx.restore();drawNorth();}
 function drawGrid(){const step=50;ctx.strokeStyle='#d2dde0';ctx.lineWidth=1;for(let x=-2000;x<2000;x+=step){ctx.beginPath();ctx.moveTo(x,-2000);ctx.lineTo(x,2000);ctx.stroke()}for(let y=-2000;y<2000;y+=step){ctx.beginPath();ctx.moveTo(-2000,y);ctx.lineTo(2000,y);ctx.stroke()}}
 function drawLine(a,b,c,w){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=c;ctx.lineWidth=w;ctx.stroke()}
 function drawDimensions(){if(!S.scale)return;ctx.font=`${12/S.zoom}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';for(let i=0;i<S.pts.length-(S.closed?0:1);i++){const a=S.pts[i],b=S.pts[(i+1)%S.pts.length],m={x:(a.x+b.x)/2,y:(a.y+b.y)/2},len=Math.hypot(b.x-a.x,b.y-a.y)*S.scale;ctx.fillStyle='#10262d';ctx.fillRect(m.x-28/S.zoom,m.y-10/S.zoom,56/S.zoom,20/S.zoom);ctx.fillStyle='#fff';ctx.fillText(len.toFixed(2)+' m',m.x,m.y)}}
@@ -568,6 +568,110 @@ function applyLocationFromQuery(){
 }
 
 
+
+function syncPlanMapReference(){
+  const img=$('google-plan-reference');
+  if(!img)return;
+  if(!S.mapRef){
+    img.classList.remove('active');
+    return;
+  }
+  img.classList.add('active');
+  img.style.left=`${S.panX}px`;
+  img.style.top=`${S.panY}px`;
+  img.style.width=`${S.imgW*S.zoom}px`;
+  img.style.height=`${S.imgH*S.zoom}px`;
+}
+
+function clearStaticMapPlanReference(showMessage=true){
+  const img=$('google-plan-reference');
+  S.mapRef=false;
+  S.mapRefURL=null;
+  if(img){
+    img.removeAttribute('src');
+    img.classList.remove('active');
+    img.style.cssText='';
+  }
+  const clear=$('clear-static-map-plan');
+  if(clear)clear.disabled=true;
+  if(!S.img){
+    S.imgW=0;S.imgH=0;
+    fitImage();
+  }else drawCAD();
+  if(showMessage){
+    const status=$('static-map-status');
+    if(status)status.textContent='Referencia de Google retirada de la planta. La geometría, calibración y orientación se conservaron.';
+  }
+}
+
+function loadStaticMapPlanReference(){
+  const key=($('static-map-key')?.value||'').trim();
+  const status=$('static-map-status');
+  if(!key){
+    if(status)status.textContent='Ingresa una Google Maps API key con Maps Static API habilitada.';
+    $('static-map-key')?.focus();
+    return;
+  }
+
+  const la=Number($('lat').value),lo=Number($('lon').value);
+  if(!Number.isFinite(la)||!Number.isFinite(lo)||la<-90||la>90||lo<-180||lo>180){
+    if(status)status.textContent='Las coordenadas del emplazamiento no son válidas.';
+    return;
+  }
+
+  const zoom=Math.max(1,Math.min(21,Number($('static-map-zoom')?.value||18)));
+  const type=$('static-map-type')?.value||'hybrid';
+  const url='https://maps.googleapis.com/maps/api/staticmap?'+new URLSearchParams({
+    center:`${la.toFixed(6)},${lo.toFixed(6)}`,
+    zoom:String(zoom),
+    size:'640x640',
+    scale:'2',
+    maptype:type,
+    key:key
+  }).toString();
+
+  if($('remember-static-key')?.checked){
+    try{localStorage.setItem('hidrolab-google-static-key',key)}catch(_){}
+  }else{
+    try{localStorage.removeItem('hidrolab-google-static-key')}catch(_){}
+  }
+
+  const img=$('google-plan-reference');
+  if(!img)return;
+
+  if(status)status.textContent='Cargando referencia satelital…';
+  img.onload=()=>{
+    // Static image remains outside the canvas to avoid contaminating PDF/canvas export.
+    if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
+    S.img=null;S.imgURL=null;
+    S.mapRef=true;
+    S.mapRefURL=url;
+    S.imgW=640;S.imgH=640;
+    updateImageControls();
+    const clear=$('clear-static-map-plan');if(clear)clear.disabled=false;
+    if(status)status.textContent='Referencia cargada en PLANTA. Ya puedes calibrar una distancia y trazar el perímetro encima.';
+    fitImage();
+  };
+  img.onerror=()=>{
+    S.mapRef=false;S.mapRefURL=null;
+    img.classList.remove('active');
+    if(status)status.textContent='Google no pudo entregar la imagen. Revisa la API key, la habilitación de Maps Static API y las restricciones del dominio.';
+  };
+  img.src=url;
+}
+
+function initStaticMapPlanReference(){
+  try{
+    const saved=localStorage.getItem('hidrolab-google-static-key');
+    if(saved&&$('static-map-key')){
+      $('static-map-key').value=saved;
+      if($('remember-static-key'))$('remember-static-key').checked=true;
+    }
+  }catch(_){}
+  $('load-static-map-plan')?.addEventListener('click',loadStaticMapPlanReference);
+  $('clear-static-map-plan')?.addEventListener('click',()=>clearStaticMapPlanReference(true));
+}
+
 function setReferenceMode(mode){
   const imageMode=mode!=='map';
   qsa('[data-reference-mode]').forEach(btn=>{
@@ -622,7 +726,7 @@ function clearReferenceImage(){
     :'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
 }
 
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();initStaticMapPlanReference();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{clearStaticMapPlanReference(false);
   const f=e.target.files[0];if(!f)return;
   if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
   const url=URL.createObjectURL(f),img=new Image();
