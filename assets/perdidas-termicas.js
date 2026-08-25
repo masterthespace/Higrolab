@@ -95,7 +95,8 @@ const state={
     {start:'19:00',end:'07:00',ti:20,te:7}
   ],
   improvementBackup:null,
-  improvementApplied:null
+  improvementApplied:null,
+  improvementReference:null
 };
 
 function geometry(){
@@ -108,10 +109,27 @@ function geometry(){
   const volume=footprint*H*N;
   return {L,W,H,N,footprint,useful,roof,floor,grossWalls,volume};
 }
-function achValue(){
+function cevMinimumVentilationAch(g){
+  const bedrooms=Math.round(num('bedrooms',3,0,20));
+  const np=bedrooms+1;
+  // Manual CEV 2025, Anexo D, Ecuación 16:
+  // Fmin = (0.3*AV + 2.5*NP)*3.6 / VV  [Ren/h]
+  return g.volume>0?((.3*g.useful+2.5*np)*3.6/g.volume):0;
+}
+function achValue(g=geometry()){
   const mode=$('airMode').value;
-  if(mode==='known'){$('ach').disabled=false;return num('ach',.5,0,10)}
-  const v=Math.max(0,Number(mode)||0);$('ach').value=v.toFixed(2);$('ach').disabled=true;return v;
+  const known=mode==='known';
+  $('airKnownFields')?.classList.toggle('hl2-hidden',!known);
+  $('airCevFields')?.classList.toggle('hl2-hidden',known);
+  if(known){
+    $('ach').disabled=false;
+    return {total:num('ach',.5,0,10),vent:null,infiltration:null,mode};
+  }
+  const vent=cevMinimumVentilationAch(g);
+  const infiltration=num('infiltrationAch',.20,0,10);
+  $('ach').disabled=true;
+  $('ach').value=(vent+infiltration).toFixed(2);
+  return {total:vent+infiltration,vent,infiltration,mode};
 }
 function syncRoofArea(g){
   const manual=$('roofManual').checked;
@@ -120,22 +138,22 @@ function syncRoofArea(g){
   $('roofModeHelp').textContent=manual?'Área térmica definida manualmente':'Área automática = huella horizontal de la vivienda';
 }
 function syncFloor(){
-  const type=$('floorType').value,adiabatic=type==='adiabatic';
-  $('floorU').disabled=adiabatic;
+  const type=$('floorType').value;
+  const adiabatic=type==='adiabatic';
+  const ground=type==='ground';
+  $('floorVentilatedFields')?.classList.toggle('hl2-hidden',ground||adiabatic);
+  $('floorGroundFields')?.classList.toggle('hl2-hidden',!ground);
   $('floorUWrap').classList.toggle('hl2-disabled',adiabatic);
+  $('floorU').disabled=adiabatic||ground;
   if(type==='ground'){
-    $('floorULabel').textContent='U equivalente piso-terreno [W/m²K]';
-    $('floorMethodNote').textContent='Usa U equivalente obtenido según NCh3117 / CEV o una fuente técnica respaldada.';
+    $('floorMethodNote').textContent='Piso contra terreno: pérdida lineal Ls·P·ΔT según enfoque NCh3117/CEV.';
   }else if(type==='adiabatic'){
-    $('floorULabel').textContent='U piso [W/m²K]';
     $('floorMethodNote').textContent='Recinto acondicionado contiguo: flujo térmico considerado 0.';
   }else{
-    $('floorULabel').textContent='U piso ventilado [W/m²K]';
-    $('floorMethodNote').textContent='Piso exterior / ventilado: U · A · ΔT.';
+    $('floorMethodNote').textContent='Piso ventilado: Φ = U·A·ΔT.';
   }
   updateFloorBuilderAvailability();
-}
-function syncFloorArea(g){
+}function syncFloorArea(g){
   const manual=$('floorManual').checked;
   $('floorAreaInput').readOnly=!manual;
   if(!manual)$('floorAreaInput').value=g.floor.toFixed(2);
@@ -376,17 +394,11 @@ function loadSlabPreset(){
 function applyFloorBuilder(){
   const mode=floorBuilderMode(),c=layerCalc('floor');
   if(mode==='ground'){
-    if(!$('allowGround1D').checked){
-      $('floorBuilderNotice').innerHTML='<b>No aplicado:</b> para piso en contacto con terreno, el U equivalente debe obtenerse según NCh3117. Activa la casilla de estimación didáctica solo si quieres explorar el efecto 1D de las capas.';
-      return;
-    }
-    $('floorType').value='ground';
-    $('floorU').value=c.u.toFixed(3);
-    $('floorMethodNote').textContent='ESTIMACIÓN DIDÁCTICA 1D aplicada desde capas. No equivale al U/Ls NCh3117.';
-  }else{
-    $('floorType').value='exterior';
-    $('floorU').value=c.u.toFixed(3);
+    $('floorBuilderNotice').innerHTML='<b>No aplicado:</b> el U 1D de capas no sustituye la pérdida lineal Ls calculada según NCh3117. Usa este constructor solo para estudiar la resistencia de las capas y luego ingresa el Ls obtenido mediante el método correspondiente.';
+    return;
   }
+  $('floorType').value='exterior';
+  $('floorU').value=c.u.toFixed(3);
   syncFloor();calculate();
 }
 function updateFloorBuilderAvailability(){
@@ -411,12 +423,14 @@ function timeHours(start,end){
 }
 function heatLossCoefficient(){
   const g=geometry(),winA=num('windowArea',0,0),doorA=num('doorArea',0,0);
-  const wallA=Math.max(0,g.grossWalls-winA-doorA);
+  const gross=wallGrossArea(g),wallA=Math.max(0,gross-winA-doorA);
   const floorA=syncFloorArea(g);
   let H=num('wallU',0,0)*wallA+num('windowU',0,0)*winA+num('doorU',0,0)*doorA;
   H+=num('roofU',0,0)*num('roofArea',g.roof,0);
-  if($('floorType').value!=='adiabatic')H+=num('floorU',0,0)*floorA;
-  H+=.33*achValue()*g.volume;
+  const floorType=$('floorType').value;
+  if(floorType==='exterior')H+=num('floorU',0,0)*floorA;
+  if(floorType==='ground')H+=num('floorLs',0,0)*groundPerimeter(g);
+  H+=.33*achValue(g).total*g.volume;
   H+=bridgeCoefficient();
   return H;
 }
@@ -445,98 +459,146 @@ function renderEnergyPeriods(){
 function updateEnergySimulator(){
   if(!$('energyPeriods'))return;
   const H=heatLossCoefficient();
-  let totalHours=0,totalKwh=0;
+  let totalHours=0,heatingKwh=0,coolingKwh=0,absKwh=0;
   document.querySelectorAll('.hl2-period-row').forEach((el,i)=>{
-    const r=state.energyPeriods[i],hours=timeHours(r.start,r.end),kw=H*Math.abs(r.ti-r.te)/1000,kwh=kw*hours;
-    totalHours+=hours;totalKwh+=kwh;
+    const r=state.energyPeriods[i],hours=timeHours(r.start,r.end);
+    const signedDT=r.ti-r.te;
+    const kwh=H*Math.abs(signedDT)/1000*hours;
+    totalHours+=hours;absKwh+=kwh;
+    if(signedDT>0)heatingKwh+=kwh;
+    if(signedDT<0)coolingKwh+=kwh;
     el.querySelector('[data-hours]').textContent=fmt(hours,1)+' h';
-    el.querySelector('[data-energy]').textContent=fmt(kwh,2)+' kWh';
+    el.querySelector('[data-energy]').textContent=fmt(kwh,2)+' kWh '+(signedDT>0?'pérdida':signedDT<0?'ganancia':'sin flujo');
   });
-  $('energyTotalKwh').textContent=fmt(totalKwh,2);
+  $('energyTotalKwh').textContent=fmt(heatingKwh,2);
+  $('energyCoolingKwh').textContent=fmt(coolingKwh,2);
   $('energyTotalHours').textContent=fmt(totalHours,1)+' h';
-  $('energyAverageKw').textContent=fmt(totalHours?totalKwh/totalHours:0,2)+' kW';
+  $('energyAverageKw').textContent=fmt(totalHours?absKwh/totalHours:0,2)+' kW';
+  $('energyDirectionNote').textContent=coolingKwh>0
+    ? 'Los períodos con exterior más cálido se muestran como ganancia térmica hacia el interior y no se convierten a consumo de estufas/parafina.'
+    : 'Todos los períodos configurados corresponden a pérdida de calor hacia el exterior.';
 
+  // Heating equipment equivalences use only heating-loss energy.
   const electricKw=num('electricHeaterKw',2,.1);
-  $('electricHours').textContent=fmt(totalKwh/electricKw,1)+' h';
+  $('electricHours').textContent=fmt(heatingKwh/electricKw,1)+' h';
 
   const hpKw=num('heatPumpKw',3.5,.1),cop=num('heatPumpCop',3.2,1);
-  $('heatPumpHours').textContent=fmt(totalKwh/hpKw,1)+' h';
-  const hpElec=totalKwh/cop;
+  $('heatPumpHours').textContent=fmt(heatingKwh/hpKw,1)+' h';
+  const hpElec=heatingKwh/cop;
   $('heatPumpElectricity').textContent=fmt(hpElec,2)+' kWh eléctricos equivalentes';
 
   const fuel=num('keroseneKwhL',10,1),eff=num('keroseneEff',85,1,100)/100,lph=num('keroseneLph',.25,.01);
-  const liters=totalKwh/(fuel*eff);
+  const liters=heatingKwh/(fuel*eff);
   $('keroseneLiters').textContent=fmt(liters,2)+' L equivalentes';
   $('keroseneHours').textContent=fmt(liters/lph,1)+' h';
 
   const ePrice=num('electricPrice',0,0),kPrice=num('kerosenePrice',0,0);
-  $('electricCost').textContent=ePrice>0?'$ '+Math.round(totalKwh*ePrice).toLocaleString('es-CL'):'Ingresa tarifa';
+  $('electricCost').textContent=ePrice>0?'$ '+Math.round(heatingKwh*ePrice).toLocaleString('es-CL'):'Ingresa tarifa';
   $('heatPumpCost').textContent=ePrice>0?'$ '+Math.round(hpElec*ePrice).toLocaleString('es-CL'):'Ingresa tarifa';
   $('keroseneCost').textContent=kPrice>0?'$ '+Math.round(liters*kPrice).toLocaleString('es-CL'):'Ingresa precio';
-  window.__heatlossEnergy={totalHours,totalKwh,hpElec,liters,H};
+  window.__heatlossEnergy={totalHours,totalKwh:heatingKwh,coolingKwh,hpElec,liters,H};
 }
 /* ---------- heat loss mother module ---------- */
 function calculate(){
-  const g=geometry(),Ti=num('ti',20),Te=num('te',5),dT=Math.abs(Ti-Te);
+  const g=geometry(),Ti=num('ti',20),Te=num('te',5),signedDT=Ti-Te,dT=Math.abs(signedDT),direction=thermalDirection(Ti,Te);
   syncRoofArea(g);syncFloor();const floorA=syncFloorArea(g);syncBridgeUI();
+
   const winA=num('windowArea',12,0),doorA=num('doorArea',4,0);
-  const wallA=Math.max(0,g.grossWalls-winA-doorA);
+  const grossWalls=wallGrossArea(g);
+  const wallA=Math.max(0,grossWalls-winA-doorA);
   const wallU=num('wallU',.60,.01),winU=num('windowU',2.8,.01),doorU=num('doorU',2.2,.01);
   const roofA=num('roofArea',g.roof,0),roofU=num('roofU',.45,.01);
-  const floorType=$('floorType').value,floorU=num('floorU',.60,.01),ach=achValue(),bridgeH=bridgeCoefficient();
+  const floorType=$('floorType').value,floorU=num('floorU',.60,.01),floorLs=num('floorLs',.50,0),groundP=groundPerimeter(g);
+  const air=achValue(g),ach=air.total,bridgeH=bridgeCoefficient();
 
   const wallLoss=wallU*wallA*dT,windowLoss=winU*winA*dT,doorLoss=doorU*doorA*dT;
-  const roofLoss=roofU*roofA*dT,floorLoss=floorType==='adiabatic'?0:floorU*floorA*dT;
+  const roofLoss=roofU*roofA*dT;
+  const floorLoss=floorType==='adiabatic'?0:(floorType==='ground'?floorLs*groundP*dT:floorU*floorA*dT);
   const airLoss=.33*ach*g.volume*dT,bridgeLoss=bridgeH*dT;
   const transmission=wallLoss+windowLoss+doorLoss+roofLoss+floorLoss,total=transmission+airLoss+bridgeLoss,totalSafe=Math.max(total,1);
 
   const parts=[
     {id:'walls',name:'Muros',loss:wallLoss},{id:'windows',name:'Ventanas',loss:windowLoss},
-    {id:'roof',name:'Techumbre',loss:roofLoss},{id:'floor',name:'Piso',loss:floorLoss},
+    {id:'roof',name:'Techumbre',loss:roofLoss},{id:'floor',name:floorType==='ground'?'Piso-terreno':'Piso',loss:floorLoss},
     {id:'air',name:'Ventilación / infiltración',loss:airLoss},{id:'doors',name:'Puertas',loss:doorLoss},
-    {id:'bridges',name:'Puentes térmicos',loss:bridgeLoss}
+    {id:'bridges',name:'Puentes térmicos adicionales',loss:bridgeLoss}
   ].sort((a,b)=>b.loss-a.loss);
 
   $('deltaTOut').textContent=fmt(dT,1);$('usefulAreaOut').textContent=fmt(g.useful,1);$('footprintOut').textContent=fmt(g.footprint,1);
   $('volumeOut').textContent=fmt(g.volume,1);$('grossWallOut').textContent=fmt(g.grossWalls,1);
   $('wallArea').textContent=fmt(wallA,1)+' m²';
-  $('wallGrossHelp').textContent=`${fmt(g.grossWalls,1)} m² verticales brutos − ${fmt(winA+doorA,1)} m² de vanos`;
+  $('wallGrossHelp').textContent=`${fmt(grossWalls,1)} m² brutos no adiabáticos − ${fmt(winA+doorA,1)} m² de vanos`;
   $('wallLoss').textContent=fmt(wallLoss,0);$('windowLoss').textContent=fmt(windowLoss,0);$('doorLoss').textContent=fmt(doorLoss,0);
   $('roofLoss').textContent=fmt(roofLoss,0);$('floorLoss').textContent=fmt(floorLoss,0);$('airLoss').textContent=fmt(airLoss,0);
+
+  if(floorType==='ground'){
+    $('groundMethodNote').textContent=`Φ = ${fmt(floorLs,2)} W/m·K × ${fmt(groundP,2)} m × ${fmt(dT,1)} K`;
+  }
+
   $('bridgeLoss').textContent=fmt(bridgeLoss,0)+' W';$('bridgeHOut').textContent=fmt(bridgeH,2)+' W/K';
   if($('bridgeEnabled').checked){
     $('bridgeCalcText').textContent=$('bridgeMode').value==='assistant'
       ? `${fmt(num('bridgeLength',0),1)} m × ${fmt(num('bridgePsi',.10),2)} W/m·K`
       : 'Valor ΣψL ingresado directamente';
   }else $('bridgeCalcText').textContent='Puentes térmicos desactivados';
-  $('bridgeStatus').textContent=bridgeH>0?`Añaden ${fmt(bridgeLoss,0)} W con ΔT ${fmt(dT,1)} °C`:'No considerados';
-  $('airFormula').textContent=`0,33 × ${fmt(ach,2)} × ${fmt(g.volume,0)} × ${fmt(dT,1)}`;
+  $('bridgeStatus').textContent=bridgeH>0?`Añaden ${fmt(bridgeLoss,0)} W con |ΔT| ${fmt(dT,1)} K`:'No considerados';
+
+  $('airFormula').textContent=air.mode==='cevMin'
+    ? `Fmin CEV ${fmt(air.vent,2)} ACH + infiltración ${fmt(air.infiltration,2)} = ${fmt(ach,2)} ACH total`
+    : `0,33 × ${fmt(ach,2)} ACH × ${fmt(g.volume,0)} m³ × ${fmt(dT,1)} K`;
 
   $('kw').textContent=fmt(total/1000,2);$('total').textContent=fmt(total,0)+' W';
   $('specific').textContent=fmt(g.useful?total/g.useful:0,1)+' W/m²';$('trans').textContent=fmt(transmission,0)+' W';
   $('otherLoss').textContent=fmt(airLoss+bridgeLoss,0)+' W';
-  $('resultSentence').textContent=`Para mantener ${fmt(Ti,1)} °C con ${fmt(Te,1)} °C exterior, la vivienda pierde aproximadamente ${fmt(total/1000,2)} kW en estas condiciones.`;
+
+  if(direction==='out'){
+    $('resultSentence').textContent=`Para mantener ${fmt(Ti,1)} °C con ${fmt(Te,1)} °C exterior, la vivienda pierde aproximadamente ${fmt(total/1000,2)} kW hacia el exterior.`;
+    $('thermalDirectionNotice').className='hl2-direction-notice heating';
+    $('thermalDirectionNotice').innerHTML='<b>Modo calefacción:</b> el interior está más cálido que el exterior; el resultado representa pérdida de calor.';
+  }else if(direction==='in'){
+    $('resultSentence').textContent=`Con ${fmt(Te,1)} °C exterior y ${fmt(Ti,1)} °C interior, la envolvente recibe aproximadamente ${fmt(total/1000,2)} kW desde el exterior.`;
+    $('thermalDirectionNotice').className='hl2-direction-notice cooling';
+    $('thermalDirectionNotice').innerHTML='<b>Flujo hacia el interior:</b> este valor es una ganancia térmica por transmisión/aire, no una pérdida de calefacción.';
+  }else{
+    $('resultSentence').textContent='No existe diferencia de temperatura entre interior y exterior; las pérdidas sensibles calculadas son nulas.';
+    $('thermalDirectionNotice').className='hl2-direction-notice neutral';
+    $('thermalDirectionNotice').textContent='ΔT = 0 K.';
+  }
 
   const max=Math.max(...parts.map(p=>p.loss),1);
   $('lossRanking').innerHTML=parts.map((p,i)=>`<div class="heat-rank-row"><span class="rank">${i+1}</span><div><b>${p.name}</b><small>${fmt(p.loss/totalSafe*100,0)}% del total</small></div><div class="heat-rank-track"><i style="width:${p.loss/max*100}%"></i></div><strong>${fmt(p.loss,0)} W</strong></div>`).join('');
   const dom=parts.find(p=>p.loss>0)||parts[0];
-  $('dominantAdvice').innerHTML=`<b>Prioridad: ${dom.name}</b><span>Concentra aproximadamente ${fmt(dom.loss/totalSafe*100,0)}% de la pérdida instantánea calculada.</span>`;
+  $('dominantAdvice').innerHTML=`<b>Prioridad: ${dom.name}</b><span>Concentra aproximadamente ${fmt(dom.loss/totalSafe*100,0)}% de la magnitud térmica calculada.</span>`;
+
   const ids={walls:'hmWalls',windows:'hmWindows',roof:'hmRoof',floor:'hmFloor',air:'hmAir',doors:'hmDoors',bridges:'hmBridges'};
   parts.forEach(p=>{const o=$(ids[p.id]);if(o)o.textContent=fmt(p.loss/totalSafe*100,0)+'%'});
 
-  renderImprovements({g,dT,wallA,wallU,winA,winU,roofA,roofU,ach,total});
+  const scenario={g,dT,wallA,wallU,winA,winU,roofA,roofU,ach,total};
+  if(!state.improvementApplied)state.improvementReference={...scenario};
+  renderImprovements(state.improvementReference||scenario);
   updateEnergySimulator();
-  window.__heatloss={Ti,Te,dT,g,wallA,winA,doorA,roofA,floorArea:floorA,wallU,winU,doorU,roofU,floorType,floorU,ach,bridgeH,
+
+  window.__heatloss={Ti,Te,dT,signedDT,direction,g,grossWalls,wallA,winA,doorA,roofA,floorArea:floorA,
+    wallU,winU,doorU,roofU,floorType,floorU,floorLs,groundPerimeter:groundP,ach,airMode:air.mode,
+    ventilationAch:air.vent,infiltrationAch:air.infiltration,bridgeH,
     wallLoss,windowLoss,doorLoss,roofLoss,floorLoss,airLoss,bridgeLoss,transmission,total,parts,
     windowSource:$('windowSource').textContent,doorSource:$('doorSource').textContent};
 }
 
+function restoreImprovementBaselineFields(){
+  const b=state.improvementBackup;
+  if(!b)return;
+  $('wallU').value=b.wallU;$('windowU').value=b.windowU;$('roofU').value=b.roofU;
+  $('airMode').value=b.airMode;$('ach').value=b.ach;$('windowSource').textContent=b.windowSource;
+}
 function applyImprovement(type,target){
   if(!state.improvementBackup){
     state.improvementBackup={
       wallU:$('wallU').value,windowU:$('windowU').value,roofU:$('roofU').value,
       ach:$('ach').value,airMode:$('airMode').value,windowSource:$('windowSource').textContent
     };
+  }else{
+    restoreImprovementBaselineFields();
   }
   if(type==='wall')$('wallU').value=target;
   if(type==='window'){
@@ -549,16 +611,15 @@ function applyImprovement(type,target){
   }
   state.improvementApplied=type;
   calculate();
-  const names={wall:'muros',window:'ventanas',roof:'techumbre',ach:'hermeticidad'};
+  const names={wall:'muros',window:'ventanas',roof:'techumbre',ach:'hermeticidad/aire'};
   $('improvementApplied').classList.remove('hl2-hidden');
-  $('improvementApplied').innerHTML=`<b>Mejora aplicada al cálculo principal:</b> ${names[type]}. El bloque 03 ya refleja el nuevo resultado. <button id="resetAppliedImprovement" type="button">Restaurar escenario anterior</button>`;
+  $('improvementApplied').innerHTML=`<b>Escenario aplicado al resultado:</b> ${names[type]}. Cada botón compara contra la misma condición base. <button id="resetAppliedImprovement" type="button">Restaurar condición base</button>`;
   $('resetAppliedImprovement').addEventListener('click',resetAppliedImprovement);
 }
 function resetAppliedImprovement(){
-  const b=state.improvementBackup;if(!b)return;
-  $('wallU').value=b.wallU;$('windowU').value=b.windowU;$('roofU').value=b.roofU;
-  $('airMode').value=b.airMode;$('ach').value=b.ach;$('windowSource').textContent=b.windowSource;
-  state.improvementBackup=null;state.improvementApplied=null;
+  if(!state.improvementBackup)return;
+  restoreImprovementBaselineFields();
+  state.improvementBackup=null;state.improvementApplied=null;state.improvementReference=null;
   $('improvementApplied').classList.add('hl2-hidden');calculate();
 }
 function renderImprovements(c){
@@ -628,9 +689,9 @@ function bind(){
     syncImprovementPreset(sel,inp);$(sel).addEventListener('change',()=>{syncImprovementPreset(sel,inp);calculate()});
   });
 
-  const ids=['ti','te','length','width','height','levels','wallU','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','ach','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
+  const ids=['ti','te','length','width','height','levels','wallU','wallGrossAreaInput','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','floorLs','groundPerimeter','ach','bedrooms','infiltrationAch','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
   ids.forEach(id=>$(id)?.addEventListener('input',calculate));
-  $('roofManual').addEventListener('change',calculate);$('floorManual').addEventListener('change',calculate);
+  $('roofManual').addEventListener('change',calculate);$('floorManual').addEventListener('change',calculate);$('wallGrossManual').addEventListener('change',calculate);$('groundPerimeterManual').addEventListener('change',calculate);
   $('floorType').addEventListener('change',calculate);$('airMode').addEventListener('change',calculate);
   $('bridgeEnabled').addEventListener('change',calculate);$('bridgeMode').addEventListener('change',calculate);
   updateFloorBuilderAvailability();calculate();
@@ -643,6 +704,6 @@ window.HIDROLAB_HEATLOSS_REPORT=()=>window.__heatloss?{
   wall:{layers:[],Rt:null,U:window.__heatloss.wallU,area:window.__heatloss.wallA,loss:window.__heatloss.wallLoss,source:'U ingresado directamente por usuario'},
   inputs:{windowArea:window.__heatloss.winA,windowU:window.__heatloss.winU,windowType:window.__heatloss.windowSource,
     doorArea:window.__heatloss.doorA,doorU:window.__heatloss.doorU,doorType:window.__heatloss.doorSource,
-    roofArea:window.__heatloss.roofA,roofU:window.__heatloss.roofU,floorArea:window.__heatloss.floorArea,floorType:window.__heatloss.floorType,floorU:window.__heatloss.floorU,bridgeH:window.__heatloss.bridgeH},
+    roofArea:window.__heatloss.roofA,roofU:window.__heatloss.roofU,floorArea:window.__heatloss.floorArea,floorType:window.__heatloss.floorType,floorU:window.__heatloss.floorU,floorLs:window.__heatloss.floorLs,groundPerimeter:window.__heatloss.groundPerimeter,bridgeH:window.__heatloss.bridgeH},
   elements:window.__heatloss.parts,total:window.__heatloss.total,transmission:window.__heatloss.transmission,airLoss:window.__heatloss.airLoss,bridgeLoss:window.__heatloss.bridgeLoss,ach:window.__heatloss.ach,energySchedule:window.__heatlossEnergy||null
 }:null;

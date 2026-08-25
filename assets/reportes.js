@@ -596,7 +596,7 @@
       ['Ventanas',`${x.inputs.windowType||'Tipo no indicado'} · U ${fmtNum(x.inputs.windowU,2)} W/m²K · ${fmtNum(x.inputs.windowArea,1)} m²`],
       ['Puertas',`${x.inputs.doorType||'Tipo no indicado'} · U ${fmtNum(x.inputs.doorU,2)} W/m²K · ${fmtNum(x.inputs.doorArea,1)} m²`],
       ['U techumbre',`${fmtNum(x.inputs.roofU,2)} W/m²K · ${fmtNum(x.inputs.roofArea,1)} m²`],
-      ['Piso',`${x.inputs.floorType==='adiabatic'?'Adiabático':`U ${fmtNum(x.inputs.floorU,2)} W/m²K · ${fmtNum(x.inputs.floorArea,1)} m²`}`],
+      ['Piso',`${x.inputs.floorType==='adiabatic'?'Adiabático':x.inputs.floorType==='ground'?`Piso-terreno · Ls ${fmtNum(x.inputs.floorLs,2)} W/mK · P ${fmtNum(x.inputs.groundPerimeter,1)} m`:`Piso ventilado · U ${fmtNum(x.inputs.floorU,2)} W/m²K · ${fmtNum(x.inputs.floorArea,1)} m²`}`],
       ['ACH considerado',`${fmtNum(x.ach,2)} 1/h`],
       ['Puentes térmicos ΣψL',`${fmtNum(x.inputs.bridgeH,2)} W/K`]
     ].forEach(r=>addRow(doc,b2,r[0],r[1]));t2.append(b2);s2.append(t2);
@@ -617,7 +617,7 @@
       ['Carga específica',`${fmtNum(x.total/Math.max(x.conditions.floorArea,1),1)} W/m²`]
     ].forEach(r=>addRow(doc,b4,r[0],r[1]));t4.append(b4);s4.append(t4);
 
-    s4.append(el(doc,'p','section-note','El resultado representa una pérdida térmica instantánea bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción.'));
+    s4.append(el(doc,'p','section-note',x.conditions.Ti>=x.conditions.Te?'El resultado representa una pérdida térmica instantánea hacia el exterior bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción.':'El exterior está más cálido que el interior: el resultado representa una ganancia térmica hacia el interior, no una pérdida de calefacción.'));
     s4.append(el(doc,'p','section-note','Los valores U ingresados deben representar los elementos completos y contar con respaldo apropiado cuando se utilicen técnicamente. Para piso sobre terreno HIDROLAB utiliza el U equivalente ingresado por el usuario y no aplica un factor oculto.'));
     if(x.energySchedule){
       const s5=addSection(doc,root,'5. Simulación horaria orientativa');

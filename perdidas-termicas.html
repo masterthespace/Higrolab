@@ -52,13 +52,13 @@
     </div>
 
     <div class="hl2-geometry-explain">
-      <b>Dimensiones generales de la vivienda</b>
-      <span>Ingresa las dimensiones exteriores aproximadas de una planta rectangular. HIDROLAB las usa para calcular perímetro, huella, volumen, muros exteriores y techumbre.</span>
+      <b>Dimensiones interiores de referencia</b>
+      <span>Ingresa dimensiones medidas por la cara interior de la envolvente. En modo geométrico HIDROLAB supone plantas rectangulares iguales; puedes corregir manualmente las superficies cuando la vivienda sea irregular o tenga elementos adiabáticos.</span>
     </div>
     <div class="hl2-geometry-fields">
-      <div class="field"><label>Largo exterior de planta [m]</label><input id="length" type="number" min="1" step=".1" value="8"><small>Dimensión exterior longitudinal de la vivienda.</small></div>
-      <div class="field"><label>Ancho exterior de planta [m]</label><input id="width" type="number" min="1" step=".1" value="7"><small>Dimensión exterior transversal de la vivienda.</small></div>
-      <div class="field"><label>Altura por nivel [m]</label><input id="height" type="number" min="1.8" step=".1" value="2.5"><small>Altura considerada para los muros exteriores.</small></div>
+      <div class="field"><label>Largo interior útil de planta [m]</label><input id="length" type="number" min="1" step=".1" value="8"><small>Dimensión interior de referencia de la planta.</small></div>
+      <div class="field"><label>Ancho interior útil de planta [m]</label><input id="width" type="number" min="1" step=".1" value="7"><small>Dimensión interior de referencia de la planta.</small></div>
+      <div class="field"><label>Altura libre interior por nivel [m]</label><input id="height" type="number" min="1.8" step=".1" value="2.5"><small>Altura libre interior piso–cielo usada para volumen y estimación geométrica.</small></div>
       <div class="field"><label>Cantidad de niveles</label><input id="levels" type="number" min="1" max="4" step="1" value="1"><small>Niveles incluidos en el volumen y muros.</small></div>
     </div>
 
@@ -70,7 +70,7 @@
     </div>
     <div class="hl2-geometry-why">
       <b>¿Por qué los m² de piso y de muro no son iguales?</b>
-      <span>Porque miden planos distintos. La huella es <b>largo × ancho</b>; los muros exteriores son <b>perímetro × altura × niveles</b>. Luego, en la sección 02, HIDROLAB descuenta ventanas y puertas para obtener la superficie neta de muros.</span>
+      <span>Porque miden planos distintos. La huella es <b>largo × ancho</b>; los muros se estiman como <b>perímetro interior × altura libre × niveles</b>. En la sección 02 se descuentan ventanas y puertas. Si hay medianeros/elementos adiabáticos o geometría irregular, usa la edición manual de muro bruto.</span>
     </div>
   </div>
 
@@ -96,10 +96,12 @@
     <div class="hl2-row hl2-wall">
       <div class="hl2-element"><i>01</i><div><b>Muros exteriores</b><small>Todos los paños verticales exteriores de los niveles incluidos.</small></div></div>
       <div class="hl2-area">
-        <small class="hl2-area-title">SUPERFICIE NETA DE MUROS</small>
+        <small class="hl2-area-title">SUPERFICIE NETA NO ADIABÁTICA</small>
         <strong id="wallArea">— m²</strong>
         <small id="wallGrossHelp">—</small>
-        <small class="hl2-formula-help">Perímetro × altura × niveles − ventanas − puertas.</small>
+        <label class="hl2-check"><input id="wallGrossManual" type="checkbox"> Editar muro bruto manualmente</label>
+        <div id="wallGrossManualWrap" class="hl2-inline-unit hl2-hidden"><input id="wallGrossAreaInput" type="number" min="0" step=".01" value="0"><span>m²</span></div>
+        <small class="hl2-formula-help">Muro bruto no adiabático − ventanas en muros − puertas exteriores.</small>
       </div>
       <div class="hl2-property">
         <label for="wallU">U muro [W/m²K]</label>
@@ -241,9 +243,18 @@
         </select>
       </div>
       <div class="hl2-property" id="floorUWrap">
-        <label id="floorULabel" for="floorU">U piso [W/m²K]</label>
-        <input id="floorU" type="number" min=".01" step=".01" value=".60">
-        <small id="floorMethodNote">Piso exterior: U · A · ΔT.</small>
+        <div id="floorVentilatedFields">
+          <label id="floorULabel" for="floorU">U piso ventilado [W/m²K]</label>
+          <input id="floorU" type="number" min=".01" step=".01" value=".60">
+          <small id="floorMethodNote">Piso ventilado: Φ = U · A · ΔT.</small>
+        </div>
+        <div id="floorGroundFields" class="hl2-hidden">
+          <label for="floorLs">Ls piso-terreno [W/m·K]</label>
+          <input id="floorLs" type="number" min="0" step=".01" value=".50">
+          <label class="hl2-check"><input id="groundPerimeterManual" type="checkbox"> Editar perímetro en contacto</label>
+          <div class="hl2-inline-unit"><input id="groundPerimeter" type="number" min="0" step=".01" value="0" readonly><span>m</span></div>
+          <small id="groundMethodNote">Piso contra terreno: Φ = Ls · P · ΔT. Ls debe provenir del procedimiento NCh3117/CEV.</small>
+        </div>
       </div>
       <div class="hl2-loss"><strong id="floorLoss">—</strong><span>W</span></div>
     </div>
@@ -279,34 +290,44 @@
     </div>
 
     <div id="groundApplyOptions" class="hl2-ground-apply hl2-hidden">
-      <label><input id="allowGround1D" type="checkbox"> Permitir aplicar el U 1D como <b>estimación didáctica</b></label>
-      <p>Para un piso realmente en contacto con terreno, la transmisión no se reduce correctamente a una simple suma 1D de capas. La evaluación técnica debe usar NCh3117. HIDROLAB muestra el U 1D para estudiar el efecto de la aislación, pero no lo aplica al módulo madre salvo autorización explícita.</p>
+      <p><b>No se aplica automáticamente al módulo madre.</b> Para piso en contacto con terreno, el Manual CEV utiliza el perímetro y una pérdida lineal <b>Ls</b> calculada con base en NCh3117. El valor 1D de las capas queda solo como lectura didáctica del efecto de la aislación.</p>
     </div>
   </div>
 </details>
 
     <!-- AIR -->
     <div class="hl2-row hl2-air">
-      <div class="hl2-element"><i>06</i><div><b>Renovación de aire</b><small>Ventilación + infiltración simplificada</small></div></div>
+      <div class="hl2-element"><i>06</i><div><b>Renovación de aire</b><small>Separa ventilación higiénica e infiltración para evitar confundir ambos fenómenos.</small></div></div>
       <div class="hl2-area">
         <select id="airMode">
-          <option value="known">Conozco ACH</option>
-          <option value=".25">Muy hermética · 0,25 ACH</option>
-          <option value=".5">Media · 0,50 ACH</option>
-          <option value="1">Infiltración apreciable · 1,00 ACH</option>
-          <option value="1.5">Poco hermética · 1,50 ACH</option>
+          <option value="known">Conozco ACH total</option>
+          <option value="cevMin">Ventilación mínima CEV + infiltración</option>
         </select>
+        <small>ACH total = ventilación + infiltración cuando ambas están expresadas en renovaciones/hora.</small>
       </div>
-      <div class="hl2-property"><label for="ach">ACH [1/h]</label><input id="ach" type="number" min="0" step=".05" value=".50"><small id="airFormula">—</small></div>
+      <div class="hl2-property">
+        <div id="airKnownFields">
+          <label for="ach">ACH total [1/h]</label>
+          <input id="ach" type="number" min="0" step=".05" value=".50">
+        </div>
+        <div id="airCevFields" class="hl2-hidden">
+          <label for="bedrooms">Dormitorios</label>
+          <input id="bedrooms" type="number" min="0" step="1" value="3">
+          <label for="infiltrationAch">Infiltración adicional [ACH]</label>
+          <input id="infiltrationAch" type="number" min="0" step=".05" value=".20">
+          <small id="cevVentHelp">Fmin CEV se calcula con área útil, volumen y personas = dormitorios + 1.</small>
+        </div>
+        <small id="airFormula">—</small>
+      </div>
       <div class="hl2-loss"><strong id="airLoss">—</strong><span>W</span></div>
-    </div>
+    </div></div>
   </div>
 
   <details class="hl2-details">
     <summary>Opciones avanzadas de precisión</summary>
     <div class="hl2-bridge-intro">
-      <b>¿Qué es un puente térmico?</b>
-      <span>Es una zona lineal donde el calor atraviesa más fácilmente la envolvente: encuentros muro–piso, muro–techo, esquinas, pilares o perímetros de ventanas. Si no tienes datos, puedes dejarlo desactivado.</span>
+      <b>Puentes térmicos lineales adicionales</b>
+      <span>Ingreso genérico mediante ψ·L. No reemplaza la metodología CEV P01–P05. No incluyas puentes constructivos ya incorporados en el U de la solución ni el perímetro de un piso contra terreno calculado mediante Ls/NCh3117.</span>
     </div>
     <label class="hl2-toggle"><input id="bridgeEnabled" type="checkbox"><span>Considerar puentes térmicos</span></label>
     <div id="bridgePanel" class="hl2-advanced-grid hl2-hidden">
@@ -334,6 +355,8 @@
     <div><p class="kicker">03 · RESULTADO</p><h2>¿Cuánto calor pierde la vivienda?</h2></div>
     <span class="tool-tag new">LECTURA EN VIVO</span>
   </div>
+
+  <div id="thermalDirectionNotice" class="hl2-direction-notice"></div>
 
   <div class="hl2-result-layout">
     <div class="hl2-total">
@@ -381,10 +404,12 @@
       <div id="energyPeriods" class="hl2-period-rows"></div>
 
       <div class="hl2-energy-summary">
-        <div class="energy-main"><small>Energía térmica perdida</small><strong id="energyTotalKwh">—</strong><span>kWh térmicos</span></div>
+        <div class="energy-main"><small>Pérdida acumulada · calefacción</small><strong id="energyTotalKwh">—</strong><span>kWh térmicos</span></div>
+        <div class="energy-cooling"><small>Ganancia hacia interior · enfriamiento</small><strong id="energyCoolingKwh">—</strong><span>kWh térmicos</span></div>
         <div><small>Horas simuladas</small><strong id="energyTotalHours">— h</strong></div>
-        <div><small>Potencia promedio</small><strong id="energyAverageKw">— kW</strong></div>
+        <div><small>Potencia promedio absoluta</small><strong id="energyAverageKw">— kW</strong></div>
       </div>
+      <div id="energyDirectionNote" class="hl2-energy-direction-note"></div>
 
       <div class="hl2-equivalence-grid">
         <article>

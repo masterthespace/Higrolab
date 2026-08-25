@@ -1559,3 +1559,30 @@ body.hl-petroleum-white .cost-fill{
   .hl2-period-row strong{padding:4px}
   .hl2-cost-grid{grid-template-columns:1fr}
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.9.5 · CORRECCIÓN NORMATIVA Y LÓGICA
+   ===================================================================== */
+.hl2-direction-notice{margin:0 0 11px;padding:9px 12px;border-radius:9px;font-size:.7rem;line-height:1.45}
+.hl2-direction-notice.heating{border-left:5px solid #ff7200;background:#fff8f1;color:#4f331f}
+.hl2-direction-notice.cooling{border-left:5px solid #00cbe8;background:#f1fcff;color:#163e49}
+.hl2-direction-notice.neutral{border-left:5px solid #80e900;background:#f7ffef;color:#29452d}
+.hl2-direction-notice b{color:inherit!important}
+#floorGroundFields{display:grid;gap:5px}
+#floorGroundFields.hl2-hidden,#floorVentilatedFields.hl2-hidden{display:none!important}
+#airCevFields{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#airCevFields label,#airCevFields small{grid-column:span 1}
+#airCevFields #cevVentHelp{grid-column:1/-1}
+#airCevFields.hl2-hidden,#airKnownFields.hl2-hidden{display:none!important}
+.hl2-energy-summary{grid-template-columns:1.35fr 1.35fr .8fr .9fr!important}
+.hl2-energy-summary .energy-cooling{border-top:5px solid #00cbe8;background:#f1fcff}
+.hl2-energy-summary .energy-cooling strong{color:#08798e!important}
+.hl2-energy-direction-note{margin-top:8px;padding:8px 10px;border-left:4px solid #00cbe8;border-radius:8px;background:#f5fcfd;color:#33494f;font-size:.64rem}
+#wallGrossManualWrap{margin-top:5px}
+#wallGrossManualWrap.hl2-hidden{display:none!important}
+@media(max-width:760px){
+  .hl2-energy-summary{grid-template-columns:1fr 1fr!important}
+  #airCevFields{grid-template-columns:1fr}
+  #airCevFields #cevVentHelp{grid-column:auto}
+}
