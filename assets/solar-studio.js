@@ -672,6 +672,194 @@ function initStaticMapPlanReference(){
   $('clear-static-map-plan')?.addEventListener('click',()=>clearStaticMapPlanReference(true));
 }
 
+
+function setMapCaptureStatus(message,type='info'){
+  const el=$('map-capture-status');
+  if(!el)return;
+  el.textContent=message;
+  el.dataset.state=type;
+}
+
+function clearCapturedMapReference(showMessage=true){
+  const img=$('google-plan-reference');
+  if(img){
+    img.removeAttribute('src');
+    img.classList.remove('active');
+    img.style.cssText='';
+  }
+  S.mapRef=false;
+  S.mapRefURL=null;
+  if(!S.img){
+    S.imgW=0;
+    S.imgH=0;
+    fitImage();
+  }else{
+    drawCAD();
+  }
+  const clear=$('clear-captured-map');
+  if(clear)clear.disabled=true;
+  if(showMessage){
+    setMapCaptureStatus('Captura retirada de PLANTA. El perímetro, calibración y orientación se conservaron.','ok');
+  }
+}
+
+function installCapturedMapDataURL(dataURL,width,height){
+  const img=$('google-plan-reference');
+  if(!img)return;
+
+  if(S.imgURL){
+    try{URL.revokeObjectURL(S.imgURL)}catch(_){}
+  }
+
+  S.img=null;
+  S.imgURL=null;
+  S.mapRef=true;
+  S.mapRefURL=dataURL;
+  S.imgW=width;
+  S.imgH=height;
+
+  img.onload=()=>{
+    const clear=$('clear-captured-map');
+    if(clear)clear.disabled=false;
+    updateImageControls();
+    fitImage();
+    setReferenceMode('image');
+    setMapCaptureStatus('Mapa capturado e insertado en PLANTA. Ya puedes calibrar una distancia y trazar encima.','ok');
+  };
+  img.onerror=()=>{
+    S.mapRef=false;
+    S.mapRefURL=null;
+    setMapCaptureStatus('No fue posible insertar la captura en PLANTA. Intenta nuevamente.','error');
+  };
+  img.src=dataURL;
+}
+
+async function captureGoogleMapToPlan(){
+  const frame=$('solar-google-map-frame');
+  if(!frame){
+    setMapCaptureStatus('No se encontró el recuadro de Google Maps.','error');
+    return;
+  }
+
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){
+    setMapCaptureStatus('Este navegador no admite captura de pestaña. Prueba Chrome o Edge actualizados.','error');
+    return;
+  }
+
+  const rect=frame.getBoundingClientRect();
+  if(rect.width<40||rect.height<40){
+    setMapCaptureStatus('El mapa debe estar visible en pantalla antes de capturarlo.','error');
+    return;
+  }
+
+  // Keep capture source visible and on screen.
+  frame.scrollIntoView({block:'center',behavior:'instant'});
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  const captureRect=frame.getBoundingClientRect();
+
+  setMapCaptureStatus('Selecciona “Esta pestaña” en el diálogo del navegador y pulsa Compartir…','working');
+
+  let stream=null;
+  try{
+    stream=await navigator.mediaDevices.getDisplayMedia({
+      video:{
+        displaySurface:'browser',
+        frameRate:{ideal:5,max:15}
+      },
+      audio:false,
+      preferCurrentTab:true,
+      selfBrowserSurface:'include',
+      surfaceSwitching:'exclude',
+      monitorTypeSurfaces:'exclude'
+    });
+
+    const track=stream.getVideoTracks()[0];
+    const settings=track.getSettings?track.getSettings():{};
+    if(settings.displaySurface && settings.displaySurface!=='browser'){
+      throw new Error('Selecciona una pestaña del navegador, idealmente “Esta pestaña”.');
+    }
+
+    const video=document.createElement('video');
+    video.muted=true;
+    video.playsInline=true;
+    video.srcObject=stream;
+
+    await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(new Error('La captura tardó demasiado en iniciar.')),5000);
+      video.onloadedmetadata=()=>{
+        clearTimeout(timer);
+        video.play().then(resolve).catch(resolve);
+      };
+    });
+
+    // Give the capture stream a moment to contain a stable frame.
+    await new Promise(resolve=>setTimeout(resolve,260));
+
+    const vw=video.videoWidth;
+    const vh=video.videoHeight;
+    if(!vw||!vh)throw new Error('No se recibió una imagen válida de la pestaña.');
+
+    // When a browser tab is captured, its video is the page viewport.
+    // Scale CSS viewport coordinates to capture pixels.
+    const scaleX=vw/window.innerWidth;
+    const scaleY=vh/window.innerHeight;
+
+    let sx=Math.round(captureRect.left*scaleX);
+    let sy=Math.round(captureRect.top*scaleY);
+    let sw=Math.round(captureRect.width*scaleX);
+    let sh=Math.round(captureRect.height*scaleY);
+
+    sx=Math.max(0,Math.min(vw-1,sx));
+    sy=Math.max(0,Math.min(vh-1,sy));
+    sw=Math.max(1,Math.min(vw-sx,sw));
+    sh=Math.max(1,Math.min(vh-sy,sh));
+
+    if(sw<120||sh<120){
+      throw new Error('El área capturada resultó demasiado pequeña. Mantén visible el mapa e intenta nuevamente.');
+    }
+
+    const crop=document.createElement('canvas');
+    crop.width=sw;
+    crop.height=sh;
+    const cctx=crop.getContext('2d',{alpha:false});
+    cctx.drawImage(video,sx,sy,sw,sh,0,0,sw,sh);
+
+    const dataURL=crop.toDataURL('image/jpeg',0.92);
+    installCapturedMapDataURL(dataURL,sw,sh);
+
+  }catch(err){
+    const msg=err&&err.name==='NotAllowedError'
+      ? 'Captura cancelada. Pulsa nuevamente y selecciona “Esta pestaña”.'
+      : (err?.message||'No se pudo capturar el mapa.');
+    setMapCaptureStatus(msg,'error');
+  }finally{
+    if(stream){
+      stream.getTracks().forEach(t=>t.stop());
+    }
+  }
+}
+
+function initMapCapture(){
+  const capture=$('capture-google-map');
+  const clear=$('clear-captured-map');
+
+  if(capture){
+    capture.addEventListener('click',captureGoogleMapToPlan);
+  }
+  if(clear){
+    clear.addEventListener('click',()=>clearCapturedMapReference(true));
+  }
+
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){
+    if(capture){
+      capture.disabled=true;
+      capture.title='La captura de pestaña no está disponible en este navegador.';
+    }
+    setMapCaptureStatus('La captura directa requiere un navegador compatible con Screen Capture API (por ejemplo Chrome/Edge en HTTPS).','error');
+  }
+}
+
+
 function setReferenceMode(mode){
   const imageMode=mode!=='map';
   qsa('[data-reference-mode]').forEach(btn=>{
@@ -726,7 +914,7 @@ function clearReferenceImage(){
     :'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
 }
 
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();initStaticMapPlanReference();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{clearStaticMapPlanReference(false);
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();initStaticMapPlanReference();initMapCapture();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{S.pts.pop();S.closed=false;updateMetrics();drawCAD();rebuild3D()};$('image-file').onchange=e=>{clearStaticMapPlanReference(false);clearCapturedMapReference(false);
   const f=e.target.files[0];if(!f)return;
   if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}
   const url=URL.createObjectURL(f),img=new Image();

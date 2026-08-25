@@ -229,3 +229,105 @@
   border-radius:8px;
   background:#f6f8f9
 }
+
+
+
+/* V8.7.7 · captura directa del mapa para usar como referencia de PLANTA */
+.map-capture-card{
+  margin-top:10px;
+  padding:11px;
+  border:1px solid #bfe0e7;
+  border-radius:10px;
+  background:linear-gradient(145deg,#f3fbfd,#ffffff);
+  box-shadow:0 5px 14px rgba(22,166,199,.06);
+}
+.map-capture-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.map-capture-heading b{
+  display:block;
+  color:#174b5c;
+  font-size:.74rem;
+}
+.map-capture-heading span:not(.map-capture-badge){
+  display:block;
+  margin-top:2px;
+  color:#5b727b;
+  font-size:.64rem;
+  line-height:1.4;
+}
+.map-capture-badge{
+  flex:0 0 auto;
+  padding:4px 6px;
+  border-radius:999px;
+  background:#16a6c7;
+  color:#fff!important;
+  font-size:.54rem!important;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.map-capture-steps{
+  margin:9px 0 9px 18px;
+  padding:0;
+  color:#536b74;
+  font-size:.64rem;
+  line-height:1.48;
+}
+.map-capture-steps li{margin:2px 0}
+.map-capture-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+}
+.map-capture-actions button{
+  width:100%;
+  min-height:38px;
+  border:1px solid #cbd9de;
+  border-radius:8px;
+  background:#fff;
+  color:#315762;
+  font-size:.69rem;
+  font-weight:850;
+  cursor:pointer;
+}
+.map-capture-actions .capture-map-primary{
+  border-color:#1195b2;
+  background:linear-gradient(135deg,#16a6c7,#138ca7);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(22,166,199,.16);
+}
+.map-capture-actions .capture-map-primary:hover{
+  background:linear-gradient(135deg,#1298b8,#107f98);
+}
+.map-capture-actions button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.map-capture-status{
+  margin-top:7px;
+  padding:8px 9px;
+  border-radius:8px;
+  background:#f4f8f9;
+  border-left:3px solid #9fb8c1;
+}
+.map-capture-status[data-state="working"]{
+  border-left-color:#dfa52c;
+  background:#fff9ec;
+  color:#76581d!important;
+}
+.map-capture-status[data-state="ok"]{
+  border-left-color:#20b88a;
+  background:#f1fbf7;
+  color:#356a58!important;
+}
+.map-capture-status[data-state="error"]{
+  border-left-color:#d85c59;
+  background:#fff5f4;
+  color:#814744!important;
+}
+.static-map-loader{
+  opacity:.92;
+}

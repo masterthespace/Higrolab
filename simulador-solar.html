@@ -101,12 +101,38 @@
     <button id="update-google-map" type="button">Actualizar mapa</button>
     <a id="open-google-map" class="map-link-button" href="https://www.google.com/maps?q=-33.596361,-70.875611" target="_blank" rel="noopener noreferrer">Abrir Google Maps ↗</a>
   </div>
+
+  <div class="map-capture-card">
+    <div class="map-capture-heading">
+      <div>
+        <b>Capturar este mapa para dibujar</b>
+        <span>Sin API key · usa la captura de pantalla autorizada por el navegador.</span>
+      </div>
+      <span class="map-capture-badge">RECOMENDADO</span>
+    </div>
+
+    <ol class="map-capture-steps">
+      <li>Ajusta el mapa hasta dejar visible el terreno.</li>
+      <li>Pulsa <b>Capturar mapa</b>.</li>
+      <li>En el diálogo del navegador elige <b>Esta pestaña</b> y luego Compartir.</li>
+    </ol>
+
+    <div class="map-capture-actions">
+      <button id="capture-google-map" class="capture-map-primary" type="button">Capturar mapa visible</button>
+      <button id="clear-captured-map" type="button" disabled>Quitar captura de PLANTA</button>
+    </div>
+
+    <div id="map-capture-status" class="mini map-capture-status">
+      HIDROLAB recortará automáticamente solo el recuadro de Google Maps y lo colocará bajo el canvas de PLANTA.
+    </div>
+  </div>
+
   <div class="mini image-help">El mapa usa las coordenadas del bloque Emplazamiento. Puedes cambiar Región/Comuna o escribir latitud y longitud y luego actualizar.</div>
 
   <div class="static-map-loader">
     <div class="static-map-title">
-      <b>Usar imagen satelital en la planta</b>
-      <span>Para trazar directamente sobre Google necesitas una imagen estática. Esta opción usa Google Maps Static API.</span>
+      <b>Método alternativo · Google Static Maps API</b>
+      <span>Opcional. Úsalo solo si prefieres generar la referencia mediante una API key de Google.</span>
     </div>
 
     <label>Google Maps API key
