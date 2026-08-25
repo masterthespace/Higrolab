@@ -1217,3 +1217,148 @@ body.hl-petroleum-white .compare b{
   .heatloss-v2 .hl2-bridge-fields{grid-template-columns:1fr}
   .heatloss-v2 .hl2-u-input{grid-template-columns:1fr}
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.9.2 · ENVOLVENTE BUILDERS + GLOBAL VIVID LIGHT
+   ===================================================================== */
+
+/* Pérdidas térmicas: ningún panel de interacción oscuro */
+.heatloss-v2 .hl2-delta{
+  border:1px solid #bde9dd!important;
+  border-top:6px solid #80e900!important;
+  background:linear-gradient(145deg,#f3fff0,#e8fbff)!important;
+  color:#102126!important;
+  box-shadow:none!important;
+}
+.heatloss-v2 .hl2-delta small{color:#2f5948!important}
+.heatloss-v2 .hl2-delta strong{color:#0d6d4a!important}
+.heatloss-v2 .hl2-delta span{color:#304b41!important}
+.heatloss-v2 .hl2-geometry-live>div:nth-child(1){border-top:5px solid #ff2f8a!important;background:#fff5fa!important}
+.heatloss-v2 .hl2-geometry-live>div:nth-child(2){border-top:5px solid #00cbe8!important;background:#f1fcff!important}
+.heatloss-v2 .hl2-geometry-live>div:nth-child(3){border-top:5px solid #80e900!important;background:#f7ffef!important}
+.heatloss-v2 .hl2-geometry-live>div:nth-child(4){border-top:5px solid #ffd51f!important;background:#fffbed!important}
+.hl2-geometry-why{padding:10px 12px;border-left:5px solid #00cbe8;border-radius:9px;background:#f2fcff}
+.hl2-geometry-why b,.hl2-geometry-why span{display:block;color:#21373d!important}
+.hl2-geometry-why b{font-size:.76rem}.hl2-geometry-why span{margin-top:3px;font-size:.7rem;line-height:1.5}
+.hl2-section-explain{max-width:760px;margin:5px 0 0;color:#30454b!important;font-size:.72rem!important;line-height:1.45}
+
+/* Mini builders */
+.hl2-mini-builder{border-top:1px solid #dce6e6;background:#fbfdfd}
+.hl2-mini-builder>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;cursor:pointer;list-style:none}
+.hl2-mini-builder>summary::-webkit-details-marker{display:none}
+.hl2-mini-builder>summary span{display:block}
+.hl2-mini-builder>summary b{display:block;color:#13282d!important;font-size:.78rem}
+.hl2-mini-builder>summary small{display:block;margin-top:2px;color:#34494f!important;font-size:.66rem}
+.hl2-mini-builder>summary i{font-size:1.2rem;font-style:normal;color:#0e4a4a}
+.hl2-mini-builder[open]>summary i{transform:rotate(45deg)}
+.builder-window>summary{border-left:5px solid #00cbe8;background:#f1fcff}
+.builder-door>summary{border-left:5px solid #ff2f8a;background:#fff3f8}
+.builder-roof>summary{border-left:5px solid #ffd51f;background:#fffbed}
+.builder-floor>summary{border-left:5px solid #80e900;background:#f7ffef}
+.hl2-builder-body{padding:13px 14px 15px;background:#fff}
+.hl2-source-chip{display:inline-flex;padding:5px 8px;border-radius:999px;background:#dff9ff;color:#075b6b!important;font-size:.58rem;font-weight:900;letter-spacing:.05em}
+.hl2-source-chip.source-magenta{background:#ffe6f1;color:#8d164f!important}
+.hl2-source-chip.source-yellow{background:#fff3bc;color:#745700!important}
+.hl2-source-chip.source-lime{background:#eaffcf;color:#326900!important}
+
+.hl2-builder-config{display:grid;grid-template-columns:1fr 1fr 180px;gap:10px;margin-top:11px;align-items:end}
+.hl2-builder-config.door-config{grid-template-columns:1.35fr .8fr 180px}
+.hl2-builder-result{padding:9px 11px;border:1px solid #d8e4e4;border-radius:10px;background:#f7fbfb}
+.hl2-builder-result small,.hl2-builder-result span{display:block;color:#30464c!important;font-size:.62rem;font-weight:730}
+.hl2-builder-result strong{display:block;margin:2px 0;color:#10272c!important;font-size:1.25rem}
+
+.hl2-dim-toolbar,.hl2-layer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.hl2-dim-toolbar b,.hl2-layer-toolbar b{color:#172a2f!important;font-size:.78rem}
+.hl2-dim-toolbar label{display:flex!important;align-items:center;gap:6px;margin-left:auto}
+.hl2-dim-toolbar select{width:auto;min-height:34px!important}
+.hl2-dim-toolbar button,.hl2-layer-toolbar button{
+  min-height:35px;padding:7px 10px;border:1px solid #bcdad6;border-radius:8px;background:#eaf9f6;color:#0e4a4a;font-size:.66rem;font-weight:850;cursor:pointer
+}
+.hl2-dim-head,.hl2-dim-row{display:grid;grid-template-columns:1.1fr .8fr .8fr .7fr .9fr 32px;gap:6px;align-items:center}
+.hl2-dim-head{margin-top:8px;padding:6px 8px;background:#f0f5f5;color:#34484e;font-size:.58rem;font-weight:900}
+.hl2-dim-row{padding:6px 8px;border-bottom:1px solid #e5ebeb}
+.hl2-dim-row input{min-height:34px!important;padding:6px 7px!important}
+.hl2-dim-row strong{font-size:.7rem}
+.hl2-dim-row button,.hl2-layer-row button{border:0;background:#fff0f5;color:#aa1d57;font-size:1rem;cursor:pointer;border-radius:7px}
+.hl2-builder-footer{display:flex;align-items:center;justify-content:flex-end;gap:15px;margin-top:10px;padding:10px;border-radius:10px;background:#f5fbfb}
+.hl2-builder-footer>div{margin-right:auto}
+.hl2-builder-footer small,.hl2-builder-footer strong{display:block}
+.hl2-builder-footer small{color:#34484e!important;font-size:.62rem}.hl2-builder-footer strong{font-size:1rem}
+.hl2-apply{min-height:38px;padding:8px 12px;border:0;border-radius:9px;background:linear-gradient(135deg,#00cbe8,#10a49a);color:#082f34;font-size:.68rem;font-weight:900;cursor:pointer}
+.hl2-apply.magenta{background:linear-gradient(135deg,#ff2f8a,#ff7a57);color:#fff}
+.hl2-apply.yellow{background:linear-gradient(135deg,#ffd51f,#ff9d00);color:#4a3300}
+.hl2-apply.lime{background:linear-gradient(135deg,#80e900,#32cf83);color:#173400}
+
+/* layer builders */
+.hl2-layer-head,.hl2-layer-row{display:grid;grid-template-columns:2fr .75fr .75fr .75fr 32px;gap:6px;align-items:center}
+.hl2-layer-head{margin-top:8px;padding:6px 8px;background:#f0f5f5;color:#34484e;font-size:.58rem;font-weight:900}
+.hl2-layer-row{position:relative;padding:7px 8px 22px;border-bottom:1px solid #e5ebeb}
+.hl2-layer-row input,.hl2-layer-row select{min-height:35px!important;padding:6px 7px!important}
+.hl2-layer-row>strong{font-size:.7rem}
+.hl2-layer-row>small{position:absolute;left:8px;bottom:5px;color:#456069!important;font-size:.56rem}
+.hl2-builder-summary{display:grid;grid-template-columns:1fr 1fr 1.25fr auto;gap:8px;align-items:stretch;margin-top:11px}
+.hl2-builder-summary>div{padding:9px 10px;border:1px solid #dce6e6;border-radius:9px;background:#fff}
+.hl2-builder-summary small,.hl2-builder-summary strong{display:block}
+.hl2-builder-summary small{color:#34484e!important;font-size:.6rem}
+.hl2-builder-summary strong{margin-top:2px;font-size:.9rem}
+.hl2-builder-summary .accent-yellow{border-top:5px solid #ffd51f;background:#fffbed}
+.hl2-builder-summary .accent-lime{border-top:5px solid #80e900;background:#f7ffef}
+.hl2-ground-warning{margin-top:10px;padding:9px 11px;border-left:5px solid #80e900;border-radius:8px;background:#f7ffef;color:#31454b;font-size:.68rem;line-height:1.45}
+.hl2-ground-warning.active{border-left-color:#ff7200;background:#fff8f0}
+
+/* GLOBAL: llevar todos los módulos al mismo lenguaje vivid/light */
+body.hl-petroleum-white:not(.hl-home) .main>.card{
+  position:relative;overflow:hidden;background:#fff!important;box-shadow:0 5px 18px rgba(8,58,59,.045)!important
+}
+body.hl-petroleum-white:not(.hl-home):not(.hl-solar) .main>.card:nth-of-type(4n+1){border-top:5px solid #ff2f8a!important}
+body.hl-petroleum-white:not(.hl-home):not(.hl-solar) .main>.card:nth-of-type(4n+2){border-top:5px solid #00cbe8!important}
+body.hl-petroleum-white:not(.hl-home):not(.hl-solar) .main>.card:nth-of-type(4n+3){border-top:5px solid #80e900!important}
+body.hl-petroleum-white:not(.hl-home):not(.hl-solar) .main>.card:nth-of-type(4n+4){border-top:5px solid #ffd51f!important}
+
+/* common result tiles across humidity/envelope tools */
+body.hl-petroleum-white .metric,
+body.hl-petroleum-white .threshold,
+body.hl-petroleum-white .summary-grid>div,
+body.hl-petroleum-white .selected-metrics>div,
+body.hl-petroleum-white .stat,
+body.hl-petroleum-white .result-card,
+body.hl-petroleum-white .diagnosis,
+body.hl-petroleum-white .sim-value{
+  background:#fff!important;color:#102126!important;border-color:#dce6e6!important;box-shadow:none!important
+}
+body.hl-petroleum-white .metric:nth-child(4n+1),
+body.hl-petroleum-white .threshold:nth-child(4n+1),
+body.hl-petroleum-white .summary-grid>div:nth-child(4n+1){border-top:4px solid #ff2f8a!important}
+body.hl-petroleum-white .metric:nth-child(4n+2),
+body.hl-petroleum-white .threshold:nth-child(4n+2),
+body.hl-petroleum-white .summary-grid>div:nth-child(4n+2){border-top:4px solid #00cbe8!important}
+body.hl-petroleum-white .metric:nth-child(4n+3),
+body.hl-petroleum-white .threshold:nth-child(4n+3),
+body.hl-petroleum-white .summary-grid>div:nth-child(4n+3){border-top:4px solid #80e900!important}
+body.hl-petroleum-white .metric:nth-child(4n+4),
+body.hl-petroleum-white .threshold:nth-child(4n+4),
+body.hl-petroleum-white .summary-grid>div:nth-child(4n+4){border-top:4px solid #ffd51f!important}
+
+/* Solar controls stay light; 3D canvas itself remains functional */
+body.hl-petroleum-white.hl-solar .panel{border-top:4px solid #00cbe8!important}
+body.hl-petroleum-white.hl-solar .panel:nth-child(3n+2){border-top-color:#80e900!important}
+body.hl-petroleum-white.hl-solar .panel:nth-child(3n+3){border-top-color:#ffd51f!important}
+
+@media(max-width:800px){
+  .hl2-builder-config,.hl2-builder-config.door-config{grid-template-columns:1fr 1fr}
+  .hl2-builder-result{grid-column:1/-1}
+  .hl2-layer-head{display:none}
+  .hl2-layer-row{grid-template-columns:1fr 1fr 1fr 32px}
+  .hl2-layer-row select{grid-column:1/-1}
+  .hl2-builder-summary{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .hl2-dim-head{display:none}
+  .hl2-dim-row{grid-template-columns:1fr 1fr 1fr}
+  .hl2-dim-row input[data-k="name"]{grid-column:1/-1}
+  .hl2-dim-row strong{align-self:center}
+  .hl2-builder-footer,.hl2-dim-toolbar,.hl2-layer-toolbar{align-items:stretch;flex-direction:column}
+  .hl2-dim-toolbar label{margin-left:0}
+  .hl2-builder-summary{grid-template-columns:1fr}
+}
