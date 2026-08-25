@@ -668,3 +668,288 @@ body.hl-petroleum-white .footer a{
     color:var(--pw-petrol-deep)!important;
   }
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.8.5 · FINAL VIVID
+   High-contrast microtype + vivid fluorescent accents
+   ===================================================================== */
+
+:root{
+  --final-magenta:#FF2F8A;
+  --final-orange:#FF7200;
+  --final-lime:#80E900;
+  --final-cyan:#00CBE8;
+  --final-violet:#7657FF;
+  --final-yellow:#FFD51F;
+  --final-green:#00B86B;
+  --final-dark:#101719;
+  --final-small:#26373D;
+}
+
+/* -------------------------------------------------------------
+   1. MICROTYPOGRAPHY: no more washed-out gray
+   ------------------------------------------------------------- */
+body.hl-petroleum-white main .split-labels,
+body.hl-petroleum-white main .metric span,
+body.hl-petroleum-white main .threshold small,
+body.hl-petroleum-white main .compare small,
+body.hl-petroleum-white main .sim-value span,
+body.hl-petroleum-white main .explain span,
+body.hl-petroleum-white main .number-wrap span,
+body.hl-petroleum-white main .field small,
+body.hl-petroleum-white main .panel small,
+body.hl-petroleum-white main .stat small,
+body.hl-petroleum-white main .result-label,
+body.hl-petroleum-white main .summary-grid span,
+body.hl-petroleum-white main .selected-metrics span,
+body.hl-petroleum-white main .thermal-wall-footer,
+body.hl-petroleum-white main .material-source,
+body.hl-petroleum-white main .calc-origin,
+body.hl-petroleum-white main .legend-row,
+body.hl-petroleum-white main .image-help,
+body.hl-petroleum-white main .mini,
+body.hl-petroleum-white main .note,
+body.hl-petroleum-white main .hint,
+body.hl-petroleum-white main .help{
+  color:var(--final-small)!important;
+  opacity:1!important;
+}
+
+body.hl-petroleum-white main .split-labels{
+  font-size:max(.72rem,11.5px)!important;
+  font-weight:760!important;
+  line-height:1.35!important;
+  margin-top:5px!important;
+}
+body.hl-petroleum-white main .metric span{
+  color:#2A3B41!important;
+  font-size:max(.75rem,12px)!important;
+  font-weight:690!important;
+}
+body.hl-petroleum-white main .threshold small{
+  color:#2C3E44!important;
+  font-size:max(.73rem,11.7px)!important;
+  font-weight:650!important;
+}
+body.hl-petroleum-white main .number-wrap span{
+  color:#34474D!important;
+  font-weight:740!important;
+}
+body.hl-petroleum-white main small{
+  opacity:1!important;
+}
+
+/* labels and headings remain strongly legible */
+body.hl-petroleum-white main label{
+  color:#18272C!important;
+}
+body.hl-petroleum-white main .input-top label{
+  color:#1B2D32!important;
+  font-weight:820!important;
+}
+body.hl-petroleum-white main .kicker,
+body.hl-petroleum-white main .eyebrow{
+  font-weight:900!important;
+}
+
+/* -------------------------------------------------------------
+   2. RANGE CONTROLS: stronger tracks and visible endpoints
+   ------------------------------------------------------------- */
+body.hl-petroleum-white input[type="range"]{
+  accent-color:var(--pw-petrol)!important;
+  filter:saturate(1.18) contrast(1.04);
+}
+body.hl-petroleum-white.hl-humidity input[type="range"]{
+  accent-color:#00A8C4!important;
+}
+body.hl-petroleum-white.hl-envelope input[type="range"]{
+  accent-color:#E96300!important;
+}
+body.hl-petroleum-white.hl-solar input[type="range"]{
+  accent-color:#B98B00!important;
+}
+
+/* -------------------------------------------------------------
+   3. HOME MODULES: vivid fluorescent accents on white
+   ------------------------------------------------------------- */
+body.hl-petroleum-white .compact-module-card{
+  position:relative;
+  overflow:hidden;
+}
+body.hl-petroleum-white .compact-module-card::before{
+  content:"";
+  position:absolute;
+  z-index:5;
+  left:0;
+  right:0;
+  top:0;
+  height:5px;
+  background:var(--module-fluor,var(--pw-teal));
+}
+body.hl-petroleum-white .module-humidity{
+  --module-fluor:var(--final-magenta);
+}
+body.hl-petroleum-white .module-envelope{
+  --module-fluor:var(--final-orange);
+}
+body.hl-petroleum-white .module-vent{
+  --module-fluor:var(--final-lime);
+}
+body.hl-petroleum-white .module-solar{
+  --module-fluor:var(--final-yellow);
+}
+body.hl-petroleum-white .module-loss{
+  --module-fluor:var(--final-cyan);
+}
+body.hl-petroleum-white .module-zone{
+  --module-fluor:var(--final-violet);
+}
+
+body.hl-petroleum-white .module-humidity .compact-module-cover{
+  background:
+    radial-gradient(circle at 83% 20%,rgba(255,47,138,.35),transparent 35%),
+    linear-gradient(145deg,#ECFBFD,#CFF5FA)!important;
+}
+body.hl-petroleum-white .module-envelope .compact-module-cover{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(255,114,0,.28),transparent 35%),
+    linear-gradient(145deg,#F2FBF8,#D7F4EC)!important;
+}
+body.hl-petroleum-white .module-vent .compact-module-cover{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(128,233,0,.26),transparent 36%),
+    linear-gradient(145deg,#F2FBEA,#DDF4D0)!important;
+}
+body.hl-petroleum-white .module-solar .compact-module-cover{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(255,213,31,.42),transparent 36%),
+    linear-gradient(145deg,#FFF9DF,#FFEDAA)!important;
+}
+body.hl-petroleum-white .module-loss .compact-module-cover{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(0,203,232,.28),transparent 36%),
+    linear-gradient(145deg,#EEF9FB,#D7EEF3)!important;
+}
+body.hl-petroleum-white .module-zone .compact-module-cover{
+  background:
+    radial-gradient(circle at 82% 18%,rgba(118,87,255,.28),transparent 36%),
+    linear-gradient(145deg,#F3F0FF,#E3DCFF)!important;
+}
+
+/* stronger module symbols */
+body.hl-petroleum-white .module-humidity .compact-module-cover>span{color:#A70050!important}
+body.hl-petroleum-white .module-envelope .compact-module-cover>span{color:#B64500!important}
+body.hl-petroleum-white .module-vent .compact-module-cover>span{color:#347600!important}
+body.hl-petroleum-white .module-solar .compact-module-cover>span{color:#826400!important}
+body.hl-petroleum-white .module-loss .compact-module-cover>span{color:#006B7B!important}
+body.hl-petroleum-white .module-zone .compact-module-cover>span{color:#4D33C9!important}
+
+/* -------------------------------------------------------------
+   4. TOOLS CATALOG: each card gets a distinct vivid identity
+   ------------------------------------------------------------- */
+body.hl-petroleum-white.hl-tools .tool-card{
+  --card-fluor:var(--pw-teal);
+}
+body.hl-petroleum-white.hl-tools .tool-card::before{
+  height:5px!important;
+  background:var(--card-fluor)!important;
+  opacity:1!important;
+}
+body.hl-petroleum-white.hl-tools #humedad .tool-card:nth-child(1){--card-fluor:var(--final-magenta)}
+body.hl-petroleum-white.hl-tools #humedad .tool-card:nth-child(2){--card-fluor:var(--final-cyan)}
+body.hl-petroleum-white.hl-tools #humedad .tool-card:nth-child(3){--card-fluor:var(--final-violet)}
+body.hl-petroleum-white.hl-tools #humedad .tool-card:nth-child(4){--card-fluor:var(--final-lime)}
+
+body.hl-petroleum-white.hl-tools #envolvente .tool-card:nth-child(1){--card-fluor:var(--final-orange)}
+body.hl-petroleum-white.hl-tools #envolvente .tool-card:nth-child(2){--card-fluor:var(--final-lime)}
+body.hl-petroleum-white.hl-tools #envolvente .tool-card:nth-child(3){--card-fluor:var(--final-cyan)}
+body.hl-petroleum-white.hl-tools #envolvente .tool-card:nth-child(4){--card-fluor:var(--final-magenta)}
+
+body.hl-petroleum-white.hl-tools .category:last-of-type .tool-card{
+  --card-fluor:var(--final-yellow);
+}
+
+/* -------------------------------------------------------------
+   5. INTERNAL TOOL HERO: vivid discipline by module family
+   ------------------------------------------------------------- */
+body.hl-petroleum-white.hl-humidity:not(.hl-home) .hero::after{
+  background:linear-gradient(180deg,var(--final-cyan),var(--final-magenta))!important;
+}
+body.hl-petroleum-white.hl-envelope:not(.hl-home) .hero::after{
+  background:linear-gradient(180deg,var(--final-orange),var(--final-lime))!important;
+}
+body.hl-petroleum-white.hl-solar:not(.hl-home) .hero::after{
+  background:linear-gradient(180deg,var(--final-yellow),var(--final-orange))!important;
+}
+body.hl-petroleum-white.hl-interactive:not(.hl-home) .hero::after{
+  background:linear-gradient(180deg,var(--final-violet),var(--final-magenta))!important;
+}
+
+/* kickers get stronger color but remain readable */
+body.hl-petroleum-white.hl-humidity main .kicker{color:#007E96!important}
+body.hl-petroleum-white.hl-envelope main .kicker{color:#B64900!important}
+body.hl-petroleum-white.hl-solar main .kicker{color:#856500!important}
+body.hl-petroleum-white.hl-interactive main .kicker{color:#5037C9!important}
+
+/* -------------------------------------------------------------
+   6. ZONA INTERACTIVA: more alive without filling the whole page
+   ------------------------------------------------------------- */
+body.hl-petroleum-white.hl-interactive .video-card{
+  position:relative;
+}
+body.hl-petroleum-white.hl-interactive .video-card::before{
+  content:"";
+  position:absolute;
+  z-index:4;
+  left:0;right:0;top:0;height:5px;
+  background:var(--video-fluor,var(--final-cyan));
+}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(1){--video-fluor:var(--final-magenta)}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(2){--video-fluor:var(--final-cyan)}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(3){--video-fluor:var(--final-orange)}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(4){--video-fluor:var(--final-lime)}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(5){--video-fluor:var(--final-yellow)}
+body.hl-petroleum-white.hl-interactive .video-card:nth-child(6){--video-fluor:var(--final-violet)}
+
+/* -------------------------------------------------------------
+   7. TRACEABILITY / STATUS CARDS: retain semantics but stronger contrast
+   ------------------------------------------------------------- */
+body.hl-petroleum-white .trace-pill,
+body.hl-petroleum-white .tool-tag,
+body.hl-petroleum-white .status-pill,
+body.hl-petroleum-white .badge{
+  font-weight:900!important;
+}
+body.hl-petroleum-white .diagnosis,
+body.hl-petroleum-white .risk-badge,
+body.hl-petroleum-white .normative-note,
+body.hl-petroleum-white .info{
+  color:#1F3035!important;
+}
+
+/* avoid pale gray on common result cards */
+body.hl-petroleum-white .metric,
+body.hl-petroleum-white .threshold,
+body.hl-petroleum-white .compare>div{
+  background:#FFFFFF!important;
+}
+body.hl-petroleum-white .metric strong,
+body.hl-petroleum-white .threshold b,
+body.hl-petroleum-white .compare b{
+  color:#142329!important;
+}
+
+/* -------------------------------------------------------------
+   8. MOBILE: keep vivid accents compact
+   ------------------------------------------------------------- */
+@media(max-width:560px){
+  body.hl-petroleum-white .compact-module-card::before,
+  body.hl-petroleum-white.hl-tools .tool-card::before,
+  body.hl-petroleum-white.hl-interactive .video-card::before{
+    height:4px!important;
+  }
+  body.hl-petroleum-white main .split-labels{
+    font-size:11px!important;
+  }
+}
