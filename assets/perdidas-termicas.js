@@ -116,6 +116,34 @@ function cevMinimumVentilationAch(g){
   // Fmin = (0.3*AV + 2.5*NP)*3.6 / VV  [Ren/h]
   return g.volume>0?((.3*g.useful+2.5*np)*3.6/g.volume):0;
 }
+
+/* HIDROLAB V8.9.7 · helpers geométricos requeridos por cálculo principal */
+function wallGrossArea(g){
+  const manual=$('wallGrossManual')?.checked;
+  $('wallGrossManualWrap')?.classList.toggle('hl2-hidden',!manual);
+  if(manual){
+    const fallback=g?.grossWalls||0;
+    const el=$('wallGrossAreaInput');
+    if(el && (!el.value || Number(el.value)<=0)) el.value=fallback.toFixed(2);
+    return num('wallGrossAreaInput',fallback,0);
+  }
+  return g?.grossWalls||0;
+}
+
+function groundPerimeter(g){
+  const auto=2*((g?.L||0)+(g?.W||0));
+  const manual=$('groundPerimeterManual')?.checked;
+  if($('groundPerimeter')) $('groundPerimeter').readOnly=!manual;
+  if(!manual && $('groundPerimeter')) $('groundPerimeter').value=auto.toFixed(2);
+  return num('groundPerimeter',auto,0);
+}
+
+function thermalDirection(Ti,Te){
+  if(Ti>Te)return 'out';
+  if(Ti<Te)return 'in';
+  return 'zero';
+}
+
 function achValue(g=geometry()){
   const mode=$('airMode').value;
   const known=mode==='known';
@@ -704,9 +732,9 @@ function bind(){
 
   const ids=['ti','te','length','width','height','levels','wallU','wallGrossAreaInput','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','floorLs','groundPerimeter','ach','bedrooms','infiltrationAch','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
   ids.forEach(id=>$(id)?.addEventListener('input',calculate));
-  $('roofManual').addEventListener('change',calculate);$('floorManual').addEventListener('change',calculate);$('wallGrossManual').addEventListener('change',calculate);$('groundPerimeterManual').addEventListener('change',calculate);
-  $('floorType').addEventListener('change',calculate);$('airMode').addEventListener('change',calculate);
-  $('bridgeEnabled').addEventListener('change',calculate);$('bridgeMode').addEventListener('change',calculate);
+  $('roofManual')?.addEventListener('change',calculate);$('floorManual')?.addEventListener('change',calculate);$('wallGrossManual')?.addEventListener('change',calculate);$('groundPerimeterManual')?.addEventListener('change',calculate);
+  $('floorType')?.addEventListener('change',calculate);$('airMode')?.addEventListener('change',calculate);
+  $('bridgeEnabled')?.addEventListener('change',calculate);$('bridgeMode')?.addEventListener('change',calculate);
   updateFloorBuilderAvailability();calculate();
 }
 window.addEventListener('DOMContentLoaded',bind);
