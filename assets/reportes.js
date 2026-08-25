@@ -575,23 +575,50 @@
     if(current!=='perdidas-termicas.html' || typeof window.HIDROLAB_HEATLOSS_REPORT!=='function') return false;
     let x;try{x=window.HIDROLAB_HEATLOSS_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
+
     const s1=addSection(doc,root,'1. Condiciones y geometría');
     const t1=el(doc,'table','kv'),b1=el(doc,'tbody');
-    [['Temperatura interior',`${fmtNum(x.conditions.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.conditions.Te,1)} °C`],['Diferencia térmica',`${fmtNum(x.conditions.dT,1)} °C`],['Volumen interior',`${fmtNum(x.conditions.volume,1)} m³`],['Superficie útil aproximada',`${fmtNum(x.conditions.floorArea,1)} m²`],['Muros brutos',`${fmtNum(x.conditions.grossWalls,1)} m²`]].forEach(r=>addRow(doc,b1,r[0],r[1]));t1.append(b1);s1.append(t1);
+    [
+      ['Temperatura interior',`${fmtNum(x.conditions.Ti,1)} °C`],
+      ['Temperatura exterior',`${fmtNum(x.conditions.Te,1)} °C`],
+      ['Diferencia térmica',`${fmtNum(x.conditions.dT,1)} °C`],
+      ['Volumen interior',`${fmtNum(x.conditions.volume,1)} m³`],
+      ['Superficie útil',`${fmtNum(x.conditions.floorArea,1)} m²`],
+      ['Huella de la vivienda',`${fmtNum(x.conditions.footprint,1)} m²`],
+      ['Muros brutos',`${fmtNum(x.conditions.grossWalls,1)} m²`]
+    ].forEach(r=>addRow(doc,b1,r[0],r[1]));t1.append(b1);s1.append(t1);
 
-    const s2=addSection(doc,root,'2. Muro configurado');
-    const wt=el(doc,'table','data-table'),wh=el(doc,'tr');['#','Capa interior → exterior','Espesor','R capa'].forEach(h=>wh.append(el(doc,'th','',h)));wt.append(wh);
-    x.wall.layers.forEach(l=>{const tr=el(doc,'tr');[l.order,l.name,`${fmtNum(l.thickness,1)} mm`,`${fmtNum(l.R,3)} m²K/W`].forEach(v=>tr.append(el(doc,'td','',v)));wt.append(tr)});s2.append(wt);
-    const wkv=el(doc,'table','kv'),wb=el(doc,'tbody');[['Rt muro',`${fmtNum(x.wall.Rt,3)} m²K/W`],['U muro',`${fmtNum(x.wall.U,2)} W/m²K`],['Área neta',`${fmtNum(x.wall.area,1)} m²`],['Pérdida muros',`${fmtNum(x.wall.loss,0)} W`]].forEach(r=>addRow(doc,wb,r[0],r[1]));wkv.append(wb);s2.append(wkv);
+    const s2=addSection(doc,root,'2. Propiedades térmicas ingresadas');
+    const t2=el(doc,'table','kv'),b2=el(doc,'tbody');
+    [
+      ['U muro',`${fmtNum(x.wall.U,2)} W/m²K`],
+      ['Área neta de muro',`${fmtNum(x.wall.area,1)} m²`],
+      ['U ventanas',`${fmtNum(x.inputs.windowU,2)} W/m²K · ${fmtNum(x.inputs.windowArea,1)} m²`],
+      ['U puertas',`${fmtNum(x.inputs.doorU,2)} W/m²K · ${fmtNum(x.inputs.doorArea,1)} m²`],
+      ['U techumbre',`${fmtNum(x.inputs.roofU,2)} W/m²K · ${fmtNum(x.inputs.roofArea,1)} m²`],
+      ['Piso',`${x.inputs.floorType==='adiabatic'?'Adiabático':`U ${fmtNum(x.inputs.floorU,2)} W/m²K · ${fmtNum(x.inputs.floorArea,1)} m²`}`],
+      ['ACH considerado',`${fmtNum(x.ach,2)} 1/h`],
+      ['Puentes térmicos ΣψL',`${fmtNum(x.inputs.bridgeH,2)} W/K`]
+    ].forEach(r=>addRow(doc,b2,r[0],r[1]));t2.append(b2);s2.append(t2);
 
     const s3=addSection(doc,root,'3. Radiografía de pérdidas');
     const sum=x.elements.reduce((a,b)=>a+b.loss,0)||1;
-    const tbl=el(doc,'table','data-table'),hh=el(doc,'tr');['Componente','Pérdida','Participación'].forEach(v=>hh.append(el(doc,'th','',v)));tbl.append(hh);
+    const tbl=el(doc,'table','data-table'),hh=el(doc,'tr');
+    ['Componente','Pérdida','Participación'].forEach(v=>hh.append(el(doc,'th','',v)));tbl.append(hh);
     x.elements.forEach(p=>{const tr=el(doc,'tr');[p.name,`${fmtNum(p.loss,0)} W`,`${fmtNum(p.loss/sum*100,0)} %`].forEach(v=>tr.append(el(doc,'td','',v)));tbl.append(tr)});s3.append(tbl);
 
     const s4=addSection(doc,root,'4. Resultado instantáneo');
-    const t4=el(doc,'table','kv'),b4=el(doc,'tbody');[['Transmisión',`${fmtNum(x.transmission,0)} W`],['Ventilación/infiltración',`${fmtNum(x.airLoss,0)} W`],['ACH considerado',`${fmtNum(x.ach,2)} 1/h`],['Pérdida total',`${fmtNum(x.total,0)} W = ${fmtNum(x.total/1000,2)} kW`],['Energía equivalente 8 h',`${fmtNum(x.energy.h8,1)} kWh`],['Energía equivalente 12 h',`${fmtNum(x.energy.h12,1)} kWh`],['Energía equivalente 24 h',`${fmtNum(x.energy.h24,1)} kWh`]].forEach(r=>addRow(doc,b4,r[0],r[1]));t4.append(b4);s4.append(t4);
-    s4.append(el(doc,'p','section-note','El resultado representa una pérdida térmica instantánea bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción. La CEV considera además clima horario, ganancias solares e internas, inercia térmica, puentes térmicos, ventilación, infiltraciones y zona térmica.'));
+    const t4=el(doc,'table','kv'),b4=el(doc,'tbody');
+    [
+      ['Transmisión envolvente',`${fmtNum(x.transmission,0)} W`],
+      ['Ventilación / infiltración',`${fmtNum(x.airLoss,0)} W`],
+      ['Puentes térmicos',`${fmtNum(x.bridgeLoss||0,0)} W`],
+      ['Pérdida total',`${fmtNum(x.total,0)} W = ${fmtNum(x.total/1000,2)} kW`],
+      ['Carga específica',`${fmtNum(x.total/Math.max(x.conditions.floorArea,1),1)} W/m²`]
+    ].forEach(r=>addRow(doc,b4,r[0],r[1]));t4.append(b4);s4.append(t4);
+
+    s4.append(el(doc,'p','section-note','El resultado representa una pérdida térmica instantánea bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción.'));
+    s4.append(el(doc,'p','section-note','Los valores U ingresados deben representar los elementos completos y contar con respaldo apropiado cuando se utilicen técnicamente. Para piso sobre terreno HIDROLAB utiliza el U equivalente ingresado por el usuario y no aplica un factor oculto.'));
     return true
   }
 
