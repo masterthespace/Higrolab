@@ -119,17 +119,28 @@ function cevMinimumVentilationAch(g){
 function achValue(g=geometry()){
   const mode=$('airMode').value;
   const known=mode==='known';
+
   $('airKnownFields')?.classList.toggle('hl2-hidden',!known);
   $('airCevFields')?.classList.toggle('hl2-hidden',known);
+
   if(known){
-    $('ach').disabled=false;
-    return {total:num('ach',.5,0,10),vent:null,infiltration:null,mode};
+    const total=num('ach',.50,0,10);
+    return {total,vent:null,infiltration:null,mode};
   }
+
   const vent=cevMinimumVentilationAch(g);
   const infiltration=num('infiltrationAch',.20,0,10);
-  $('ach').disabled=true;
-  $('ach').value=(vent+infiltration).toFixed(2);
-  return {total:vent+infiltration,vent,infiltration,mode};
+  const total=vent+infiltration;
+
+  if($('cevVentAchOut')) $('cevVentAchOut').textContent=fmt(vent,2)+' ACH';
+  if($('cevInfiltrationOut')) $('cevInfiltrationOut').textContent=fmt(infiltration,2)+' ACH';
+  if($('cevTotalAchOut')) $('cevTotalAchOut').textContent=fmt(total,2)+' ACH';
+  if($('cevVentHelp')){
+    const bedrooms=Math.round(num('bedrooms',3,0,20));
+    $('cevVentHelp').textContent=`CEV: superficie útil ${fmt(g.useful,1)} m² · volumen ${fmt(g.volume,1)} m³ · personas consideradas ${bedrooms+1}.`;
+  }
+
+  return {total,vent,infiltration,mode};
 }
 function syncRoofArea(g){
   const manual=$('roofManual').checked;
@@ -526,8 +537,10 @@ function calculate(){
 
   $('deltaTOut').textContent=fmt(dT,1);$('usefulAreaOut').textContent=fmt(g.useful,1);$('footprintOut').textContent=fmt(g.footprint,1);
   $('volumeOut').textContent=fmt(g.volume,1);$('grossWallOut').textContent=fmt(g.grossWalls,1);
+  $('wallGrossConsideredOut').textContent=fmt(grossWalls,1)+' m²';
+  $('wallOpeningsOut').textContent=fmt(winA+doorA,1)+' m²';
   $('wallArea').textContent=fmt(wallA,1)+' m²';
-  $('wallGrossHelp').textContent=`${fmt(grossWalls,1)} m² brutos no adiabáticos − ${fmt(winA+doorA,1)} m² de vanos`;
+  $('wallGrossHelp').textContent=`Cálculo: ${fmt(grossWalls,1)} − ${fmt(winA+doorA,1)} = ${fmt(wallA,1)} m² netos`;
   $('wallLoss').textContent=fmt(wallLoss,0);$('windowLoss').textContent=fmt(windowLoss,0);$('doorLoss').textContent=fmt(doorLoss,0);
   $('roofLoss').textContent=fmt(roofLoss,0);$('floorLoss').textContent=fmt(floorLoss,0);$('airLoss').textContent=fmt(airLoss,0);
 
@@ -544,8 +557,8 @@ function calculate(){
   $('bridgeStatus').textContent=bridgeH>0?`Añaden ${fmt(bridgeLoss,0)} W con |ΔT| ${fmt(dT,1)} K`:'No considerados';
 
   $('airFormula').textContent=air.mode==='cevMin'
-    ? `Fmin CEV ${fmt(air.vent,2)} ACH + infiltración ${fmt(air.infiltration,2)} = ${fmt(ach,2)} ACH total`
-    : `0,33 × ${fmt(ach,2)} ACH × ${fmt(g.volume,0)} m³ × ${fmt(dT,1)} K`;
+    ? `ACH usado = ${fmt(air.vent,2)} ventilación CEV + ${fmt(air.infiltration,2)} infiltración = ${fmt(ach,2)} ACH`
+    : `Pérdida aire = 0,33 × ${fmt(ach,2)} ACH × ${fmt(g.volume,0)} m³ × ${fmt(dT,1)} K`;
 
   $('kw').textContent=fmt(total/1000,2);$('total').textContent=fmt(total,0)+' W';
   $('specific').textContent=fmt(g.useful?total/g.useful:0,1)+' W/m²';$('trans').textContent=fmt(transmission,0)+' W';

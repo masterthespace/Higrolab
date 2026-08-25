@@ -95,13 +95,26 @@
     <!-- MUROS -->
     <div class="hl2-row hl2-wall">
       <div class="hl2-element"><i>01</i><div><b>Muros exteriores</b><small>Todos los paños verticales exteriores de los niveles incluidos.</small></div></div>
-      <div class="hl2-area">
-        <small class="hl2-area-title">SUPERFICIE NETA NO ADIABÁTICA</small>
-        <strong id="wallArea">— m²</strong>
+      <div class="hl2-area hl2-wall-area-box">
+        <small class="hl2-area-title">SUPERFICIES DE MURO</small>
+        <div class="hl2-wall-area-grid">
+          <div>
+            <small>Muro bruto considerado</small>
+            <strong id="wallGrossConsideredOut">— m²</strong>
+          </div>
+          <div>
+            <small>Vanos descontados</small>
+            <strong id="wallOpeningsOut">— m²</strong>
+          </div>
+          <div class="hl2-wall-net">
+            <small>Muro neto no adiabático</small>
+            <strong id="wallArea">— m²</strong>
+          </div>
+        </div>
         <small id="wallGrossHelp">—</small>
         <label class="hl2-check"><input id="wallGrossManual" type="checkbox"> Editar muro bruto manualmente</label>
         <div id="wallGrossManualWrap" class="hl2-inline-unit hl2-hidden"><input id="wallGrossAreaInput" type="number" min="0" step=".01" value="0"><span>m²</span></div>
-        <small class="hl2-formula-help">Muro bruto no adiabático − ventanas en muros − puertas exteriores.</small>
+        <small class="hl2-formula-help">Muro neto = muro bruto no adiabático − ventanas en muros − puertas exteriores.</small>
       </div>
       <div class="hl2-property">
         <label for="wallU">U muro [W/m²K]</label>
@@ -297,30 +310,69 @@
 
     <!-- AIR -->
     <div class="hl2-row hl2-air">
-      <div class="hl2-element"><i>06</i><div><b>Renovación de aire</b><small>Separa ventilación higiénica e infiltración para evitar confundir ambos fenómenos.</small></div></div>
+      <div class="hl2-element">
+        <i>06</i>
+        <div>
+          <b>Renovación de aire</b>
+          <small>Ventilación higiénica e infiltración se muestran por separado.</small>
+        </div>
+      </div>
+
       <div class="hl2-area">
+        <label for="airMode">Método</label>
         <select id="airMode">
           <option value="known">Conozco ACH total</option>
           <option value="cevMin">Ventilación mínima CEV + infiltración</option>
         </select>
-        <small>ACH total = ventilación + infiltración cuando ambas están expresadas en renovaciones/hora.</small>
+        <small>Selecciona cómo quieres definir la renovación de aire.</small>
       </div>
+
       <div class="hl2-property">
         <div id="airKnownFields">
-          <label for="ach">ACH total [1/h]</label>
+          <label for="ach">ACH total conocido [1/h]</label>
           <input id="ach" type="number" min="0" step=".05" value=".50">
+          <small>Valor total que ya incorpora ventilación + infiltración.</small>
         </div>
+
         <div id="airCevFields" class="hl2-hidden">
-          <label for="bedrooms">Dormitorios</label>
-          <input id="bedrooms" type="number" min="0" step="1" value="3">
-          <label for="infiltrationAch">Infiltración adicional [ACH]</label>
-          <input id="infiltrationAch" type="number" min="0" step=".05" value=".20">
-          <small id="cevVentHelp">Fmin CEV se calcula con área útil, volumen y personas = dormitorios + 1.</small>
+          <div class="hl2-air-cev-inputs">
+            <div class="field">
+              <label for="bedrooms">Dormitorios</label>
+              <input id="bedrooms" type="number" min="0" step="1" value="3">
+              <small>CEV considera personas = dormitorios + 1.</small>
+            </div>
+            <div class="field">
+              <label for="infiltrationAch">Infiltración adicional [ACH]</label>
+              <input id="infiltrationAch" type="number" min="0" step=".05" value=".20">
+              <small>Estimación o valor conocido de infiltración.</small>
+            </div>
+          </div>
+
+          <div class="hl2-air-cev-results">
+            <div>
+              <small>Ventilación mínima CEV</small>
+              <strong id="cevVentAchOut">— ACH</strong>
+            </div>
+            <div>
+              <small>Infiltración</small>
+              <strong id="cevInfiltrationOut">— ACH</strong>
+            </div>
+            <div class="hl2-air-total">
+              <small>ACH total usado</small>
+              <strong id="cevTotalAchOut">— ACH</strong>
+            </div>
+          </div>
+
+          <small id="cevVentHelp">Fmin CEV se calcula con superficie útil, volumen y número de personas.</small>
         </div>
+
         <small id="airFormula">—</small>
       </div>
-      <div class="hl2-loss"><strong id="airLoss">—</strong><span>W</span></div>
-    </div></div>
+
+      <div class="hl2-loss">
+        <strong id="airLoss">—</strong><span>W</span>
+      </div>
+    </div>
   </div>
 
   <details class="hl2-details">

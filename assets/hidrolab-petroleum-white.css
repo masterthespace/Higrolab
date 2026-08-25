@@ -1586,3 +1586,120 @@ body.hl-petroleum-white .cost-fill{
   #airCevFields{grid-template-columns:1fr}
   #airCevFields #cevVentHelp{grid-column:auto}
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.9.6 · FIX RENOVACIÓN DE AIRE + SUPERFICIE MUROS
+   ===================================================================== */
+
+.heatloss-v2 .hl2-wall-area-box{
+  min-width:0;
+}
+.heatloss-v2 .hl2-wall-area-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin:5px 0 7px;
+}
+.heatloss-v2 .hl2-wall-area-grid>div{
+  padding:7px 8px;
+  border:1px solid #dce6e6;
+  border-radius:8px;
+  background:#fff;
+}
+.heatloss-v2 .hl2-wall-area-grid>div:nth-child(1){
+  border-top:4px solid #00cbe8;
+  background:#f2fcff;
+}
+.heatloss-v2 .hl2-wall-area-grid>div:nth-child(2){
+  border-top:4px solid #ff2f8a;
+  background:#fff4f9;
+}
+.heatloss-v2 .hl2-wall-area-grid .hl2-wall-net{
+  grid-column:1/-1;
+  border-top:5px solid #ff7200;
+  background:#fff8f1;
+}
+.heatloss-v2 .hl2-wall-area-grid small,
+.heatloss-v2 .hl2-wall-area-grid strong{
+  display:block;
+}
+.heatloss-v2 .hl2-wall-area-grid small{
+  color:#34484e!important;
+  font-size:.59rem!important;
+  font-weight:780;
+}
+.heatloss-v2 .hl2-wall-area-grid strong{
+  margin-top:2px;
+  color:#102126!important;
+  font-size:.9rem;
+}
+.heatloss-v2 .hl2-wall-area-grid .hl2-wall-net strong{
+  font-size:1.08rem;
+  color:#9c3b00!important;
+}
+
+/* CEV air mode */
+.heatloss-v2 #airKnownFields.hl2-hidden,
+.heatloss-v2 #airCevFields.hl2-hidden{
+  display:none!important;
+}
+.heatloss-v2 .hl2-air-cev-inputs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.heatloss-v2 .hl2-air-cev-results{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:8px;
+}
+.heatloss-v2 .hl2-air-cev-results>div{
+  padding:7px 8px;
+  border:1px solid #dce6e6;
+  border-radius:8px;
+  background:#fff;
+}
+.heatloss-v2 .hl2-air-cev-results>div:nth-child(1){
+  border-top:4px solid #00cbe8;
+  background:#f2fcff;
+}
+.heatloss-v2 .hl2-air-cev-results>div:nth-child(2){
+  border-top:4px solid #ff2f8a;
+  background:#fff4f9;
+}
+.heatloss-v2 .hl2-air-cev-results .hl2-air-total{
+  grid-column:1/-1;
+  border-top:5px solid #80e900;
+  background:#f7ffef;
+}
+.heatloss-v2 .hl2-air-cev-results small,
+.heatloss-v2 .hl2-air-cev-results strong{
+  display:block;
+}
+.heatloss-v2 .hl2-air-cev-results small{
+  color:#34484e!important;
+  font-size:.58rem!important;
+}
+.heatloss-v2 .hl2-air-cev-results strong{
+  margin-top:2px;
+  color:#13262b!important;
+  font-size:.83rem;
+}
+.heatloss-v2 .hl2-air-cev-results .hl2-air-total strong{
+  color:#347800!important;
+  font-size:1rem;
+}
+
+@media(max-width:650px){
+  .heatloss-v2 .hl2-air-cev-inputs,
+  .heatloss-v2 .hl2-air-cev-results,
+  .heatloss-v2 .hl2-wall-area-grid{
+    grid-template-columns:1fr;
+  }
+  .heatloss-v2 .hl2-wall-area-grid .hl2-wall-net,
+  .heatloss-v2 .hl2-air-cev-results .hl2-air-total{
+    grid-column:auto;
+  }
+}
