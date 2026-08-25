@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Simulador de muro y U</title><link href="styles.css" rel="stylesheet"/>
 <meta content="strict-origin-when-cross-origin" name="referrer"/></head><body>
-<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Calculadoras</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero mini-hero"><div class="eyebrow">Envolvente térmica · simulador interactivo</div><h1>Construye el muro, calcula U y simula una mejora de aislación</h1><p>Agrega capas, modifica espesores y conductividades, observa el perfil térmico y compara el muro actual con una solución mejorada.</p><div class="subnav"><a href="#capas">Capas</a><a href="#resultados">Resultados</a><a href="#mejora">Simular aislación</a><a href="#perfil">Perfil térmico</a></div></div></header>
+<header class="top"><div class="wrap nav"><a class="brand" href="index.html"><span class="brand-icon"></span><span>HIDRO<em>LAB</em></span></a><nav class="navlinks"><a href="index.html">Inicio</a><a class="active" href="calculadoras.html">Herramientas</a><a href="zona-interactiva.html">Zona interactiva</a></nav></div><div class="wrap hero mini-hero"><div class="eyebrow">Envolvente térmica · simulador interactivo</div><h1>Construye el muro, calcula U y simula una mejora de aislación</h1><p>Agrega capas, modifica espesores y conductividades, observa el perfil térmico y compara el muro actual con una solución mejorada.</p><div class="subnav"><a href="#capas">Capas</a><a href="#resultados">Resultados</a><a href="#mejora">Simular aislación</a><a href="#perfil">Perfil térmico</a></div></div></header>
+
+<div class="wrap tool-back-row">
+  <button class="tool-back-btn" type="button" onclick="hidrolabGoBack()" aria-label="Volver a la página anterior">
+    <span aria-hidden="true">←</span> Volver
+  </button>
+  <a class="tool-home-link" href="index.html">Inicio</a>
+</div>
+
 <main class="wrap main"><div class="calc-grid">
 <section class="card" id="capas"><div class="section-head"><div><p class="kicker">01 · Composición</p><h2>Capas del elemento</h2></div><span class="tool-tag new">Interactiva</span></div>
 <div class="form-grid"><div class="field"><label>Temperatura interior</label><input id="ti" step="0.1" type="number" value="20"/></div><div class="field"><label>Temperatura exterior</label><input id="te" step="0.1" type="number" value="5"/></div><div class="field"><label>HR interior</label><input id="rh" max="100" min="1" step="1" type="number" value="65"/></div><div class="field"><label for="area">Área del muro (opcional) <b>[m²]</b></label><input id="area" min="0" step="0.1" type="number" value="20" inputmode="decimal"/><small>Solo se usa para calcular la pérdida térmica total en W. No modifica U, temperatura superficial ni riesgo de condensación.</small></div></div>
@@ -164,4 +172,17 @@
 <a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
 </div></footer>
 <script src="assets/comunas-chile.js"></script><script src="assets/thermal-zones-chile.js"></script><script defer="" src="assets/simulador-muro.js"></script><script defer src="assets/reportes.js"></script>
+
+<script>
+function hidrolabGoBack(){
+  try{
+    if(document.referrer && new URL(document.referrer).origin === location.origin){
+      history.back();
+      return;
+    }
+  }catch(e){}
+  location.href='index.html';
+}
+</script>
+
 </body></html>
