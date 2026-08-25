@@ -30,3 +30,9 @@
     raf = requestAnimationFrame(tick);
   });
 })();
+
+// V8.7.6 navigation keyboard focus
+document.querySelectorAll('.navlinks a, .hl-nav-solar, .nav-back-btn').forEach(el => {
+  el.addEventListener('focus', () => el.classList.add('hl-key-focus'));
+  el.addEventListener('blur', () => el.classList.remove('hl-key-focus'));
+});
