@@ -129,23 +129,86 @@ function renderDimRows(kind){
   const rows=isWin?state.windowRows:state.doorRows;
   const unit=$(isWin?'winUnit':'doorUnit').value;
   const root=$(isWin?'windowDimensionRows':'doorDimensionRows');
+
   root.innerHTML=rows.map((r,i)=>`
     <div class="hl2-dim-row" data-kind="${kind}" data-index="${i}">
       <input data-k="name" value="${r.name}" aria-label="Nombre">
-      <input data-k="w" type="number" min="0" step="${unit==='cm'?1:.01}" value="${r.w}" aria-label="Ancho">
-      <input data-k="h" type="number" min="0" step="${unit==='cm'?1:.01}" value="${r.h}" aria-label="Alto">
-      <input data-k="q" type="number" min="1" step="1" value="${r.q}" aria-label="Cantidad">
-      <strong>${fmt(dimArea(r,unit),2)} m²</strong>
+      <input data-k="w" inputmode="decimal" type="number" min="0" step="${unit==='cm'?1:.01}" value="${r.w}" aria-label="Ancho">
+      <input data-k="h" inputmode="decimal" type="number" min="0" step="${unit==='cm'?1:.01}" value="${r.h}" aria-label="Alto">
+      <input data-k="q" inputmode="numeric" type="number" min="1" step="1" value="${r.q}" aria-label="Cantidad">
+      <strong data-subtotal>${fmt(dimArea(r,unit),2)} m²</strong>
       <button type="button" data-remove="${i}" aria-label="Eliminar">×</button>
     </div>`).join('');
-  root.querySelectorAll('input').forEach(el=>el.addEventListener('input',e=>{
-    const row=e.target.closest('.hl2-dim-row'),i=Number(row.dataset.index),k=e.target.dataset.k;
-    rows[i][k]=k==='name'?e.target.value:Number(e.target.value||0);
-    renderDimRows(kind); updateBuilder(kind);
-  }));
+
+  root.querySelectorAll('input').forEach(el=>{
+    el.addEventListener('input',e=>{
+      const row=e.target.closest('.hl2-dim-row');
+      const i=Number(row.dataset.index);
+      const k=e.target.dataset.k;
+
+      if(k==='name'){
+        rows[i][k]=e.target.value;
+      }else{
+        const raw=e.target.value;
+        rows[i][k]=raw==='' ? 0 : Number(raw);
+      }
+
+      // Importante: no reconstruir la fila mientras el usuario escribe.
+      // Solo actualizar subtotal y resumen para conservar foco/cursor.
+      const subtotal=row.querySelector('[data-subtotal]');
+      if(subtotal) subtotal.textContent=fmt(dimArea(rows[i],unit),2)+' m²';
+      updateBuilderSummary(kind);
+    });
+
+    el.addEventListener('change',e=>{
+      const row=e.target.closest('.hl2-dim-row');
+      const i=Number(row.dataset.index);
+      const k=e.target.dataset.k;
+
+      if(k!=='name'){
+        if(k==='q'){
+          rows[i][k]=Math.max(1,Math.round(Number(e.target.value)||1));
+          e.target.value=rows[i][k];
+        }else{
+          rows[i][k]=Math.max(0,Number(e.target.value)||0);
+          e.target.value=rows[i][k];
+        }
+      }
+
+      const subtotal=row.querySelector('[data-subtotal]');
+      if(subtotal) subtotal.textContent=fmt(dimArea(rows[i],unit),2)+' m²';
+      updateBuilderSummary(kind);
+    });
+  });
+
   root.querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>{
-    rows.splice(Number(btn.dataset.remove),1);renderDimRows(kind);updateBuilder(kind);
+    rows.splice(Number(btn.dataset.remove),1);
+    renderDimRows(kind);
+    updateBuilder(kind);
   }));
+}
+
+function updateBuilderSummary(kind){
+  if(kind==='window'){
+    const area=state.windowRows.reduce((a,r)=>a+dimArea(r,$('winUnit').value),0);
+    const u=windowComplexU();
+    $('winCalcArea').textContent=fmt(area,2)+' m²';
+    $('winCalcU').textContent=fmt(u,2);
+  }else{
+    const area=state.doorRows.reduce((a,r)=>a+dimArea(r,$('doorUnit').value),0);
+    const u=doorComplexU();
+    $('doorCalcArea').textContent=fmt(area,2)+' m²';
+    $('doorCalcU').textContent=fmt(u,2);
+
+    const custom=$('doorPreset').value==='custom';
+    $('doorCustomU').disabled=!custom;
+    if(custom){
+      $('doorPresetExplain').textContent='Valor total ingresado por usuario / fabricante.';
+    }else{
+      const p=DOOR_PRESETS[$('doorPreset').value],leaf=Math.max(0,1-p.glass-p.frame);
+      $('doorPresetExplain').textContent=`Hoja ${(leaf*100).toFixed(1)}% · vidrio ${(p.glass*100).toFixed(0)}% · marco ${(p.frame*100).toFixed(2)}%`;
+    }
+  }
 }
 function windowComplexU(){
   const f=WINDOW_FRAMES[$('winFrame').value],g=WINDOW_GLASSES[$('winGlass').value];
@@ -158,23 +221,7 @@ function doorComplexU(){
   return leaf*p.leafU+p.glass*p.glassU+p.frame*p.frameU;
 }
 function updateBuilder(kind){
-  if(kind==='window'){
-    const area=state.windowRows.reduce((a,r)=>a+dimArea(r,$('winUnit').value),0);
-    const u=windowComplexU();
-    $('winCalcArea').textContent=fmt(area,2)+' m²';$('winCalcU').textContent=fmt(u,2);
-  }else{
-    const area=state.doorRows.reduce((a,r)=>a+dimArea(r,$('doorUnit').value),0);
-    const u=doorComplexU();
-    $('doorCalcArea').textContent=fmt(area,2)+' m²';$('doorCalcU').textContent=fmt(u,2);
-    const custom=$('doorPreset').value==='custom';
-    $('doorCustomU').disabled=!custom;
-    if(custom){
-      $('doorPresetExplain').textContent='Valor total ingresado por usuario / fabricante.';
-    }else{
-      const p=DOOR_PRESETS[$('doorPreset').value],leaf=Math.max(0,1-p.glass-p.frame);
-      $('doorPresetExplain').textContent=`Hoja ${(leaf*100).toFixed(1)}% · vidrio ${(p.glass*100).toFixed(0)}% · marco ${(p.frame*100).toFixed(2)}%`;
-    }
-  }
+  updateBuilderSummary(kind);
 }
 function applyWindowBuilder(){
   const area=state.windowRows.reduce((a,r)=>a+dimArea(r,$('winUnit').value),0),u=windowComplexU();

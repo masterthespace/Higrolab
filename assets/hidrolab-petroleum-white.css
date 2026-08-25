@@ -1362,3 +1362,28 @@ body.hl-petroleum-white.hl-solar .panel:nth-child(3n+3){border-top-color:#ffd51f
   .hl2-dim-toolbar label{margin-left:0}
   .hl2-builder-summary{grid-template-columns:1fr}
 }
+
+
+/* HIDROLAB V8.9.3 · FIX MEDIDAS MANUALES */
+.heatloss-v2 .hl2-dim-row input{
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+}
+.heatloss-v2 .hl2-dim-row input[type="number"]{
+  appearance:auto!important;
+  -moz-appearance:textfield;
+}
+.heatloss-v2 .hl2-dim-row input[type="number"]::-webkit-inner-spin-button,
+.heatloss-v2 .hl2-dim-row input[type="number"]::-webkit-outer-spin-button{
+  opacity:.55;
+}
+.heatloss-v2 .hl2-dim-row input:focus{
+  border-color:#00cbe8!important;
+  box-shadow:0 0 0 3px rgba(0,203,232,.12)!important;
+  outline:none!important;
+}
+.builder-door .hl2-dim-row input:focus{
+  border-color:#ff2f8a!important;
+  box-shadow:0 0 0 3px rgba(255,47,138,.10)!important;
+}
