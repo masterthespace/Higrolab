@@ -593,8 +593,8 @@
     [
       ['U muro',`${fmtNum(x.wall.U,2)} W/m²K`],
       ['Área neta de muro',`${fmtNum(x.wall.area,1)} m²`],
-      ['U ventanas',`${fmtNum(x.inputs.windowU,2)} W/m²K · ${fmtNum(x.inputs.windowArea,1)} m²`],
-      ['U puertas',`${fmtNum(x.inputs.doorU,2)} W/m²K · ${fmtNum(x.inputs.doorArea,1)} m²`],
+      ['Ventanas',`${x.inputs.windowType||'Tipo no indicado'} · U ${fmtNum(x.inputs.windowU,2)} W/m²K · ${fmtNum(x.inputs.windowArea,1)} m²`],
+      ['Puertas',`${x.inputs.doorType||'Tipo no indicado'} · U ${fmtNum(x.inputs.doorU,2)} W/m²K · ${fmtNum(x.inputs.doorArea,1)} m²`],
       ['U techumbre',`${fmtNum(x.inputs.roofU,2)} W/m²K · ${fmtNum(x.inputs.roofArea,1)} m²`],
       ['Piso',`${x.inputs.floorType==='adiabatic'?'Adiabático':`U ${fmtNum(x.inputs.floorU,2)} W/m²K · ${fmtNum(x.inputs.floorArea,1)} m²`}`],
       ['ACH considerado',`${fmtNum(x.ach,2)} 1/h`],

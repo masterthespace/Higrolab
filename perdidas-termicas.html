@@ -51,11 +51,15 @@
       <div class="field hl2-temp"><label>Exterior [°C]</label><input id="te" type="number" step=".1" value="5"><small>Condición exterior de cálculo.</small></div>
     </div>
 
+    <div class="hl2-geometry-explain">
+      <b>Dimensiones generales de la vivienda</b>
+      <span>Ingresa las dimensiones exteriores aproximadas de una planta rectangular. HIDROLAB las usa para calcular perímetro, huella, volumen, muros exteriores y techumbre.</span>
+    </div>
     <div class="hl2-geometry-fields">
-      <div class="field"><label>Largo [m]</label><input id="length" type="number" min="1" step=".1" value="8"></div>
-      <div class="field"><label>Ancho [m]</label><input id="width" type="number" min="1" step=".1" value="7"></div>
-      <div class="field"><label>Altura por nivel [m]</label><input id="height" type="number" min="1.8" step=".1" value="2.5"></div>
-      <div class="field"><label>Niveles</label><input id="levels" type="number" min="1" max="4" step="1" value="1"></div>
+      <div class="field"><label>Largo exterior de planta [m]</label><input id="length" type="number" min="1" step=".1" value="8"><small>Dimensión exterior longitudinal de la vivienda.</small></div>
+      <div class="field"><label>Ancho exterior de planta [m]</label><input id="width" type="number" min="1" step=".1" value="7"><small>Dimensión exterior transversal de la vivienda.</small></div>
+      <div class="field"><label>Altura por nivel [m]</label><input id="height" type="number" min="1.8" step=".1" value="2.5"><small>Altura considerada para los muros exteriores.</small></div>
+      <div class="field"><label>Cantidad de niveles</label><input id="levels" type="number" min="1" max="4" step="1" value="1"><small>Niveles incluidos en el volumen y muros.</small></div>
     </div>
 
     <div class="hl2-geometry-live">
@@ -81,8 +85,13 @@
     </div>
 
     <div class="hl2-row hl2-wall">
-      <div class="hl2-element"><i>01</i><div><b>Muros</b><small>Área neta descontando vanos</small></div></div>
-      <div class="hl2-area"><strong id="wallArea">— m²</strong><small id="wallGrossHelp">—</small></div>
+      <div class="hl2-element"><i>01</i><div><b>Muros exteriores</b><small>Superficie total expuesta al exterior de todos los niveles.</small></div></div>
+      <div class="hl2-area">
+        <small class="hl2-area-title">SUPERFICIE NETA DE MUROS</small>
+        <strong id="wallArea">— m²</strong>
+        <small id="wallGrossHelp">—</small>
+        <small class="hl2-formula-help">Muros brutos − ventanas − puertas.</small>
+      </div>
       <div class="hl2-property">
         <label for="wallU">U muro [W/m²K]</label>
         <input id="wallU" type="number" min=".05" step=".01" value=".60">
@@ -92,20 +101,48 @@
     </div>
 
     <div class="hl2-row hl2-window">
-      <div class="hl2-element"><i>02</i><div><b>Ventanas</b><small>Superficie transparente total</small></div></div>
-      <div class="hl2-area"><label>Área [m²]</label><input id="windowArea" type="number" min="0" step=".1" value="12"></div>
+      <div class="hl2-element"><i>02</i><div><b>Ventanas exteriores</b><small>Suma todas las ventanas exteriores de todos los niveles seleccionados.</small></div></div>
+      <div class="hl2-area">
+        <label>Superficie total de ventanas [m²]</label>
+        <input id="windowArea" type="number" min="0" step=".1" value="12">
+        <small>Ej.: 6 ventanas de 2 m² = 12 m² totales.</small>
+      </div>
       <div class="hl2-property">
-        <label for="windowU">U ventana [W/m²K]</label>
-        <input id="windowU" type="number" min=".1" step=".1" value="2.8">
-        <small>Usa valor declarado/acreditado si lo conoces.</small>
+        <label for="windowType">Tipo de ventana</label>
+        <select id="windowType">
+          <option value="5.8">Vidrio simple · marco metálico · orientativo</option>
+          <option value="3.2">DVH · aluminio sin RPT · orientativo</option>
+          <option value="2.8" selected>DVH · aluminio con RPT · orientativo</option>
+          <option value="2.4">DVH · PVC / madera · orientativo</option>
+          <option value="1.6">Ventana alta prestación · orientativo</option>
+          <option value="custom">U declarado / personalizado</option>
+        </select>
+        <div class="hl2-u-input"><label for="windowU">U [W/m²K]</label><input id="windowU" type="number" min=".1" step=".1" value="2.8"></div>
+        <small id="windowSource">Valor orientativo HIDROLAB. Para uso técnico utiliza U declarado/acreditado del complejo completo.</small>
       </div>
       <div class="hl2-loss"><strong id="windowLoss">—</strong><span>W</span></div>
     </div>
 
     <div class="hl2-row hl2-door">
-      <div class="hl2-element"><i>03</i><div><b>Puertas</b><small>Puertas exteriores opacas</small></div></div>
-      <div class="hl2-area"><label>Área [m²]</label><input id="doorArea" type="number" min="0" step=".1" value="4"></div>
-      <div class="hl2-property"><label for="doorU">U puerta [W/m²K]</label><input id="doorU" type="number" min=".1" step=".1" value="2.2"></div>
+      <div class="hl2-element"><i>03</i><div><b>Puertas exteriores</b><small>Suma todas las puertas que separan la vivienda del exterior.</small></div></div>
+      <div class="hl2-area">
+        <label>Superficie total de puertas [m²]</label>
+        <input id="doorArea" type="number" min="0" step=".1" value="4">
+        <small>Incluye las puertas exteriores de todos los niveles seleccionados.</small>
+      </div>
+      <div class="hl2-property">
+        <label for="doorType">Material / tipo de puerta</label>
+        <select id="doorType">
+          <option value="5.0">Metálica sin aislación · orientativo</option>
+          <option value="2.5">Madera maciza · orientativo</option>
+          <option value="2.2" selected>Puerta exterior estándar · orientativo</option>
+          <option value="1.8">Metálica aislada · orientativo</option>
+          <option value="1.2">Alta prestación aislada · orientativo</option>
+          <option value="custom">U declarado / personalizado</option>
+        </select>
+        <div class="hl2-u-input"><label for="doorU">U [W/m²K]</label><input id="doorU" type="number" min=".1" step=".1" value="2.2"></div>
+        <small id="doorSource">Valor orientativo HIDROLAB. La U real depende de hoja, marco, aislación y configuración.</small>
+      </div>
       <div class="hl2-loss"><strong id="doorLoss">—</strong><span>W</span></div>
     </div>
 
@@ -120,8 +157,13 @@
     </div>
 
     <div class="hl2-row hl2-floor">
-      <div class="hl2-element"><i>05</i><div><b>Piso</b><small>Siempre usa la huella, no superficie × niveles</small></div></div>
-      <div class="hl2-area"><strong id="floorArea">— m²</strong><select id="floorType"><option value="exterior">Piso ventilado / exterior</option><option value="ground">Contacto con terreno · U equivalente</option><option value="adiabatic">Sobre recinto acondicionado</option></select></div>
+      <div class="hl2-element"><i>05</i><div><b>Piso expuesto</b><small>Por defecto usa la huella del primer nivel, no la superficie útil total.</small></div></div>
+      <div class="hl2-area">
+        <label class="hl2-check"><input id="floorManual" type="checkbox"> Editar superficie manualmente</label>
+        <div class="hl2-inline-unit"><input id="floorAreaInput" type="number" min="0" step=".1" value="56" readonly><span>m²</span></div>
+        <small id="floorAreaHelp">Área automática = largo × ancho.</small>
+        <select id="floorType"><option value="exterior">Piso ventilado / exterior</option><option value="ground">Contacto con terreno · U equivalente</option><option value="adiabatic">Sobre recinto acondicionado</option></select>
+      </div>
       <div class="hl2-property" id="floorUWrap"><label id="floorULabel" for="floorU">U piso [W/m²K]</label><input id="floorU" type="number" min=".01" step=".01" value=".60"><small id="floorMethodNote">Piso exterior: U · A · ΔT.</small></div>
       <div class="hl2-loss"><strong id="floorLoss">—</strong><span>W</span></div>
     </div>
@@ -144,14 +186,35 @@
 
   <details class="hl2-details">
     <summary>Opciones avanzadas de precisión</summary>
-    <div class="hl2-advanced-grid">
-      <div class="field">
-        <label>Puentes térmicos ΣψL [W/K]</label>
-        <input id="bridgeH" type="number" min="0" step=".1" value="0">
-        <small>Opcional. Suma de ψ·L de encuentros, perímetros de vanos y otros puentes lineales.</small>
+    <div class="hl2-bridge-intro">
+      <b>¿Qué es un puente térmico?</b>
+      <span>Es una zona lineal donde el calor atraviesa más fácilmente la envolvente: encuentros muro–piso, muro–techo, esquinas, pilares o perímetros de ventanas. Si no tienes datos, puedes dejarlo desactivado.</span>
+    </div>
+    <label class="hl2-toggle"><input id="bridgeEnabled" type="checkbox"><span>Considerar puentes térmicos</span></label>
+    <div id="bridgePanel" class="hl2-advanced-grid hl2-hidden">
+      <div class="hl2-bridge-builder">
+        <div class="field">
+          <label>Método de ingreso</label>
+          <select id="bridgeMode">
+            <option value="assistant">Asistente: longitud × ψ medio</option>
+            <option value="direct">Tengo ΣψL calculado</option>
+          </select>
+        </div>
+        <div id="bridgeAssistant" class="hl2-bridge-fields">
+          <div class="field"><label>Longitud total aproximada L [m]</label><input id="bridgeLength" type="number" min="0" step=".1" value="0"><small>Suma de los encuentros lineales que quieres considerar.</small></div>
+          <div class="field"><label>ψ medio [W/m·K]</label><input id="bridgePsi" type="number" min="0" step=".01" value=".10"><small>Usa un valor proveniente de cálculo, catálogo o fuente técnica.</small></div>
+        </div>
+        <div id="bridgeDirect" class="field hl2-hidden">
+          <label>ΣψL total [W/K]</label>
+          <input id="bridgeH" type="number" min="0" step=".1" value="0">
+          <small>Ingresa directamente la suma ψ₁L₁ + ψ₂L₂ + …</small>
+        </div>
       </div>
       <div class="hl2-advanced-result">
-        <small>Pérdida por puentes térmicos</small><strong id="bridgeLoss">0 W</strong>
+        <small>Coeficiente lineal total</small><strong id="bridgeHOut">0,00 W/K</strong>
+        <span id="bridgeCalcText">0,0 m × 0,10 W/m·K</span>
+        <hr>
+        <small>Pérdida adicional</small><strong id="bridgeLoss">0 W</strong>
         <span id="bridgeStatus">No considerados</span>
       </div>
     </div>
@@ -199,12 +262,58 @@
 <section class="card full hl2-improve">
   <details id="improveDetails">
     <summary><span><b>04 · Simular mejoras</b><small>Compara rápidamente qué cambio reduce más W.</small></span><i>+</i></summary>
-    <div class="improvement-options">
-      <label><span>U muro objetivo</span><input id="improveWallU" type="number" min=".05" step=".05" value=".40"><small>W/m²K</small></label>
-      <label><span>U ventana objetivo</span><input id="improveWindowU" type="number" min=".3" step=".1" value="1.8"><small>W/m²K</small></label>
-      <label><span>U techumbre objetivo</span><input id="improveRoofU" type="number" min=".05" step=".05" value=".30"><small>W/m²K</small></label>
-      <label><span>ACH objetivo</span><input id="improveAch" type="number" min="0" step=".05" value=".30"><small>1/h</small></label>
+    <div class="hl2-improve-intro">
+      <b>¿Qué pasaría si mejoro un elemento?</b>
+      <span>Selecciona un escenario. HIDROLAB cambia solo ese parámetro y compara cuántos watts podrías reducir en estas mismas condiciones.</span>
     </div>
+    <div class="improvement-options">
+      <label>
+        <span>Muros</span>
+        <select id="improveWallPreset">
+          <option value=".50">Mejora básica · U 0,50</option>
+          <option value=".40" selected>Mejora intermedia · U 0,40</option>
+          <option value=".30">Mejora alta · U 0,30</option>
+          <option value=".20">Muy alta aislación · U 0,20</option>
+          <option value="custom">Personalizado</option>
+        </select>
+        <div class="hl2-target-line"><small>U objetivo</small><input id="improveWallU" type="number" min=".05" step=".05" value=".40"><b>W/m²K</b></div>
+        <small>Menor U = menor transmisión de calor.</small>
+      </label>
+      <label>
+        <span>Ventanas</span>
+        <select id="improveWindowPreset">
+          <option value="2.4">DVH PVC / madera · U 2,4</option>
+          <option value="1.8" selected>Mejora intermedia · U 1,8</option>
+          <option value="1.4">Alta prestación · U 1,4</option>
+          <option value="1.0">Muy alta prestación · U 1,0</option>
+          <option value="custom">Personalizado</option>
+        </select>
+        <div class="hl2-target-line"><small>U objetivo</small><input id="improveWindowU" type="number" min=".3" step=".1" value="1.8"><b>W/m²K</b></div>
+      </label>
+      <label>
+        <span>Techumbre</span>
+        <select id="improveRoofPreset">
+          <option value=".40">Mejora básica · U 0,40</option>
+          <option value=".30" selected>Mejora intermedia · U 0,30</option>
+          <option value=".22">Mejora alta · U 0,22</option>
+          <option value=".15">Muy alta aislación · U 0,15</option>
+          <option value="custom">Personalizado</option>
+        </select>
+        <div class="hl2-target-line"><small>U objetivo</small><input id="improveRoofU" type="number" min=".05" step=".05" value=".30"><b>W/m²K</b></div>
+      </label>
+      <label>
+        <span>Hermeticidad / aire</span>
+        <select id="improveAchPreset">
+          <option value=".50">0,50 ACH</option>
+          <option value=".30" selected>0,30 ACH</option>
+          <option value=".20">0,20 ACH</option>
+          <option value=".10">0,10 ACH</option>
+          <option value="custom">Personalizado</option>
+        </select>
+        <div class="hl2-target-line"><small>ACH objetivo</small><input id="improveAch" type="number" min="0" step=".05" value=".30"><b>1/h</b></div>
+      </label>
+    </div>
+    <p class="hl2-preset-note">Los escenarios son comparativos/orientativos. El valor real debe definirse según la solución constructiva o producto seleccionado.</p>
     <div id="improvementRanking" class="improvement-ranking"></div>
     <p class="method-note">Cada escenario modifica solo un parámetro a la vez y muestra el ahorro instantáneo estimado.</p>
   </details>

@@ -1073,3 +1073,147 @@ body.hl-petroleum-white .compare b{
   .hl2-heatmap{grid-template-columns:1fr 1fr}
   .hl2-total>strong{font-size:2.6rem}
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.9.1 · PÉRDIDAS TÉRMICAS · AJUSTES UX
+   Fluor vivo + fondos claros + microtipografía alta legibilidad
+   ===================================================================== */
+
+/* Geometry explanation */
+.heatloss-v2 .hl2-geometry-explain,
+.heatloss-v2 .hl2-improve-intro,
+.heatloss-v2 .hl2-bridge-intro{
+  display:grid;gap:3px;padding:10px 12px;border-radius:10px;
+  border:1px solid #d8e6e5;background:#f7fbfa;
+}
+.heatloss-v2 .hl2-geometry-explain b,
+.heatloss-v2 .hl2-improve-intro b,
+.heatloss-v2 .hl2-bridge-intro b{font-size:.78rem;color:#15272c!important}
+.heatloss-v2 .hl2-geometry-explain span,
+.heatloss-v2 .hl2-improve-intro span,
+.heatloss-v2 .hl2-bridge-intro span{
+  font-size:.71rem;line-height:1.48;color:#30464c!important;font-weight:620;
+}
+.heatloss-v2 .hl2-geometry-fields small{display:block;margin-top:4px;color:#2f444a!important;font-size:.68rem!important}
+.heatloss-v2 .hl2-area-title{color:#0e4a4a!important;font-size:.58rem!important;font-weight:900!important;letter-spacing:.06em}
+.heatloss-v2 .hl2-formula-help{color:#183940!important;font-weight:780!important}
+
+/* Brighter envelope rows */
+.heatloss-v2 .hl2-row{background:#fff!important}
+.heatloss-v2 .hl2-wall{background:linear-gradient(90deg,rgba(255,114,0,.075),#fff 17%)!important}
+.heatloss-v2 .hl2-window{background:linear-gradient(90deg,rgba(0,203,232,.075),#fff 17%)!important}
+.heatloss-v2 .hl2-door{background:linear-gradient(90deg,rgba(255,47,138,.070),#fff 17%)!important}
+.heatloss-v2 .hl2-roof{background:linear-gradient(90deg,rgba(255,213,31,.10),#fff 17%)!important}
+.heatloss-v2 .hl2-floor{background:linear-gradient(90deg,rgba(128,233,0,.09),#fff 17%)!important}
+.heatloss-v2 .hl2-air{background:linear-gradient(90deg,rgba(118,87,255,.065),#fff 17%)!important}
+
+.heatloss-v2 .hl2-loss{background:#fff!important;border:1px solid #dce6e6}
+.heatloss-v2 .hl2-wall .hl2-loss{border-top:4px solid #ff7200}
+.heatloss-v2 .hl2-window .hl2-loss{border-top:4px solid #00cbe8}
+.heatloss-v2 .hl2-door .hl2-loss{border-top:4px solid #ff2f8a}
+.heatloss-v2 .hl2-roof .hl2-loss{border-top:4px solid #ffd51f}
+.heatloss-v2 .hl2-floor .hl2-loss{border-top:4px solid #80e900}
+.heatloss-v2 .hl2-air .hl2-loss{border-top:4px solid #7657ff}
+
+/* U presets */
+.heatloss-v2 .hl2-u-input{display:grid;grid-template-columns:auto 105px;gap:6px;align-items:center;margin-top:6px}
+.heatloss-v2 .hl2-u-input label{margin:0!important}
+.heatloss-v2 .hl2-property select{min-height:38px!important}
+
+/* floor */
+.heatloss-v2 #floorAreaInput[readonly],
+.heatloss-v2 #roofArea[readonly]{background:#f2f6f6!important;color:#24373d!important}
+
+/* thermal bridges */
+.heatloss-v2 .hl2-toggle{
+  display:flex!important;align-items:center;gap:8px;margin:10px 13px!important;
+  padding:10px 11px;border:1px solid #cde2df;border-radius:10px;background:#eaf9f6;color:#123b3d!important;
+}
+.heatloss-v2 .hl2-toggle input{width:auto!important;min-height:auto!important;accent-color:#00b86b!important}
+.heatloss-v2 .hl2-hidden{display:none!important}
+.heatloss-v2 .hl2-bridge-builder{display:grid;gap:9px}
+.heatloss-v2 .hl2-bridge-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.heatloss-v2 .hl2-advanced-result hr{border:0;border-top:1px solid #dce6e5;margin:8px 0}
+.heatloss-v2 .hl2-advanced-result{border-top:5px solid #00cbe8!important;background:linear-gradient(145deg,#f6feff,#fff)!important}
+
+/* RESULT: remove dark petroleum block completely */
+.heatloss-v2 .hl2-total{
+  position:relative;overflow:hidden;
+  border:1px solid #d9e7e5!important;
+  border-top:6px solid #80e900!important;
+  background:
+    radial-gradient(circle at 95% 5%,rgba(0,203,232,.17),transparent 38%),
+    linear-gradient(145deg,#f3fff1,#ffffff 63%)!important;
+  color:#101719!important;
+  box-shadow:none!important;
+}
+.heatloss-v2 .hl2-total::after{
+  content:"";position:absolute;right:-36px;bottom:-48px;width:125px;height:125px;border-radius:50%;
+  background:rgba(255,47,138,.10);pointer-events:none
+}
+.heatloss-v2 .hl2-total>small{color:#25513b!important}
+.heatloss-v2 .hl2-total>strong{color:#0d5f43!important}
+.heatloss-v2 .hl2-total>span{color:#243c31!important}
+.heatloss-v2 .hl2-total>p{color:#263b35!important;font-weight:630}
+.heatloss-v2 .hl2-total-meta>div{
+  position:relative;z-index:2;border:1px solid #d7e5e2!important;background:#fff!important
+}
+.heatloss-v2 .hl2-total-meta small{color:#38504a!important;font-weight:700}
+.heatloss-v2 .hl2-total-meta b{color:#102126!important}
+
+/* Ranking uses multiple vivid accents, not dark blocks */
+.heatloss-v2 .hl2-ranking{background:#fff!important}
+.heatloss-v2 .heat-rank-row:nth-child(1) .heat-rank-track i{background:linear-gradient(90deg,#ff2f8a,#ff7200)!important}
+.heatloss-v2 .heat-rank-row:nth-child(2) .heat-rank-track i{background:linear-gradient(90deg,#00cbe8,#24b8a8)!important}
+.heatloss-v2 .heat-rank-row:nth-child(3) .heat-rank-track i{background:linear-gradient(90deg,#80e900,#c7ed24)!important}
+.heatloss-v2 .heat-rank-row:nth-child(4) .heat-rank-track i{background:linear-gradient(90deg,#ffd51f,#ff9d00)!important}
+.heatloss-v2 .heat-rank-row:nth-child(5) .heat-rank-track i{background:linear-gradient(90deg,#7657ff,#ad47ff)!important}
+.heatloss-v2 .heat-rank-row:nth-child(6) .heat-rank-track i{background:linear-gradient(90deg,#ff7200,#ffd51f)!important}
+.heatloss-v2 .dominant-advice{
+  border-left:5px solid #ff2f8a!important;
+  background:#fff2f8!important;color:#26373d!important
+}
+.heatloss-v2 .dominant-advice b,.heatloss-v2 .dominant-advice span{color:#26373d!important}
+
+/* Heat map tiles: light backgrounds with vivid strips */
+.heatloss-v2 .hl2-hm-item{background:#fff!important}
+.heatloss-v2 .hl2-hm-item::before{height:4px!important;top:0!important;bottom:auto!important;background:var(--hm-accent,#00cbe8)!important}
+.heatloss-v2 .hl2-hm-item[data-part="walls"]{--hm-accent:#ff7200;background:#fff8f2!important}
+.heatloss-v2 .hl2-hm-item[data-part="windows"]{--hm-accent:#00cbe8;background:#f1fcfe!important}
+.heatloss-v2 .hl2-hm-item[data-part="roof"]{--hm-accent:#ffd51f;background:#fffbed!important}
+.heatloss-v2 .hl2-hm-item[data-part="floor"]{--hm-accent:#80e900;background:#f7ffed!important}
+.heatloss-v2 .hl2-hm-item[data-part="air"]{--hm-accent:#7657ff;background:#f6f3ff!important}
+.heatloss-v2 .hl2-hm-item[data-part="doors"]{--hm-accent:#ff2f8a;background:#fff3f8!important}
+.heatloss-v2 .hl2-hm-item[data-part="bridges"]{--hm-accent:#00b86b;background:#f2fff8!important}
+
+/* Improvement assistant */
+.heatloss-v2 .hl2-improve-intro{margin-top:14px;border-left:5px solid #ff7200;background:#fff9f2}
+.heatloss-v2 .improvement-options>label{
+  border:1px solid #dce6e6!important;background:#fff!important;border-radius:11px;padding:10px
+}
+.heatloss-v2 .improvement-options>label:nth-child(1){border-top:5px solid #ff7200!important;background:#fff9f4!important}
+.heatloss-v2 .improvement-options>label:nth-child(2){border-top:5px solid #00cbe8!important;background:#f4fdff!important}
+.heatloss-v2 .improvement-options>label:nth-child(3){border-top:5px solid #ffd51f!important;background:#fffced!important}
+.heatloss-v2 .improvement-options>label:nth-child(4){border-top:5px solid #80e900!important;background:#f8ffef!important}
+.heatloss-v2 .improvement-options>label>span{display:block;margin-bottom:6px;font-weight:900;color:#15272c!important}
+.heatloss-v2 .improvement-options select{width:100%;min-height:39px;margin-bottom:7px}
+.heatloss-v2 .hl2-target-line{display:grid;grid-template-columns:auto 90px auto;gap:5px;align-items:center}
+.heatloss-v2 .hl2-target-line small,.heatloss-v2 .hl2-target-line b{color:#30454b!important;font-size:.68rem!important}
+.heatloss-v2 .hl2-target-line input{min-height:35px!important}
+.heatloss-v2 .hl2-preset-note{color:#30454b!important;font-size:.7rem;font-weight:620}
+.heatloss-v2 .improvement-row.best{border-left-color:#80e900!important;background:#f7ffed!important}
+.heatloss-v2 .improvement-track i{background:linear-gradient(90deg,#80e900,#00cbe8)!important}
+
+/* all tiny text in this module gets real contrast */
+.heatloss-v2 small,
+.heatloss-v2 .note,
+.heatloss-v2 .method-note,
+.heatloss-v2 .section-note{
+  color:#30444a!important;opacity:1!important
+}
+
+@media(max-width:650px){
+  .heatloss-v2 .hl2-bridge-fields{grid-template-columns:1fr}
+  .heatloss-v2 .hl2-u-input{grid-template-columns:1fr}
+}

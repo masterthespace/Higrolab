@@ -7,6 +7,52 @@ function num(id,fallback=0,min=-Infinity,max=Infinity){
   return clamp(Number.isFinite(raw)?raw:fallback,min,max);
 }
 
+function syncUFromPreset(selectId,inputId,sourceId){
+  const sel=$(selectId),inp=$(inputId);
+  if(!sel||!inp)return;
+  const custom=sel.value==='custom';
+  inp.disabled=!custom;
+  if(!custom)inp.value=Number(sel.value).toFixed(selectId==='windowType'?1:1);
+  if(sourceId){
+    $(sourceId).textContent=custom
+      ? 'U personalizado ingresado por usuario. Usa un valor declarado/acreditado cuando corresponda.'
+      : 'Valor orientativo HIDROLAB. Para uso técnico utiliza U declarado/acreditado del elemento completo.';
+  }
+}
+
+function syncImprovementPreset(selectId,inputId){
+  const sel=$(selectId),inp=$(inputId);
+  if(!sel||!inp)return;
+  const custom=sel.value==='custom';
+  inp.disabled=!custom;
+  if(!custom)inp.value=sel.value;
+}
+
+function bridgeCoefficient(){
+  if(!$('bridgeEnabled')?.checked)return 0;
+  if($('bridgeMode').value==='direct')return num('bridgeH',0,0);
+  return num('bridgeLength',0,0)*num('bridgePsi',.10,0);
+}
+
+function syncBridgeUI(){
+  const enabled=$('bridgeEnabled').checked;
+  $('bridgePanel').classList.toggle('hl2-hidden',!enabled);
+  if(!enabled)return;
+  const direct=$('bridgeMode').value==='direct';
+  $('bridgeAssistant').classList.toggle('hl2-hidden',direct);
+  $('bridgeDirect').classList.toggle('hl2-hidden',!direct);
+}
+
+function syncFloorArea(g){
+  const manual=$('floorManual').checked;
+  $('floorAreaInput').readOnly=!manual;
+  if(!manual)$('floorAreaInput').value=g.floor.toFixed(1);
+  $('floorAreaHelp').textContent=manual
+    ? 'Superficie de piso expuesto definida manualmente.'
+    : 'Área automática = largo × ancho de la planta.';
+  return num('floorAreaInput',g.floor,0);
+}
+
 function geometry(){
   const L=num('length',8,1),W=num('width',7,1),H=num('height',2.5,1.8),N=Math.round(num('levels',1,1,4));
   const footprint=L*W;
@@ -60,6 +106,8 @@ function calculate(){
 
   syncRoofArea(g);
   syncFloor();
+  const floorA=syncFloorArea(g);
+  syncBridgeUI();
 
   const winA=num('windowArea',12,0);
   const doorA=num('doorArea',4,0);
@@ -73,13 +121,13 @@ function calculate(){
   const floorType=$('floorType').value;
   const floorU=num('floorU',.60,.01);
   const ach=achValue();
-  const bridgeH=num('bridgeH',0,0);
+  const bridgeH=bridgeCoefficient();
 
   const wallLoss=wallU*wallA*dT;
   const windowLoss=winU*winA*dT;
   const doorLoss=doorU*doorA*dT;
   const roofLoss=roofU*roofA*dT;
-  const floorLoss=floorType==='adiabatic'?0:floorU*g.floor*dT;
+  const floorLoss=floorType==='adiabatic'?0:floorU*floorA*dT;
   const airLoss=.33*ach*g.volume*dT;
   const bridgeLoss=bridgeH*dT;
 
@@ -105,7 +153,7 @@ function calculate(){
 
   $('wallArea').textContent=fmt(wallA,1)+' m²';
   $('wallGrossHelp').textContent=`${fmt(g.grossWalls,1)} m² brutos − ${fmt(winA+doorA,1)} m² de vanos`;
-  $('floorArea').textContent=fmt(g.floor,1)+' m²';
+  // Superficie de piso se muestra en su campo editable/manual.
 
   $('wallLoss').textContent=fmt(wallLoss,0);
   $('windowLoss').textContent=fmt(windowLoss,0);
@@ -114,7 +162,17 @@ function calculate(){
   $('floorLoss').textContent=fmt(floorLoss,0);
   $('airLoss').textContent=fmt(airLoss,0);
   $('bridgeLoss').textContent=fmt(bridgeLoss,0)+' W';
-  $('bridgeStatus').textContent=bridgeH>0?`ΣψL = ${fmt(bridgeH,2)} W/K`:'No considerados';
+  $('bridgeHOut').textContent=fmt(bridgeH,2)+' W/K';
+  if($('bridgeEnabled').checked){
+    if($('bridgeMode').value==='assistant'){
+      $('bridgeCalcText').textContent=`${fmt(num('bridgeLength',0,0),1)} m × ${fmt(num('bridgePsi',.10,0),2)} W/m·K`;
+    }else{
+      $('bridgeCalcText').textContent='Valor ΣψL ingresado directamente';
+    }
+  }else{
+    $('bridgeCalcText').textContent='Puentes térmicos desactivados';
+  }
+  $('bridgeStatus').textContent=bridgeH>0?`Añaden ${fmt(bridgeLoss,0)} W con ΔT ${fmt(dT,1)} °C`:'No considerados';
   $('airFormula').textContent=`0,33 × ${fmt(ach,2)} × ${fmt(g.volume,0)} × ${fmt(dT,1)}`;
 
   $('kw').textContent=fmt(total/1000,2);
@@ -150,8 +208,10 @@ function calculate(){
   renderImprovements({g,dT,wallA,wallU,winA,winU,roofA,roofU,ach,total});
 
   window.__heatloss={
-    Ti,Te,dT,g,wallA,winA,doorA,roofA,floorArea:g.floor,
+    Ti,Te,dT,g,wallA,winA,doorA,roofA,floorArea:floorA,
     wallU,winU,doorU,roofU,floorType,floorU,ach,bridgeH,
+    windowType:$('windowType').selectedOptions[0]?.textContent||'',
+    doorType:$('doorType').selectedOptions[0]?.textContent||'',
     wallLoss,windowLoss,doorLoss,roofLoss,floorLoss,airLoss,bridgeLoss,
     transmission,total,parts
   };
@@ -179,11 +239,29 @@ function renderImprovements(c){
 }
 
 function bind(){
-  const ids=['ti','te','length','width','height','levels','wallU','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorU','ach','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
+  syncUFromPreset('windowType','windowU','windowSource');
+  syncUFromPreset('doorType','doorU','doorSource');
+  syncImprovementPreset('improveWallPreset','improveWallU');
+  syncImprovementPreset('improveWindowPreset','improveWindowU');
+  syncImprovementPreset('improveRoofPreset','improveRoofU');
+  syncImprovementPreset('improveAchPreset','improveAch');
+
+  const ids=['ti','te','length','width','height','levels','wallU','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','ach','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
   ids.forEach(id=>$(id)?.addEventListener('input',calculate));
+
+  $('windowType').addEventListener('change',()=>{syncUFromPreset('windowType','windowU','windowSource');calculate()});
+  $('doorType').addEventListener('change',()=>{syncUFromPreset('doorType','doorU','doorSource');calculate()});
+
+  [['improveWallPreset','improveWallU'],['improveWindowPreset','improveWindowU'],['improveRoofPreset','improveRoofU'],['improveAchPreset','improveAch']].forEach(([sel,inp])=>{
+    $(sel).addEventListener('change',()=>{syncImprovementPreset(sel,inp);calculate()});
+  });
+
   $('roofManual').addEventListener('change',calculate);
+  $('floorManual').addEventListener('change',calculate);
   $('floorType').addEventListener('change',calculate);
   $('airMode').addEventListener('change',calculate);
+  $('bridgeEnabled').addEventListener('change',calculate);
+  $('bridgeMode').addEventListener('change',calculate);
   calculate();
 }
 window.addEventListener('DOMContentLoaded',bind);
@@ -201,8 +279,8 @@ window.HIDROLAB_HEATLOSS_REPORT=()=>window.__heatloss?{
     source:'U ingresado directamente por usuario'
   },
   inputs:{
-    windowArea:window.__heatloss.winA,windowU:window.__heatloss.winU,
-    doorArea:window.__heatloss.doorA,doorU:window.__heatloss.doorU,
+    windowArea:window.__heatloss.winA,windowU:window.__heatloss.winU,windowType:window.__heatloss.windowType,
+    doorArea:window.__heatloss.doorA,doorU:window.__heatloss.doorU,doorType:window.__heatloss.doorType,
     roofArea:window.__heatloss.roofA,roofU:window.__heatloss.roofU,
     floorArea:window.__heatloss.floorArea,floorType:window.__heatloss.floorType,floorU:window.__heatloss.floorU,
     bridgeH:window.__heatloss.bridgeH
