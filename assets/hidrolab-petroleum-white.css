@@ -1882,3 +1882,4 @@ body.hl-petroleum-white .cost-fill{
   .heatloss-v2 .hl2-air-inputs-final,.heatloss-v2 .hl2-air-cev-results{grid-template-columns:1fr!important}
   .heatloss-v2 .hl2-air-cev-results .hl2-air-total{grid-column:auto!important}
 }
+\n\n/* HIDROLAB V8.9.12 · PUBLICA */\n.public-scope-note{margin-top:10px;padding-top:9px;border-top:1px solid rgba(40,80,85,.16);font-size:.62rem;line-height:1.45;color:#4d6368!important}\n.public-review-note{margin-top:18px;padding:12px 14px;border-left:5px solid #00bfcf;border-radius:10px;background:#f1fbfc;display:grid;gap:3px}\n.public-review-note b{color:#123f47!important;font-size:.75rem}.public-review-note span{color:#38545a!important;font-size:.69rem;line-height:1.5}\n.public-disabled{cursor:default!important;opacity:.72;pointer-events:none;user-select:none}\n

@@ -3,11 +3,8 @@
 
   const REPORT_PAGES = new Set([
     'calculadora-rocio.html','calculadora-sin-muro.html','simulador-muro.html',
-    'perdidas-termicas.html','ventilacion-humedad.html','confort-termico.html',
-    'riesgo-moho.html','costo-calefaccion.html','comparador-u.html',
-    'puentes-termicos-cev.html','ventanas-cev.html','fav-cev.html','infiltraciones-cev.html',
-    'ventilacion-minima-cev.html','zona-termica-cev.html','puertas-ventanas-cev.html',
-    'potencia-calefaccion-cev.html','acs-cev.html','scop-cev.html','far-cev.html','simulador-solar.html'
+    'perdidas-termicas.html','ventilacion-humedad.html','riesgo-moho.html',
+    'simulador-solar.html'
   ]);
 
   // Vercel usa cleanUrls=true, por lo que /calculadora-rocio.html
