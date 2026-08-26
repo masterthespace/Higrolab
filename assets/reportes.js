@@ -196,15 +196,21 @@
       ['Hora visualizada',data.selectedTime],
       ['Azimut solar a la hora visualizada',`${fmtNum(data.solarAzimuth,1)}°`],
       ['Elevación solar a la hora visualizada',`${fmtNum(data.solarElevation,1)}°`],
-      ['Altura de muros',`${fmtNum(data.wallHeight,2)} m`],
-      ['Área de planta',data.areaText||'—'],
-      ['Perímetro de planta',data.perimeterText||'—'],
-      ['Número de fachadas',String(data.facadeCount||0)],
+      ['Bloques modelados',String(data.blockCount||1)],
+      ['Área total de plantas',data.areaText||'—'],
+      ['Perímetro total dibujado',data.perimeterText||'—'],
+      ['Número total de fachadas',String(data.facadeCount||0)],
       ['Norte definido en proyecto',`${fmtNum(data.northAngle,1)}°`],
-      ['Azimut adicional del edificio',`${fmtNum(data.additionalAzimuth,1)}°`],
       ['Escala de referencia',data.calibrated && data.scale ? `${fmtNum(data.scale,5)} m/píxel` : 'Sin calibración métrica']
     ].forEach(r=>addRow(doc,tb,r[0],r[1]));
     t.append(tb); overview.append(t);
+
+    if(data.blocks?.length){
+      const bsec=addSection(doc,root,'Bloques y alturas del conjunto');
+      const bt=el(doc,'table','data-table'),bh=el(doc,'tr');
+      ['Bloque','Nombre','Altura','Área','Perímetro','Fachadas'].forEach(x=>bh.append(el(doc,'th','',x)));bt.append(bh);
+      data.blocks.forEach(b=>{const tr=el(doc,'tr');[b.id,b.name,`${fmtNum(b.height,2)} m`,`${fmtNum(b.area,2)} m²`,`${fmtNum(b.perimeter,2)} m`,String(b.facades?.length||0)].forEach(x=>tr.append(el(doc,'td','',x)));bt.append(tr)});bsec.append(bt);
+    }
 
     if(data.facades?.length){
       const sec=addSection(doc,root,`Asoleamiento por fachada · ${data.analyzedDateLabel||data.analyzedDate}`);
@@ -239,7 +245,7 @@
         (data.cover.segments||[]).forEach(seg=>{const bar=el(doc,'span','solar-pdf-seg');bar.style.left=`${seg[0]/1440*100}%`;bar.style.width=`${(seg[1]-seg[0])/1440*100}%`;track.append(bar)});
         row.append(lab,track);trk.append(row);csec.append(trk);
       }
-      sec.append(el(doc,'p','section-note','La identificación F1, F2, F3… corresponde al esquema incluido más adelante. La cubierta superior se identifica como C1.'));
+      sec.append(el(doc,'p','section-note','La identificación incorpora el bloque: A-F1, A-F2…; B-F1… Las cubiertas usan A-C1, B-C1, etc.'));
 
       const timeline=el(doc,'div','solar-pdf-timelines');
       data.facades.forEach(f=>{
