@@ -1703,3 +1703,11 @@ body.hl-petroleum-white .cost-fill{
     grid-column:auto;
   }
 }
+
+/* HIDROLAB V8.9.8 · CIERRE RENOVACIÓN DE AIRE */
+.heatloss-v2 .hl2-air-cev-results span{display:block;margin-top:2px;color:#33494f!important;font-size:.62rem;font-weight:780}
+.heatloss-v2 .hl2-air-method-note{margin-top:8px;padding:9px 10px;border-left:5px solid #00cbe8;border-radius:8px;background:#f2fcff}
+.heatloss-v2 .hl2-air-method-note b,.heatloss-v2 .hl2-air-method-note span{color:#274148!important}
+.heatloss-v2 .hl2-air-method-note>b{display:block;margin-bottom:2px;font-size:.68rem}
+.heatloss-v2 .hl2-air-method-note>span{display:block;font-size:.64rem;line-height:1.45}
+.heatloss-v2 #airLossExplain{display:block;margin-top:4px;max-width:135px;color:#35494f!important;font-size:.55rem!important;line-height:1.3}

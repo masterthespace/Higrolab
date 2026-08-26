@@ -332,7 +332,7 @@
         <div id="airKnownFields">
           <label for="ach">ACH total conocido [1/h]</label>
           <input id="ach" type="number" min="0" step=".05" value=".50">
-          <small>Valor total que ya incorpora ventilación + infiltración.</small>
+          <small>Usa esta opción sólo si ya conoces una renovación global representativa de la vivienda.</small>
         </div>
 
         <div id="airCevFields" class="hl2-hidden">
@@ -344,24 +344,32 @@
             </div>
             <div class="field">
               <label for="infiltrationAch">Infiltración adicional [ACH]</label>
-              <input id="infiltrationAch" type="number" min="0" step=".05" value=".20">
-              <small>Estimación o valor conocido de infiltración.</small>
+              <input id="infiltrationAch" type="number" min="0" step=".05" value="0">
+              <small>Déjalo en 0 si no tienes un valor respaldado. No es un valor normativo por defecto.</small>
             </div>
           </div>
 
           <div class="hl2-air-cev-results">
             <div>
-              <small>Ventilación mínima CEV</small>
+              <small>Ventilación higiénica mínima CEV</small>
               <strong id="cevVentAchOut">— ACH</strong>
+              <span id="cevVentFlowOut">— m³/h</span>
             </div>
             <div>
-              <small>Infiltración</small>
+              <small>Infiltración adicional ingresada</small>
               <strong id="cevInfiltrationOut">— ACH</strong>
+              <span id="cevInfiltrationFlowOut">— m³/h</span>
             </div>
             <div class="hl2-air-total">
-              <small>ACH total usado</small>
+              <small>Renovación usada por HIDROLAB</small>
               <strong id="cevTotalAchOut">— ACH</strong>
+              <span id="cevTotalFlowOut">— m³/h</span>
             </div>
+          </div>
+
+          <div class="hl2-air-method-note">
+            <b>Lectura del resultado</b>
+            <span><b>Ventilación CEV</b> e <b>infiltración</b> son fenómenos distintos. HIDROLAB suma ambos caudales sólo para esta estimación térmica estacionaria. Esa suma no sustituye el procedimiento completo de infiltraciones y ventilación de la CEV.</span>
           </div>
 
           <small id="cevVentHelp">Fmin CEV se calcula con superficie útil, volumen y número de personas.</small>
@@ -372,6 +380,7 @@
 
       <div class="hl2-loss">
         <strong id="airLoss">—</strong><span>W</span>
+        <small id="airLossExplain">Pérdida sensible por renovación de aire</small>
       </div>
     </div>
   </div>
