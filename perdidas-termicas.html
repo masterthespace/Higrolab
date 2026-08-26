@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="assets/hidrolab-petroleum-white.css">
 <!-- HIDROLAB V8.9.0 · PÉRDIDAS TÉRMICAS 2.0 -->
 <!-- HIDROLAB V8.9.7 · RUNTIME CORREGIDO -->
-<!-- HIDROLAB V8.9.10 -->
+<!-- HIDROLAB V8.9.11 · FINAL PÉRDIDAS TÉRMICAS -->
 </head>
 <body class="hl-ui hl-envelope hl-compact-v881 hl-v882 hl-japandi hl-petroleum-white heatloss-v2">
 <header class="top">
@@ -91,7 +91,7 @@
 
   <div class="hl2-table-wrap">
     <div class="hl2-table-head">
-      <span>Elemento</span><span>Área / condición</span><span>Propiedad térmica</span><span>Pérdida</span>
+      <span>Elemento</span><span>Área / condición</span><span>Propiedad térmica</span><span>Potencia</span>
     </div>
 
     <!-- MUROS -->
@@ -128,11 +128,14 @@
 
     <!-- WINDOWS -->
     <div class="hl2-row hl2-window">
-      <div class="hl2-element"><i>02</i><div><b>Ventanas exteriores</b><small>La superficie corresponde a la suma de todos los vanos de todos los niveles seleccionados.</small></div></div>
+      <div class="hl2-element"><i>02</i><div><b>Ventanas exteriores</b><small>Suma de ventanas en muros y, si existen, lucarnas o ventanas de techo.</small></div></div>
       <div class="hl2-area">
         <label>Superficie total ventanas [m²]</label>
         <input id="windowArea" type="number" min="0" step=".01" value="12">
         <small>Manual o calculada desde ancho × alto × cantidad.</small>
+        <label for="roofWindowArea" class="hl2-subfield-label">De ese total, ventanas/lucarnas en techumbre [m²]</label>
+        <input id="roofWindowArea" type="number" min="0" step=".01" value="0">
+        <small id="windowAreaSplitHelp">El resto se descuenta de los muros. Si no existen ventanas de techo, deja 0.</small>
       </div>
       <div class="hl2-property">
         <label>U complejo ventana [W/m²K]</label>
@@ -208,9 +211,9 @@
 
     <!-- ROOF -->
     <div class="hl2-row hl2-roof">
-      <div class="hl2-element"><i>04</i><div><b>Techumbre / cielo térmico</b><small>Área de la superficie que realmente limita el recinto acondicionado.</small></div></div>
+      <div class="hl2-element"><i>04</i><div><b>Techumbre / cielo térmico</b><small>Superficie interior opaca que limita el recinto acondicionado; en modo automático se descuenta la superficie de lucarnas declarada.</small></div></div>
       <div class="hl2-area">
-        <label class="hl2-check"><input id="roofManual" type="checkbox"> Área manual</label>
+        <label class="hl2-check"><input id="roofManual" type="checkbox"> Área opaca manual</label>
         <div class="hl2-inline-unit"><input id="roofArea" type="number" min="0" step=".01" value="56" readonly><span>m²</span></div>
         <small id="roofModeHelp">Área automática = huella</small>
       </div>
@@ -224,7 +227,7 @@
     <details class="hl2-mini-builder builder-roof">
       <summary><span><b>Constructor de techumbre por capas</b><small>Yeso cartón · barreras · aislación · OSB · membrana · cubierta</small></span><i>+</i></summary>
       <div class="hl2-builder-body">
-        <div class="hl2-source-chip source-yellow">BIBLIOTECA AMPLIADA · MINVU / LOSCAT E14 2026 / NCh853</div>
+        <div class="hl2-source-chip source-yellow">BIBLIOTECA DE APOYO · MINVU / LOSCAT / NCh853 · verificar edición y respaldo vigente</div>
         <div class="hl2-layer-toolbar">
           <div>
             <b>Capas desde interior → exterior · biblioteca ampliada de materiales</b>
@@ -265,10 +268,10 @@
         </div>
         <div id="floorGroundFields" class="hl2-hidden">
           <label for="floorLs">Ls piso-terreno [W/m·K]</label>
-          <input id="floorLs" type="number" min="0" step=".01" value=".50">
+          <input id="floorLs" type="number" min="0" step=".01" value="0">
           <label class="hl2-check"><input id="groundPerimeterManual" type="checkbox"> Editar perímetro en contacto</label>
           <div class="hl2-inline-unit"><input id="groundPerimeter" type="number" min="0" step=".01" value="0" readonly><span>m</span></div>
-          <small id="groundMethodNote">Piso contra terreno: Φ = Ls · P · ΔT. Ls debe provenir del procedimiento NCh3117/CEV.</small>
+          <small id="groundMethodNote">Piso contra terreno: Φ = Ls · P · ΔT. Ls debe provenir del procedimiento NCh3117/CEV.</small><div id="floorLsStatus" class="hl2-ls-status hl2-hidden"></div>
         </div>
       </div>
       <div class="hl2-loss"><strong id="floorLoss">—</strong><span>W</span></div>
@@ -276,7 +279,7 @@
     <details class="hl2-mini-builder builder-floor">
   <summary><span><b>Constructor de piso / radier aislado</b><small>Piso ventilado o análisis 1D de radier sobre terreno</small></span><i>+</i></summary>
   <div class="hl2-builder-body">
-    <div class="hl2-source-chip source-lime">NCh853 · LOSCAT E14 · NCh3117 PARA CONTACTO CON TERRENO</div>
+    <div class="hl2-source-chip source-lime">NCh853 / LOSCAT · NCh3117 PARA CONTACTO CON TERRENO</div>
 
     <div class="hl2-floor-builder-mode">
       <label><input type="radio" name="floorBuilderMode" value="ventilated" checked> Piso ventilado</label>
@@ -314,75 +317,80 @@
     <div class="hl2-row hl2-air">
       <div class="hl2-element">
         <i>06</i>
-        <div>
-          <b>Renovación de aire</b>
-          <small>Ventilación higiénica e infiltración se muestran por separado.</small>
-        </div>
+        <div><b>Renovación de aire</b><small>Ventilación e infiltración se tratan por separado y luego se incorporan al balance térmico.</small></div>
       </div>
-
       <div class="hl2-area">
         <label for="airMode">Método</label>
         <select id="airMode">
-          <option value="known">Conozco ACH total</option>
-          <option value="cevMin">Ventilación mínima CEV + infiltración</option>
+          <option value="known">Conozco RAH / ACH total representativo</option>
+          <option value="cevMin">Fmin Manual CEV + infiltración</option>
         </select>
-        <small>Selecciona cómo quieres definir la renovación de aire.</small>
+        <small>Elige si conoces la renovación global o si quieres usar el flujo higiénico mínimo del Manual CEV como referencia energética.</small>
       </div>
-
-      <div class="hl2-property">
-        <div id="airKnownFields">
-          <label for="ach">ACH total conocido [1/h]</label>
-          <input id="ach" type="number" min="0" step=".05" value=".50">
-          <small>Usa esta opción sólo si ya conoces una renovación global representativa de la vivienda.</small>
-        </div>
-
-        <div id="airCevFields" class="hl2-hidden">
-          <div class="hl2-air-cev-inputs">
-            <div class="field">
-              <label for="bedrooms">Dormitorios</label>
-              <input id="bedrooms" type="number" min="0" step="1" value="3">
-              <small>CEV considera personas = dormitorios + 1.</small>
-            </div>
-            <div class="field">
-              <label for="infiltrationAch">Infiltración adicional [ACH]</label>
-              <input id="infiltrationAch" type="number" min="0" step=".05" value="0">
-              <small>Déjalo en 0 si no tienes un valor respaldado. No es un valor normativo por defecto.</small>
-            </div>
-          </div>
-
-          <div class="hl2-air-cev-results">
-            <div>
-              <small>Ventilación higiénica mínima CEV</small>
-              <strong id="cevVentAchOut">— ACH</strong>
-              <span id="cevVentFlowOut">— m³/h</span>
-            </div>
-            <div>
-              <small>Infiltración adicional ingresada</small>
-              <strong id="cevInfiltrationOut">— ACH</strong>
-              <span id="cevInfiltrationFlowOut">— m³/h</span>
-            </div>
-            <div class="hl2-air-total">
-              <small>Renovación usada por HIDROLAB</small>
-              <strong id="cevTotalAchOut">— ACH</strong>
-              <span id="cevTotalFlowOut">— m³/h</span>
-            </div>
-          </div>
-
-          <div class="hl2-air-method-note">
-            <b>Lectura del resultado</b>
-            <span><b>Ventilación CEV</b> e <b>infiltración</b> son fenómenos distintos. HIDROLAB suma ambos caudales sólo para esta estimación térmica estacionaria. Esa suma no sustituye el procedimiento completo de infiltraciones y ventilación de la CEV.</span>
-          </div>
-
-          <small id="cevVentHelp">Fmin CEV se calcula con superficie útil, volumen y número de personas.</small>
-        </div>
-
-        <small id="airFormula">—</small>
+      <div class="hl2-property hl2-air-summary">
+        <small>Renovación usada en el balance</small>
+        <strong id="airAchSummary">— ACH</strong>
+        <span id="airFlowSummary">— m³/h</span>
       </div>
-
       <div class="hl2-loss">
         <strong id="airLoss">—</strong><span>W</span>
         <small id="airLossExplain">Pérdida sensible por renovación de aire</small>
       </div>
+    </div>
+
+    <div class="hl2-air-config-panel">
+      <div id="airKnownFields" class="hl2-air-mode-panel">
+        <div class="field">
+          <label for="ach">RAH / ACH total representativo [1/h]</label>
+          <input id="ach" type="number" min="0" step=".05" value=".50">
+          <small><b>No ingreses directamente n50/ACH50 de un ensayo a 50 Pa.</b> Este campo debe representar una renovación de aire aplicable al balance térmico en condiciones de uso.</small>
+        </div>
+        <div class="hl2-air-reference-note">
+          <b>Trazabilidad</b>
+          <span>La CEV permite caracterizar infiltraciones mediante sus procedimientos por defecto o mediante ensayos respaldados. HIDROLAB no convierte automáticamente un resultado n50 a ACH natural.</span>
+        </div>
+      </div>
+
+      <div id="airCevFields" class="hl2-air-mode-panel hl2-hidden">
+        <div class="hl2-air-inputs-final">
+          <div class="field">
+            <label for="bedrooms">Dormitorios</label>
+            <input id="bedrooms" type="number" min="0" step="1" value="3">
+            <small>Manual CEV: personas consideradas = dormitorios + 1.</small>
+          </div>
+          <div class="field">
+            <label for="infiltrationAch">Infiltración adicional representativa [ACH]</label>
+            <input id="infiltrationAch" type="number" min="0" step=".05" value="0">
+            <small>Déjalo en 0 si no tienes un valor respaldado. <b>No corresponde a n50/ACH50 medido a 50 Pa.</b></small>
+          </div>
+        </div>
+
+        <div class="hl2-air-cev-results">
+          <div>
+            <small>Fmin higiénico · Manual CEV</small>
+            <strong id="cevVentAchOut">— ACH</strong>
+            <span id="cevVentFlowOut">— m³/h</span>
+          </div>
+          <div>
+            <small>Infiltración adicional ingresada</small>
+            <strong id="cevInfiltrationOut">— ACH</strong>
+            <span id="cevInfiltrationFlowOut">— m³/h</span>
+          </div>
+          <div class="hl2-air-total">
+            <small>Total simplificado usado por HIDROLAB</small>
+            <strong id="cevTotalAchOut">— ACH</strong>
+            <span id="cevTotalFlowOut">— m³/h</span>
+          </div>
+        </div>
+
+        <div class="hl2-air-method-note">
+          <b>Importante</b>
+          <span>Fmin proviene del Manual CEV 2025 y se usa aquí como referencia energética. <b>No verifica por sí solo el cumplimiento de ventilación de la OGUC vigente</b>, cuya acreditación remite a NCh3308/NCh3309 según corresponda. La suma Fmin + infiltración es una aproximación estacionaria HIDROLAB.</span>
+        </div>
+        <small id="cevVentHelp">Fmin se calcula con superficie útil, volumen y número de personas.</small>
+      </div>
+
+      <div class="hl2-air-formula-strip"><small id="airFormula">—</small></div>
     </div>
   </div>
 
@@ -423,7 +431,7 @@
 
   <div class="hl2-result-layout">
     <div class="hl2-total">
-      <small>PÉRDIDA TÉRMICA TOTAL</small>
+      <small id="totalThermalLabel">PÉRDIDA TÉRMICA TOTAL</small>
       <strong id="kw">—</strong><span>kW</span>
       <p id="resultSentence">—</p>
       <div class="hl2-total-meta">
@@ -435,7 +443,7 @@
     </div>
 
     <div class="heat-ranking hl2-ranking">
-      <div class="ranking-head"><b>¿Dónde se pierde más?</b><span>Ordenado automáticamente</span></div>
+      <div class="ranking-head"><b id="rankingQuestion">¿Dónde se transfiere más calor?</b><span>Ordenado automáticamente</span></div>
       <div id="lossRanking"></div>
       <div id="dominantAdvice" class="dominant-advice">—</div>
     </div>
@@ -562,15 +570,16 @@
         <div class="hl2-target-line"><small>U objetivo</small><input id="improveRoofU" type="number" min=".05" step=".05" value=".30"><b>W/m²K</b></div>
       </label>
       <label>
-        <span>Hermeticidad / aire</span>
+        <span id="improveAirTitle">Infiltración / aire</span>
         <select id="improveAchPreset">
-          <option value=".50">0,50 ACH</option>
-          <option value=".30" selected>0,30 ACH</option>
           <option value=".20">0,20 ACH</option>
           <option value=".10">0,10 ACH</option>
+          <option value=".05">0,05 ACH</option>
+          <option value="0" selected>0,00 ACH</option>
           <option value="custom">Personalizado</option>
         </select>
-        <div class="hl2-target-line"><small>ACH objetivo</small><input id="improveAch" type="number" min="0" step=".05" value=".30"><b>1/h</b></div>
+        <div class="hl2-target-line"><small id="improveAirTargetLabel">Infiltración objetivo</small><input id="improveAch" type="number" min="0" step=".05" value="0"><b>1/h</b></div>
+        <small id="improveAirNote">En modo CEV se reduce sólo la infiltración; Fmin se mantiene.</small>
       </label>
     </div>
     <p class="hl2-preset-note">Los escenarios son comparativos/orientativos. El valor real debe definirse según la solución constructiva o producto seleccionado.</p>
@@ -584,9 +593,9 @@
     <summary><span><b>Alcance técnico y trazabilidad</b><small>Qué es físico, qué depende de tus datos y qué no está incluido.</small></span><i>+</i></summary>
     <div class="trace-grid">
       <div class="trace-item normative"><span class="trace-pill">BASE FÍSICA</span><b>Transmisión</b><p>Muros, ventanas, puertas, techumbre y piso expuesto usan U·A·ΔT. Los valores U deben representar el elemento completo.</p></div>
-      <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>Recambio de aire</b><p>Se usa 0,33·ACH·V·ΔT como aproximación estacionaria del calor sensible asociado al aire renovado.</p></div>
+      <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>Recambio de aire</b><p>Se usa 0,33·ACH·V·ΔT como aproximación estacionaria del calor sensible. El modo Fmin usa la Ecuación 16 del Manual CEV 2025 como referencia energética; no reemplaza la verificación OGUC/NCh3308/NCh3309.</p></div>
       <div class="trace-item estimate"><span class="trace-pill">OPCIONAL</span><b>Puentes térmicos</b><p>Si ingresas ΣψL, la pérdida adicional se calcula como ΣψL·ΔT. Si queda en cero, los puentes no están considerados.</p></div>
-      <div class="trace-item estimate"><span class="trace-pill">NO ES CEV ANUAL</span><b>Alcance</b><p>No incorpora clima horario, ganancias solares/internas, masa térmica ni control del sistema de calefacción.</p></div>
+      <div class="trace-item estimate"><span class="trace-pill">ALCANCE</span><b>No es CEV ni acreditación OGUC</b><p>No incorpora simulación anual CEV, orientación solar, ganancias internas, masa térmica ni todas las verificaciones reglamentarias del artículo 4.1.10 vigente.</p></div>
     </div>
   </details>
 </section>

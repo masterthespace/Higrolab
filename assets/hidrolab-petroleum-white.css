@@ -1823,3 +1823,62 @@ body.hl-petroleum-white .cost-fill{
   .heatloss-v2 .hl2-air .hl2-air-cev-inputs,
   .heatloss-v2 .hl2-air .hl2-air-cev-results{grid-column:auto!important}
 }
+
+
+/* =====================================================================
+   HIDROLAB V8.9.11 · FINAL PÉRDIDAS TÉRMICAS
+   ===================================================================== */
+.heatloss-v2 .hl2-subfield-label{margin-top:8px!important}
+.heatloss-v2 .hl2-ls-status{margin-top:6px;padding:7px 8px;border-left:4px solid #ff7200;border-radius:7px;background:#fff7ef;color:#7b3d0d!important;font-size:.62rem;font-weight:800}
+.heatloss-v2 .hl2-ls-status.hl2-hidden{display:none!important}
+
+/* Renovación de aire: la configuración sale de la grilla principal para evitar cualquier solapamiento. */
+.heatloss-v2 .hl2-row.hl2-air{grid-template-columns:1.25fr 1.05fr 1fr 105px!important;gap:12px!important;align-items:center!important}
+.heatloss-v2 .hl2-air>.hl2-element,
+.heatloss-v2 .hl2-air>.hl2-area,
+.heatloss-v2 .hl2-air>.hl2-property,
+.heatloss-v2 .hl2-air>.hl2-loss{min-width:0!important}
+.heatloss-v2 .hl2-air-summary{padding:10px 11px;border:1px solid #d9e4e4;border-top:5px solid #80e900;border-radius:10px;background:#f7ffef!important}
+.heatloss-v2 .hl2-air-summary small,.heatloss-v2 .hl2-air-summary strong,.heatloss-v2 .hl2-air-summary span{display:block}
+.heatloss-v2 .hl2-air-summary small{color:#385049!important;font-size:.59rem!important}
+.heatloss-v2 .hl2-air-summary strong{margin-top:3px;color:#347800!important;font-size:1rem}
+.heatloss-v2 .hl2-air-summary span{margin-top:2px;color:#34494f!important;font-size:.63rem;font-weight:750}
+
+.heatloss-v2 .hl2-air-config-panel{padding:12px 14px 14px;border-top:1px solid #e0e8e8;border-left:5px solid #7657ff;background:linear-gradient(90deg,#f8f6ff,#fff 28%)}
+.heatloss-v2 .hl2-air-mode-panel{display:grid;gap:10px;min-width:0}
+.heatloss-v2 .hl2-air-mode-panel.hl2-hidden{display:none!important}
+.heatloss-v2 #airKnownFields{grid-template-columns:minmax(230px,.75fr) minmax(280px,1.25fr);align-items:start}
+.heatloss-v2 .hl2-air-reference-note{padding:10px 11px;border-left:5px solid #00cbe8;border-radius:8px;background:#f1fcff}
+.heatloss-v2 .hl2-air-reference-note b,.heatloss-v2 .hl2-air-reference-note span{display:block;color:#274148!important}
+.heatloss-v2 .hl2-air-reference-note b{font-size:.68rem}.heatloss-v2 .hl2-air-reference-note span{margin-top:3px;font-size:.64rem;line-height:1.45}
+.heatloss-v2 .hl2-air-inputs-final{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.heatloss-v2 .hl2-air-cev-results{display:grid!important;grid-template-columns:1fr 1fr 1.1fr!important;gap:8px!important;margin-top:0!important}
+.heatloss-v2 .hl2-air-cev-results .hl2-air-total{grid-column:auto!important}
+.heatloss-v2 .hl2-air-formula-strip{margin-top:9px;padding:8px 10px;border-radius:8px;background:#f4f8f8}
+.heatloss-v2 .hl2-air-formula-strip small{display:block;color:#2f444a!important;font-weight:700}
+
+/* Anula reglas antiguas que intentaban ubicar inputs de aire dentro de la tercera columna. */
+@media(min-width:901px){
+  .heatloss-v2 .hl2-air-config-panel #airKnownFields,
+  .heatloss-v2 .hl2-air-config-panel #airCevFields{width:100%!important}
+  .heatloss-v2 .hl2-air-config-panel #airCevFields{display:grid!important;grid-template-columns:1fr!important}
+  .heatloss-v2 .hl2-air-config-panel #airCevFields.hl2-hidden{display:none!important}
+  .heatloss-v2 .hl2-air-config-panel .hl2-air-cev-inputs{grid-column:auto!important}
+  .heatloss-v2 .hl2-air-config-panel .hl2-air-cev-results{grid-column:auto!important}
+  .heatloss-v2 .hl2-air-config-panel .hl2-air-method-note,
+  .heatloss-v2 .hl2-air-config-panel #cevVentHelp,
+  .heatloss-v2 .hl2-air-config-panel #airFormula{grid-column:auto!important}
+}
+@media(max-width:900px){
+  .heatloss-v2 .hl2-row.hl2-air{grid-template-columns:1fr 1fr!important;align-items:start!important}
+  .heatloss-v2 .hl2-air>.hl2-loss{justify-self:stretch!important;width:100%!important}
+  .heatloss-v2 #airKnownFields{grid-template-columns:1fr!important}
+  .heatloss-v2 .hl2-air-inputs-final{grid-template-columns:1fr 1fr}
+  .heatloss-v2 .hl2-air-cev-results{grid-template-columns:1fr 1fr!important}
+  .heatloss-v2 .hl2-air-cev-results .hl2-air-total{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+  .heatloss-v2 .hl2-row.hl2-air{grid-template-columns:1fr!important}
+  .heatloss-v2 .hl2-air-inputs-final,.heatloss-v2 .hl2-air-cev-results{grid-template-columns:1fr!important}
+  .heatloss-v2 .hl2-air-cev-results .hl2-air-total{grid-column:auto!important}
+}

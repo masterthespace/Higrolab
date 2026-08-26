@@ -584,7 +584,7 @@
       ['Temperatura interior',`${fmtNum(x.conditions.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.conditions.Te,1)} °C`],['Diferencia térmica',`${fmtNum(x.conditions.dT,1)} K`],
       ['Largo interior útil',`${fmtNum(x.conditions.length,2)} m`],['Ancho interior útil',`${fmtNum(x.conditions.width,2)} m`],['Altura libre por nivel',`${fmtNum(x.conditions.height,2)} m`],['Cantidad de niveles',`${x.conditions.levels}`],
       ['Superficie útil de pisos',`${fmtNum(x.conditions.usefulArea,1)} m²`],['Huella del primer nivel',`${fmtNum(x.conditions.footprint,1)} m²`],['Volumen interior',`${fmtNum(x.conditions.volume,1)} m³`],
-      ['Muro bruto geométrico',`${fmtNum(x.conditions.grossWallsGeometry,1)} m²`],['Muro bruto considerado',`${fmtNum(x.conditions.grossWallsConsidered,1)} m²`],['Vanos descontados',`${fmtNum(x.conditions.openingsArea,1)} m²`],['Muro neto no adiabático',`${fmtNum(x.conditions.wallArea,1)} m²`]
+      ['Muro bruto geométrico',`${fmtNum(x.conditions.grossWallsGeometry,1)} m²`],['Muro bruto considerado',`${fmtNum(x.conditions.grossWallsConsidered,1)} m²`],['Vanos descontados de muros',`${fmtNum(x.conditions.openingsArea,1)} m²`],['Ventanas/lucarnas en techumbre',`${fmtNum(x.conditions.roofWindowArea||0,1)} m²`],['Muro neto no adiabático',`${fmtNum(x.conditions.wallArea,1)} m²`]
     ]);
     s1.append(el(doc,'p','section-note',x.wall.manualGross?'El área bruta de muros fue editada manualmente por el usuario.':'El área bruta de muros se estimó geométricamente a partir del perímetro interior, altura y niveles.'));
 
@@ -602,7 +602,7 @@
     const s3=addSection(doc,root,'3. Ventanas - detalle');
     s3.append(el(doc,'p','section-note',x.windows.source||''));
     if(x.windows.rows.length)addData(s3,['ID','Ancho','Alto','Cant.','Marco','Vidrio','U','Área'],x.windows.rows.map(v=>[v.name,`${fmtNum(v.width,2)} ${v.unit}`,`${fmtNum(v.height,2)} ${v.unit}`,v.quantity,v.frame,v.glass,`${fmtNum(v.U,2)}`,`${fmtNum(v.area,2)} m²`]));
-    addKv(s3,[['Superficie total',`${fmtNum(x.windows.area,2)} m²`],['U ponderado aplicado',`${fmtNum(x.windows.U,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.windows.loss,0)} W`]]);
+    addKv(s3,[['Superficie total',`${fmtNum(x.windows.area,2)} m²`],['En muros',`${fmtNum(x.windows.wallArea||0,2)} m²`],['En techumbre',`${fmtNum(x.windows.roofArea||0,2)} m²`],['U ponderado aplicado',`${fmtNum(x.windows.U,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.windows.loss,0)} W`]]);
 
     const s4=addSection(doc,root,'4. Puertas - detalle');
     s4.append(el(doc,'p','section-note',x.doors.source||''));
@@ -620,7 +620,7 @@
 
     const s7=addSection(doc,root,'7. Renovación de aire');
     addKv(s7,[['Método',x.air.mode==='cevMin'?'Ventilación mínima CEV + infiltración':'ACH total conocido'],['ACH total usado',`${fmtNum(x.air.ach,2)} 1/h`],['Dormitorios',`${x.air.bedrooms}`],['Personas consideradas',`${x.air.persons}`],['Ventilación higiénica',x.air.ventilationAch==null?'Incluida en ACH total':`${fmtNum(x.air.ventilationAch,2)} ACH · ${fmtNum(x.air.ventilationFlow,1)} m³/h`],['Infiltración adicional',x.air.infiltrationAch==null?'Incluida en ACH total':`${fmtNum(x.air.infiltrationAch,2)} ACH · ${fmtNum(x.air.infiltrationFlow,1)} m³/h`],['Caudal total usado',x.air.totalFlow==null?'—':`${fmtNum(x.air.totalFlow,1)} m³/h`],['Pérdida / ganancia sensible',`${fmtNum(x.air.loss,0)} W`]]);
-    s7.append(el(doc,'p','section-note','HIDROLAB separa ventilación higiénica e infiltración. Cuando se usa el modo CEV, ambos caudales se suman sólo para esta estimación térmica estacionaria; no sustituye el procedimiento completo de infiltraciones y ventilación de la CEV.'));
+    s7.append(el(doc,'p','section-note','HIDROLAB separa ventilación higiénica e infiltración. Fmin corresponde al Manual CEV 2025 y se usa como referencia energética; no verifica por sí solo la ventilación exigida por la OGUC vigente, que remite a NCh3308/NCh3309. Un n50/ACH50 de ensayo a 50 Pa no debe ingresarse directamente como ACH natural.'));
 
     const s8=addSection(doc,root,'8. Puentes térmicos adicionales');
     addKv(s8,[['Activados',yes(x.bridges.enabled)],['Método',x.bridges.mode||'—'],['Longitud total',`${fmtNum(x.bridges.length,2)} m`],['ψ medio',`${fmtNum(x.bridges.psi,3)} W/mK`],['ΣψL',`${fmtNum(x.bridges.H,3)} W/K`],['Pérdida adicional',`${fmtNum(x.bridges.loss,0)} W`]]);
@@ -653,7 +653,7 @@
     s12.append(el(doc,'p','section-note',x.scope.transmission));
     s12.append(el(doc,'p','section-note',x.scope.air));
     s12.append(el(doc,'p','section-note',x.scope.annual));
-    s12.append(el(doc,'p','section-note','Los valores U, λ, ψ, Ls y características de productos deben contar con respaldo técnico apropiado cuando el informe se utilice fuera del contexto didáctico de HIDROLAB.'));
+    s12.append(el(doc,'p','section-note','Los valores U, λ, ψ, Ls y características de productos deben contar con respaldo técnico apropiado cuando el informe se utilice fuera del contexto didáctico de HIDROLAB. La OGUC vigente incorpora exigencias de transmitancia, condensación, infiltración y ventilación; este informe no constituye acreditación de cumplimiento del artículo 4.1.10.'));
     return true;
   }
 

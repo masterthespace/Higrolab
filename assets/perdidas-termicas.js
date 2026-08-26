@@ -9,7 +9,7 @@ function num(id,fallback=0,min=-Infinity,max=Infinity){
 /* ============================================================
    FUENTES OFICIALES INCORPORADAS
    - Manual CEV 2025: Tablas 4, 5, 6 y 7.
-   - LOSCAT E14 2026 DITEC-MINVU: aislantes con λ vigente.
+   - Listado oficial MINVU / LOSCAT · verificar edición vigente DITEC-MINVU: aislantes con λ vigente.
    - Memorias de cálculo publicadas por MINVU: yeso, OSB, pino.
    ============================================================ */
 const WINDOW_FRAMES={
@@ -45,20 +45,20 @@ const MATERIALS={
   gypsum650:{group:'Placas y revestimientos',name:'Yeso cartón 650 kg/m³',lambda:.24,defaultMm:10,source:'Listado térmico MINVU · NCh853'},
   osb600:{group:'Placas y revestimientos',name:'OSB 600 kg/m³',lambda:.103,defaultMm:9.5,source:'Listado térmico MINVU · NCh853'},
   osb690:{group:'Placas y revestimientos',name:'OSB 690 kg/m³',lambda:.106,defaultMm:11.1,source:'Informe MINVU 1007 · NCh853'},
-  pine:{group:'Maderas',name:'Madera / pino genérico',lambda:.15,defaultMm:19,source:'Manual Construcción +PDA MINVU · referencia NCh853'},
-  concrete2400:{group:'Hormigones',name:'Hormigón armado normal 2400 kg/m³',lambda:1.63,defaultMm:100,source:'MINVU · Anexo materiales / NCh853'},
-  concreteLight1000:{group:'Hormigones',name:'Hormigón áridos ligeros 1000 kg/m³',lambda:.33,defaultMm:100,source:'MINVU · Anexo materiales'},
-  concreteLight1400:{group:'Hormigones',name:'Hormigón áridos ligeros 1400 kg/m³',lambda:.55,defaultMm:100,source:'MINVU · Anexo materiales'},
-  cellular600:{group:'Hormigones',name:'Hormigón celular silíceo 600 kg/m³',lambda:.34,defaultMm:100,source:'MINVU · Anexo materiales'},
-  cellular1000:{group:'Hormigones',name:'Hormigón celular silíceo 1000 kg/m³',lambda:.67,defaultMm:100,source:'MINVU · Anexo materiales'},
-  mass1600:{group:'Hormigones',name:'Hormigón en masa 1600 kg/m³',lambda:.73,defaultMm:100,source:'MINVU · Anexo materiales'},
-  mass2000:{group:'Hormigones',name:'Hormigón en masa 2000 kg/m³',lambda:1.16,defaultMm:100,source:'MINVU · Anexo materiales'},
+  pine:{group:'Maderas',name:'Madera / pino genérico',lambda:.15,defaultMm:19,source:'Referencia orientativa de madera; verificar valor NCh853 o producto específico'},
+  concrete2400:{group:'Hormigones',name:'Hormigón armado normal 2400 kg/m³',lambda:1.63,defaultMm:100,source:'Referencia MINVU/NCh853; verificar respaldo aplicable'},
+  concreteLight1000:{group:'Hormigones',name:'Hormigón áridos ligeros 1000 kg/m³',lambda:.33,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
+  concreteLight1400:{group:'Hormigones',name:'Hormigón áridos ligeros 1400 kg/m³',lambda:.55,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
+  cellular600:{group:'Hormigones',name:'Hormigón celular silíceo 600 kg/m³',lambda:.34,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
+  cellular1000:{group:'Hormigones',name:'Hormigón celular silíceo 1000 kg/m³',lambda:.67,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
+  mass1600:{group:'Hormigones',name:'Hormigón en masa 1600 kg/m³',lambda:.73,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
+  mass2000:{group:'Hormigones',name:'Hormigón en masa 2000 kg/m³',lambda:1.16,defaultMm:100,source:'Referencia MINVU; verificar respaldo aplicable'},
   glass13:{group:'Aislantes LOSCAT',name:'Lana vidrio AISLHOGAR 13 kg/m³',lambda:.041,defaultMm:80,source:'LOSCAT E14 2026 · R100/LV.1.1'},
   glass11:{group:'Aislantes LOSCAT',name:'Lana vidrio AISLANGLASS 11 kg/m³',lambda:.042,defaultMm:80,source:'LOSCAT E14 2026 · R100/LV.2.1'},
   glass14:{group:'Aislantes LOSCAT',name:'Lana vidrio AISLANGLASS 14 kg/m³',lambda:.040,defaultMm:80,source:'LOSCAT E14 2026 · R100/LV.2.2'},
   glass32:{group:'Aislantes LOSCAT',name:'Lana vidrio AISLANGLASS 32 kg/m³',lambda:.036,defaultMm:80,source:'LOSCAT E14 2026 · R100/LV.2.3'},
-  mineral40:{group:'Aislantes LOSCAT',name:'Lana mineral 40 kg/m³',lambda:.042,defaultMm:80,source:'LOSCAT E14 2026 · solución acreditada'},
-  eps15:{group:'Aislantes LOSCAT',name:'EPS 15 kg/m³',lambda:.0413,defaultMm:50,source:'LOSCAT E14 2026 · R100/PE'},
+  mineral40:{group:'Aislantes LOSCAT',name:'Lana mineral 40 kg/m³',lambda:.042,defaultMm:80,source:'LOSCAT E14 2026 · R100/LM.2.2'},
+  eps15:{group:'Aislantes LOSCAT',name:'EPS 15 kg/m³',lambda:.0413,defaultMm:50,source:'LOSCAT E14 2026 · R100/PE.7.2'},
   eps20:{group:'Aislantes LOSCAT',name:'EPS 20 kg/m³',lambda:.0384,defaultMm:50,source:'LOSCAT E14 2026 · R100/PE.7.3'},
   eps30:{group:'Aislantes LOSCAT',name:'EPS 30 kg/m³',lambda:.0361,defaultMm:50,source:'LOSCAT E14 2026 · R100/PE.7.4'},
   xps:{group:'Aislantes LOSCAT',name:'XPS Foamular 250 · 24,8 kg/m³',lambda:.028,defaultMm:50.8,source:'LOSCAT E14 2026 · R100/PX.1.1'},
@@ -143,6 +143,15 @@ function thermalDirection(Ti,Te){
   if(Ti<Te)return 'in';
   return 'zero';
 }
+function windowAreaBreakdown(){
+  const total=num('windowArea',0,0);
+  const roof=Math.min(total,num('roofWindowArea',0,0));
+  const wall=Math.max(0,total-roof);
+  if($('windowAreaSplitHelp')){
+    $('windowAreaSplitHelp').textContent=`${fmt(wall,2)} m² en muros · ${fmt(roof,2)} m² en techumbre.`;
+  }
+  return {total,wall,roof};
+}
 
 function achValue(g=geometry()){
   const mode=$('airMode').value;
@@ -152,8 +161,10 @@ function achValue(g=geometry()){
   $('airCevFields')?.classList.toggle('hl2-hidden',known);
 
   if(known){
-    const total=num('ach',.50,0,10);
-    return {total,vent:null,infiltration:null,ventFlow:null,infiltrationFlow:null,totalFlow:total*g.volume,mode};
+    const total=num('ach',.50,0,10),totalFlow=total*g.volume;
+    if($('airAchSummary'))$('airAchSummary').textContent=fmt(total,2)+' ACH';
+    if($('airFlowSummary'))$('airFlowSummary').textContent=fmt(totalFlow,1)+' m³/h';
+    return {total,vent:null,infiltration:null,ventFlow:null,infiltrationFlow:null,totalFlow,mode};
   }
 
   const vent=cevMinimumVentilationAch(g);
@@ -169,6 +180,8 @@ function achValue(g=geometry()){
   if($('cevInfiltrationFlowOut')) $('cevInfiltrationFlowOut').textContent=fmt(infiltrationFlow,1)+' m³/h';
   if($('cevTotalAchOut')) $('cevTotalAchOut').textContent=fmt(total,2)+' ACH';
   if($('cevTotalFlowOut')) $('cevTotalFlowOut').textContent=fmt(totalFlow,1)+' m³/h';
+  if($('airAchSummary'))$('airAchSummary').textContent=fmt(total,2)+' ACH';
+  if($('airFlowSummary'))$('airFlowSummary').textContent=fmt(totalFlow,1)+' m³/h';
   if($('cevVentHelp')){
     const bedrooms=Math.round(num('bedrooms',3,0,20));
     $('cevVentHelp').textContent=`CEV: superficie útil ${fmt(g.useful,1)} m² · volumen ${fmt(g.volume,1)} m³ · personas consideradas ${bedrooms+1}.`;
@@ -178,9 +191,12 @@ function achValue(g=geometry()){
 }
 function syncRoofArea(g){
   const manual=$('roofManual').checked;
+  const roofWindows=windowAreaBreakdown().roof;
   $('roofArea').readOnly=!manual;
-  if(!manual)$('roofArea').value=g.roof.toFixed(2);
-  $('roofModeHelp').textContent=manual?'Área térmica definida manualmente':'Área automática = huella horizontal de la vivienda';
+  if(!manual)$('roofArea').value=Math.max(0,g.roof-roofWindows).toFixed(2);
+  $('roofModeHelp').textContent=manual
+    ?'Área opaca neta definida manualmente (no se descuentan lucarnas de nuevo)'
+    :`Área automática = huella ${fmt(g.roof,2)} m² − lucarnas ${fmt(roofWindows,2)} m²`;
 }
 function syncFloor(){
   const type=$('floorType').value;
@@ -467,8 +483,8 @@ function timeHours(start,end){
   return b-a;
 }
 function heatLossCoefficient(){
-  const g=geometry(),winA=num('windowArea',0,0),doorA=num('doorArea',0,0);
-  const gross=wallGrossArea(g),wallA=Math.max(0,gross-winA-doorA);
+  const g=geometry(),wins=windowAreaBreakdown(),winA=wins.total,doorA=num('doorArea',0,0);
+  const gross=wallGrossArea(g),wallA=Math.max(0,gross-wins.wall-doorA);
   const floorA=syncFloorArea(g);
   let H=num('wallU',0,0)*wallA+num('windowU',0,0)*winA+num('doorU',0,0)*doorA;
   H+=num('roofU',0,0)*num('roofArea',g.roof,0);
@@ -548,12 +564,12 @@ function calculate(){
   const g=geometry(),Ti=num('ti',20),Te=num('te',5),signedDT=Ti-Te,dT=Math.abs(signedDT),direction=thermalDirection(Ti,Te);
   syncRoofArea(g);syncFloor();const floorA=syncFloorArea(g);syncBridgeUI();
 
-  const winA=num('windowArea',12,0),doorA=num('doorArea',4,0);
+  const wins=windowAreaBreakdown(),winA=wins.total,wallWinA=wins.wall,roofWinA=wins.roof,doorA=num('doorArea',4,0);
   const grossWalls=wallGrossArea(g);
-  const wallA=Math.max(0,grossWalls-winA-doorA);
+  const wallA=Math.max(0,grossWalls-wallWinA-doorA);
   const wallU=num('wallU',.60,.01),winU=num('windowU',2.8,.01),doorU=num('doorU',2.2,.01);
   const roofA=num('roofArea',g.roof,0),roofU=num('roofU',.45,.01);
-  const floorType=$('floorType').value,floorU=num('floorU',.60,.01),floorLs=num('floorLs',.50,0),groundP=groundPerimeter(g);
+  const floorType=$('floorType').value,floorU=num('floorU',.60,.01),floorLs=num('floorLs',0,0),groundP=groundPerimeter(g);
   const air=achValue(g),ach=air.total,bridgeH=bridgeCoefficient();
 
   const wallLoss=wallU*wallA*dT,windowLoss=winU*winA*dT,doorLoss=doorU*doorA*dT;
@@ -572,15 +588,24 @@ function calculate(){
   $('deltaTOut').textContent=fmt(dT,1);$('usefulAreaOut').textContent=fmt(g.useful,1);$('footprintOut').textContent=fmt(g.footprint,1);
   $('volumeOut').textContent=fmt(g.volume,1);$('grossWallOut').textContent=fmt(g.grossWalls,1);
   $('wallGrossConsideredOut').textContent=fmt(grossWalls,1)+' m²';
-  $('wallOpeningsOut').textContent=fmt(winA+doorA,1)+' m²';
+  const wallOpenings=wallWinA+doorA;
+  $('wallOpeningsOut').textContent=fmt(wallOpenings,1)+' m²';
   $('wallArea').textContent=fmt(wallA,1)+' m²';
-  $('wallGrossHelp').textContent=`Cálculo: ${fmt(grossWalls,1)} − ${fmt(winA+doorA,1)} = ${fmt(wallA,1)} m² netos`;
+  $('wallGrossHelp').textContent=wallOpenings>grossWalls
+    ?`⚠ Los vanos en muros (${fmt(wallOpenings,1)} m²) superan el muro bruto considerado (${fmt(grossWalls,1)} m²). Revisa geometría y superficies.`
+    :`Cálculo: ${fmt(grossWalls,1)} − ${fmt(wallOpenings,1)} = ${fmt(wallA,1)} m² netos`;
   $('wallLoss').textContent=fmt(wallLoss,0);$('windowLoss').textContent=fmt(windowLoss,0);$('doorLoss').textContent=fmt(doorLoss,0);
   $('roofLoss').textContent=fmt(roofLoss,0);$('floorLoss').textContent=fmt(floorLoss,0);$('airLoss').textContent=fmt(airLoss,0);
 
   if(floorType==='ground'){
-    $('groundMethodNote').textContent=`Φ = ${fmt(floorLs,2)} W/m·K × ${fmt(groundP,2)} m × ${fmt(dT,1)} K`;
-  }
+    $('groundMethodNote').textContent=floorLs>0
+      ?`Φ = ${fmt(floorLs,2)} W/m·K × ${fmt(groundP,2)} m × ${fmt(dT,1)} K`
+      :'Ingresa Ls obtenido con el procedimiento NCh3117/CEV. Con Ls = 0, el piso-terreno queda fuera del total.';
+    if($('floorLsStatus')){
+      $('floorLsStatus').classList.toggle('hl2-hidden',floorLs>0);
+      $('floorLsStatus').textContent=floorLs>0?'':'⚠ Piso-terreno pendiente: falta Ls respaldado.';
+    }
+  }else if($('floorLsStatus'))$('floorLsStatus').classList.add('hl2-hidden');
 
   $('bridgeLoss').textContent=fmt(bridgeLoss,0)+' W';$('bridgeHOut').textContent=fmt(bridgeH,2)+' W/K';
   if($('bridgeEnabled').checked){
@@ -599,6 +624,8 @@ function calculate(){
       : direction==='in' ? 'Ganancia sensible por aire exterior más cálido' : 'Sin flujo sensible porque ΔT = 0';
   }
 
+  if($('totalThermalLabel')) $('totalThermalLabel').textContent=direction==='in'?'GANANCIA TÉRMICA TOTAL':direction==='zero'?'TRANSFERENCIA TÉRMICA TOTAL':'PÉRDIDA TÉRMICA TOTAL';
+  if($('rankingQuestion')) $('rankingQuestion').textContent=direction==='in'?'¿Por dónde entra más calor?':direction==='zero'?'¿Cómo se distribuye la envolvente?':'¿Dónde se pierde más calor?';
   $('kw').textContent=fmt(total/1000,2);$('total').textContent=fmt(total,0)+' W';
   $('specific').textContent=fmt(g.useful?total/g.useful:0,1)+' W/m²';$('trans').textContent=fmt(transmission,0)+' W';
   $('otherLoss').textContent=fmt(airLoss+bridgeLoss,0)+' W';
@@ -625,12 +652,12 @@ function calculate(){
   const ids={walls:'hmWalls',windows:'hmWindows',roof:'hmRoof',floor:'hmFloor',air:'hmAir',doors:'hmDoors',bridges:'hmBridges'};
   parts.forEach(p=>{const o=$(ids[p.id]);if(o)o.textContent=fmt(p.loss/totalSafe*100,0)+'%'});
 
-  const scenario={g,dT,wallA,wallU,winA,winU,roofA,roofU,ach,total};
+  const scenario={g,dT,wallA,wallU,winA,winU,roofA,roofU,ach,total,airMode:air.mode,infiltrationAch:air.infiltration,ventilationAch:air.vent};
   if(!state.improvementApplied)state.improvementReference={...scenario};
   renderImprovements(state.improvementReference||scenario);
   updateEnergySimulator();
 
-  window.__heatloss={Ti,Te,dT,signedDT,direction,g,grossWalls,wallA,winA,doorA,roofA,floorArea:floorA,
+  window.__heatloss={Ti,Te,dT,signedDT,direction,g,grossWalls,wallA,winA,wallWindowArea:wallWinA,roofWindowArea:roofWinA,doorA,roofA,floorArea:floorA,
     wallU,winU,doorU,roofU,floorType,floorU,floorLs,groundPerimeter:groundP,ach,airMode:air.mode,
     ventilationAch:air.vent,infiltrationAch:air.infiltration,ventilationFlow:air.ventFlow,infiltrationFlow:air.infiltrationFlow,totalAirFlow:air.totalFlow,bridgeH,
     wallLoss,windowLoss,doorLoss,roofLoss,floorLoss,airLoss,bridgeLoss,transmission,total,parts,
@@ -641,13 +668,13 @@ function restoreImprovementBaselineFields(){
   const b=state.improvementBackup;
   if(!b)return;
   $('wallU').value=b.wallU;$('windowU').value=b.windowU;$('roofU').value=b.roofU;
-  $('airMode').value=b.airMode;$('ach').value=b.ach;$('windowSource').textContent=b.windowSource;
+  $('airMode').value=b.airMode;$('ach').value=b.ach;$('infiltrationAch').value=b.infiltrationAch;$('windowSource').textContent=b.windowSource;
 }
 function applyImprovement(type,target){
   if(!state.improvementBackup){
     state.improvementBackup={
       wallU:$('wallU').value,windowU:$('windowU').value,roofU:$('roofU').value,
-      ach:$('ach').value,airMode:$('airMode').value,windowSource:$('windowSource').textContent
+      ach:$('ach').value,airMode:$('airMode').value,infiltrationAch:$('infiltrationAch').value,windowSource:$('windowSource').textContent
     };
   }else{
     restoreImprovementBaselineFields();
@@ -658,12 +685,14 @@ function applyImprovement(type,target){
     $('windowSource').textContent='Escenario de mejora aplicado desde Simular mejoras.';
   }
   if(type==='roof')$('roofU').value=target;
-  if(type==='ach'){
-    $('airMode').value='known';$('ach').disabled=false;$('ach').value=target;
+  if(type==='air'){
+    if((state.improvementReference?.airMode||$('airMode').value)==='cevMin'){
+      $('airMode').value='cevMin';$('infiltrationAch').value=target;
+    }
   }
   state.improvementApplied=type;
   calculate();
-  const names={wall:'muros',window:'ventanas',roof:'techumbre',ach:'hermeticidad/aire'};
+  const names={wall:'muros',window:'ventanas',roof:'techumbre',air:'infiltración'};
   $('improvementApplied').classList.remove('hl2-hidden');
   $('improvementApplied').innerHTML=`<b>Escenario aplicado al resultado:</b> ${names[type]}. Cada botón compara contra la misma condición base. <button id="resetAppliedImprovement" type="button">Restaurar condición base</button>`;
   $('resetAppliedImprovement').addEventListener('click',resetAppliedImprovement);
@@ -675,19 +704,29 @@ function resetAppliedImprovement(){
   $('improvementApplied').classList.add('hl2-hidden');calculate();
 }
 function renderImprovements(c){
-  const wallTarget=num('improveWallU',.40,.01),winTarget=num('improveWindowU',1.8,.01),roofTarget=num('improveRoofU',.30,.01),achTarget=num('improveAch',.30,0);
+  const wallTarget=num('improveWallU',.40,.01),winTarget=num('improveWindowU',1.8,.01),roofTarget=num('improveRoofU',.30,.01),airTarget=num('improveAch',0,0);
+  const cevAir=c.airMode==='cevMin';
+  if($('improveAirTitle'))$('improveAirTitle').textContent=cevAir?'Reducir infiltración':'Aire / hermeticidad';
+  if($('improveAirTargetLabel'))$('improveAirTargetLabel').textContent=cevAir?'Infiltración objetivo':'No evaluable automáticamente';
+  if($('improveAirNote'))$('improveAirNote').textContent=cevAir
+    ?'Se modifica sólo la infiltración; el Fmin higiénico del Manual CEV se mantiene.'
+    :'Con ACH total conocido no es posible separar cuánto corresponde a ventilación higiénica y cuánto a infiltración. Para no falsear el ahorro, HIDROLAB no aplica una mejora automática.';
+  $('improveAchPreset').disabled=!cevAir;$('improveAch').disabled=!cevAir;
+
+  const currentInfil=Number.isFinite(c.infiltrationAch)?c.infiltrationAch:0;
+  const airSave=cevAir?Math.max(0,.33*(currentInfil-airTarget)*c.g.volume*c.dT):0;
   const opts=[
     {type:'wall',name:'Mejorar muros',target:wallTarget,save:Math.max(0,(c.wallU-wallTarget)*c.wallA*c.dT),note:`U ${fmt(c.wallU,2)} → ${fmt(wallTarget,2)}`},
     {type:'window',name:'Mejorar ventanas',target:winTarget,save:Math.max(0,(c.winU-winTarget)*c.winA*c.dT),note:`U ${fmt(c.winU,2)} → ${fmt(winTarget,2)}`},
     {type:'roof',name:'Mejorar techumbre',target:roofTarget,save:Math.max(0,(c.roofU-roofTarget)*c.roofA*c.dT),note:`U ${fmt(c.roofU,2)} → ${fmt(roofTarget,2)}`},
-    {type:'ach',name:'Reducir infiltración',target:achTarget,save:Math.max(0,.33*(c.ach-achTarget)*c.g.volume*c.dT),note:`${fmt(c.ach,2)} → ${fmt(achTarget,2)} ACH`}
+    {type:'air',name:cevAir?'Reducir infiltración':'Aire / hermeticidad',target:airTarget,save:airSave,note:cevAir?`Infiltración ${fmt(currentInfil,2)} → ${fmt(airTarget,2)} ACH · Fmin se mantiene`:'No evaluable sin separar ventilación e infiltración',disabled:!cevAir}
   ].sort((a,b)=>b.save-a.save);
   const mx=Math.max(...opts.map(o=>o.save),1);
   $('improvementRanking').innerHTML=opts.map((o,i)=>`
     <div class="improvement-row ${i===0&&o.save>0?'best':''}">
       <div><small>${i===0&&o.save>0?'MAYOR IMPACTO ESTIMADO':''}</small><b>${o.name}</b><span>${o.note}</span></div>
       <div class="improvement-track"><i style="width:${o.save/mx*100}%"></i></div>
-      <div class="hl2-improve-action"><strong>−${fmt(o.save,0)} W</strong><small>Nuevo total ≈ ${fmt((c.total-o.save)/1000,2)} kW</small><button type="button" data-apply-improvement="${o.type}" data-target="${o.target}" ${o.save<=.1?'disabled':''}>Aplicar mejora</button></div>
+      <div class="hl2-improve-action"><strong>${o.disabled?'—':'−'+fmt(o.save,0)+' W'}</strong><small>${o.disabled?'Requiere separar caudales':`Nuevo total ≈ ${fmt((c.total-o.save)/1000,2)} kW`}</small><button type="button" data-apply-improvement="${o.type}" data-target="${o.target}" ${(o.disabled||o.save<=.1)?'disabled':''}>Aplicar mejora</button></div>
     </div>`).join('');
   $('improvementRanking').querySelectorAll('[data-apply-improvement]').forEach(btn=>btn.addEventListener('click',()=>{
     applyImprovement(btn.dataset.applyImprovement,Number(btn.dataset.target));
@@ -741,7 +780,7 @@ function bind(){
     syncImprovementPreset(sel,inp);$(sel).addEventListener('change',()=>{syncImprovementPreset(sel,inp);calculate()});
   });
 
-  const ids=['ti','te','length','width','height','levels','wallU','wallGrossAreaInput','windowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','floorLs','groundPerimeter','ach','bedrooms','infiltrationAch','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
+  const ids=['ti','te','length','width','height','levels','wallU','wallGrossAreaInput','windowArea','roofWindowArea','windowU','doorArea','doorU','roofArea','roofU','floorAreaInput','floorU','floorLs','groundPerimeter','ach','bedrooms','infiltrationAch','bridgeLength','bridgePsi','bridgeH','improveWallU','improveWindowU','improveRoofU','improveAch'];
   ids.forEach(id=>$(id)?.addEventListener('input',calculate));
   $('roofManual')?.addEventListener('change',calculate);$('floorManual')?.addEventListener('change',calculate);$('wallGrossManual')?.addEventListener('change',calculate);$('groundPerimeterManual')?.addEventListener('change',calculate);
   $('floorType')?.addEventListener('change',calculate);$('airMode')?.addEventListener('change',calculate);
@@ -777,19 +816,19 @@ function heatlossDetailedReportData(){
     const hours=timeHours(r.start,r.end),signedDT=r.ti-r.te,energy=H*Math.abs(signedDT)/1000*hours;
     return {start:r.start,end:r.end,Ti:r.ti,Te:r.te,hours,direction:signedDT>0?'Pérdida calefacción':signedDT<0?'Ganancia hacia interior':'Sin flujo',energyKwh:energy};
   });
-  const ref=state.improvementReference||{g:x.g,dT:x.dT,wallA:x.wallA,wallU:x.wallU,winA:x.winA,winU:x.winU,roofA:x.roofA,roofU:x.roofU,ach:x.ach,total:x.total};
+  const ref=state.improvementReference||{g:x.g,dT:x.dT,wallA:x.wallA,wallU:x.wallU,winA:x.winA,winU:x.winU,roofA:x.roofA,roofU:x.roofU,ach:x.ach,total:x.total,airMode:x.airMode,infiltrationAch:x.infiltrationAch,ventilationAch:x.ventilationAch};
   const targets={wall:num('improveWallU',.40,.01),window:num('improveWindowU',1.8,.01),roof:num('improveRoofU',.30,.01),ach:num('improveAch',.30,0)};
   const improvements=[
     {name:'Muros',from:ref.wallU,to:targets.wall,save:Math.max(0,(ref.wallU-targets.wall)*ref.wallA*ref.dT)},
     {name:'Ventanas',from:ref.winU,to:targets.window,save:Math.max(0,(ref.winU-targets.window)*ref.winA*ref.dT)},
     {name:'Techumbre',from:ref.roofU,to:targets.roof,save:Math.max(0,(ref.roofU-targets.roof)*ref.roofA*ref.dT)},
-    {name:'Hermeticidad / aire',from:ref.ach,to:targets.ach,save:Math.max(0,.33*(ref.ach-targets.ach)*ref.g.volume*ref.dT)}
+    {name:ref.airMode==='cevMin'?'Infiltración':'Aire / hermeticidad',from:ref.airMode==='cevMin'?(ref.infiltrationAch||0):ref.ach,to:targets.ach,save:ref.airMode==='cevMin'?Math.max(0,.33*((ref.infiltrationAch||0)-targets.ach)*ref.g.volume*ref.dT):0}
   ].map(v=>({...v,newTotal:Math.max(0,ref.total-v.save)}));
   return {
     title:'Pérdidas térmicas de la vivienda',
-    conditions:{Ti:x.Ti,Te:x.Te,dT:x.dT,direction:x.direction,length:x.g.L,width:x.g.W,height:x.g.H,levels:x.g.N,volume:x.g.volume,usefulArea:x.g.useful,footprint:x.g.footprint,grossWallsGeometry:x.g.grossWalls,grossWallsConsidered:x.grossWalls,wallArea:x.wallA,openingsArea:x.winA+x.doorA},
+    conditions:{Ti:x.Ti,Te:x.Te,dT:x.dT,direction:x.direction,length:x.g.L,width:x.g.W,height:x.g.H,levels:x.g.N,volume:x.g.volume,usefulArea:x.g.useful,footprint:x.g.footprint,grossWallsGeometry:x.g.grossWalls,grossWallsConsidered:x.grossWalls,wallArea:x.wallA,openingsArea:x.wallWindowArea+x.doorA,roofWindowArea:x.roofWindowArea},
     wall:{U:x.wallU,area:x.wallA,loss:x.wallLoss,manualGross:$('wallGrossManual')?.checked||false},
-    windows:{area:x.winA,U:x.winU,loss:x.windowLoss,source:x.windowSource,unit:winUnit,rows:windows},
+    windows:{area:x.winA,wallArea:x.wallWindowArea,roofArea:x.roofWindowArea,U:x.winU,loss:x.windowLoss,source:x.windowSource,unit:winUnit,rows:windows},
     doors:{area:x.doorA,U:x.doorU,loss:x.doorLoss,source:x.doorSource,unit:doorUnit,rows:doors},
     roof:{area:x.roofA,U:x.roofU,loss:x.roofLoss,manualArea:$('roofManual')?.checked||false,layers:serializeLayers('roof'),layersR:roofCalc.rLayers,Rt:roofCalc.rt,Ucalc:roofCalc.u},
     floor:{type:x.floorType,area:x.floorArea,U:x.floorU,Ls:x.floorLs,perimeter:x.groundPerimeter,loss:x.floorLoss,manualArea:$('floorManual')?.checked||false,builderMode:floorBuilderMode(),layers:serializeLayers('floor'),layersR:floorCalc.rLayers,Rt:floorCalc.rt,Ucalc:floorCalc.u},
@@ -798,7 +837,7 @@ function heatlossDetailedReportData(){
     result:{transmission:x.transmission,airLoss:x.airLoss,bridgeLoss:x.bridgeLoss,total:x.total,specific:x.total/Math.max(x.g.useful,1),parts:x.parts},
     energy:{summary:window.__heatlossEnergy||null,periods,electricHeaterKw:num('electricHeaterKw',2,.1),heatPumpKw:num('heatPumpKw',3.5,.1),heatPumpCop:num('heatPumpCop',3.2,1),keroseneKwhL:num('keroseneKwhL',10,1),keroseneEff:num('keroseneEff',85,1,100),keroseneLph:num('keroseneLph',.25,.01),electricPrice:num('electricPrice',0,0),kerosenePrice:num('kerosenePrice',0,0),electricHours:$('electricHours')?.textContent||'',heatPumpHours:$('heatPumpHours')?.textContent||'',heatPumpElectricity:$('heatPumpElectricity')?.textContent||'',keroseneHours:$('keroseneHours')?.textContent||'',keroseneLiters:$('keroseneLiters')?.textContent||'',electricCost:$('electricCost')?.textContent||'',heatPumpCost:$('heatPumpCost')?.textContent||'',keroseneCost:$('keroseneCost')?.textContent||''},
     improvements:{referenceTotal:ref.total,applied:state.improvementApplied||null,rows:improvements},
-    scope:{transmission:'U·A·ΔT para elementos expuestos; piso-terreno mediante Ls·P·ΔT cuando corresponde.',air:'0,33·ACH·V·ΔT como estimación estacionaria de calor sensible.',annual:'No es demanda anual CEV ni dimensionamiento definitivo de calefacción.'}
+    scope:{transmission:'U·A·ΔT para elementos expuestos; piso-terreno mediante Ls·P·ΔT cuando corresponde.',air:'0,33·ACH·V·ΔT como estimación estacionaria de calor sensible.',annual:'No es demanda anual CEV ni acreditación de cumplimiento OGUC. No compara U con el Umax de la zona térmica y no sustituye NCh3308/NCh3309, NCh3295, NCh3117 ni NCh853 cuando correspondan.'}
   };
 }
 window.HIDROLAB_HEATLOSS_REPORT=heatlossDetailedReportData;
