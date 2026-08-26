@@ -750,12 +750,55 @@ function bind(){
 }
 window.addEventListener('DOMContentLoaded',bind);
 
-window.HIDROLAB_HEATLOSS_REPORT=()=>window.__heatloss?{
-  title:'Pérdidas térmicas de la vivienda',
-  conditions:{Ti:window.__heatloss.Ti,Te:window.__heatloss.Te,dT:window.__heatloss.dT,volume:window.__heatloss.g.volume,floorArea:window.__heatloss.g.useful,footprint:window.__heatloss.g.footprint,grossWalls:window.__heatloss.g.grossWalls},
-  wall:{layers:[],Rt:null,U:window.__heatloss.wallU,area:window.__heatloss.wallA,loss:window.__heatloss.wallLoss,source:'U ingresado directamente por usuario'},
-  inputs:{windowArea:window.__heatloss.winA,windowU:window.__heatloss.winU,windowType:window.__heatloss.windowSource,
-    doorArea:window.__heatloss.doorA,doorU:window.__heatloss.doorU,doorType:window.__heatloss.doorSource,
-    roofArea:window.__heatloss.roofA,roofU:window.__heatloss.roofU,floorArea:window.__heatloss.floorArea,floorType:window.__heatloss.floorType,floorU:window.__heatloss.floorU,floorLs:window.__heatloss.floorLs,groundPerimeter:window.__heatloss.groundPerimeter,bridgeH:window.__heatloss.bridgeH},
-  elements:window.__heatloss.parts,total:window.__heatloss.total,transmission:window.__heatloss.transmission,airLoss:window.__heatloss.airLoss,bridgeLoss:window.__heatloss.bridgeLoss,ach:window.__heatloss.ach,energySchedule:window.__heatlossEnergy||null
-}:null;
+function heatlossDetailedReportData(){
+  if(!window.__heatloss)return null;
+  const x=window.__heatloss;
+  const winUnit=$('winUnit')?.value||'cm',doorUnit=$('doorUnit')?.value||'cm';
+  const windows=state.windowRows.map(r=>({
+    name:r.name,width:r.w,height:r.h,unit:winUnit,quantity:r.q,
+    frame:WINDOW_FRAMES[r.frame]?.name||r.frame,glass:WINDOW_GLASSES[r.glass]?.name||r.glass,
+    U:windowRowU(r),area:dimArea(r,winUnit)
+  }));
+  const doors=state.doorRows.map(r=>({
+    name:r.name,width:r.w,height:r.h,unit:doorUnit,quantity:r.q,
+    type:r.preset==='custom'?'U personalizado':(DOOR_PRESETS[r.preset]?.name||r.preset),
+    U:doorRowU(r),area:dimArea(r,doorUnit)
+  }));
+  const serializeLayers=kind=>{
+    const rows=kind==='roof'?state.roofLayers:state.floorLayers;
+    return rows.map(r=>({
+      material:MATERIALS[r.mat]?.name||r.mat,thicknessMm:r.mm,
+      lambda:materialLambda(r),R:layerR(r),source:MATERIALS[r.mat]?.source||''
+    }));
+  };
+  const roofCalc=layerCalc('roof'),floorCalc=layerCalc('floor');
+  const H=window.__heatlossEnergy?.H||heatLossCoefficient();
+  const periods=state.energyPeriods.map(r=>{
+    const hours=timeHours(r.start,r.end),signedDT=r.ti-r.te,energy=H*Math.abs(signedDT)/1000*hours;
+    return {start:r.start,end:r.end,Ti:r.ti,Te:r.te,hours,direction:signedDT>0?'Pérdida calefacción':signedDT<0?'Ganancia hacia interior':'Sin flujo',energyKwh:energy};
+  });
+  const ref=state.improvementReference||{g:x.g,dT:x.dT,wallA:x.wallA,wallU:x.wallU,winA:x.winA,winU:x.winU,roofA:x.roofA,roofU:x.roofU,ach:x.ach,total:x.total};
+  const targets={wall:num('improveWallU',.40,.01),window:num('improveWindowU',1.8,.01),roof:num('improveRoofU',.30,.01),ach:num('improveAch',.30,0)};
+  const improvements=[
+    {name:'Muros',from:ref.wallU,to:targets.wall,save:Math.max(0,(ref.wallU-targets.wall)*ref.wallA*ref.dT)},
+    {name:'Ventanas',from:ref.winU,to:targets.window,save:Math.max(0,(ref.winU-targets.window)*ref.winA*ref.dT)},
+    {name:'Techumbre',from:ref.roofU,to:targets.roof,save:Math.max(0,(ref.roofU-targets.roof)*ref.roofA*ref.dT)},
+    {name:'Hermeticidad / aire',from:ref.ach,to:targets.ach,save:Math.max(0,.33*(ref.ach-targets.ach)*ref.g.volume*ref.dT)}
+  ].map(v=>({...v,newTotal:Math.max(0,ref.total-v.save)}));
+  return {
+    title:'Pérdidas térmicas de la vivienda',
+    conditions:{Ti:x.Ti,Te:x.Te,dT:x.dT,direction:x.direction,length:x.g.L,width:x.g.W,height:x.g.H,levels:x.g.N,volume:x.g.volume,usefulArea:x.g.useful,footprint:x.g.footprint,grossWallsGeometry:x.g.grossWalls,grossWallsConsidered:x.grossWalls,wallArea:x.wallA,openingsArea:x.winA+x.doorA},
+    wall:{U:x.wallU,area:x.wallA,loss:x.wallLoss,manualGross:$('wallGrossManual')?.checked||false},
+    windows:{area:x.winA,U:x.winU,loss:x.windowLoss,source:x.windowSource,unit:winUnit,rows:windows},
+    doors:{area:x.doorA,U:x.doorU,loss:x.doorLoss,source:x.doorSource,unit:doorUnit,rows:doors},
+    roof:{area:x.roofA,U:x.roofU,loss:x.roofLoss,manualArea:$('roofManual')?.checked||false,layers:serializeLayers('roof'),layersR:roofCalc.rLayers,Rt:roofCalc.rt,Ucalc:roofCalc.u},
+    floor:{type:x.floorType,area:x.floorArea,U:x.floorU,Ls:x.floorLs,perimeter:x.groundPerimeter,loss:x.floorLoss,manualArea:$('floorManual')?.checked||false,builderMode:floorBuilderMode(),layers:serializeLayers('floor'),layersR:floorCalc.rLayers,Rt:floorCalc.rt,Ucalc:floorCalc.u},
+    air:{mode:x.airMode,ach:x.ach,bedrooms:num('bedrooms',0,0),persons:num('bedrooms',0,0)+1,ventilationAch:x.ventilationAch,infiltrationAch:x.infiltrationAch,ventilationFlow:x.ventilationFlow,infiltrationFlow:x.infiltrationFlow,totalFlow:x.totalAirFlow,loss:x.airLoss},
+    bridges:{enabled:$('bridgeEnabled')?.checked||false,mode:$('bridgeMode')?.value||'',length:num('bridgeLength',0,0),psi:num('bridgePsi',0,0),H:x.bridgeH,loss:x.bridgeLoss},
+    result:{transmission:x.transmission,airLoss:x.airLoss,bridgeLoss:x.bridgeLoss,total:x.total,specific:x.total/Math.max(x.g.useful,1),parts:x.parts},
+    energy:{summary:window.__heatlossEnergy||null,periods,electricHeaterKw:num('electricHeaterKw',2,.1),heatPumpKw:num('heatPumpKw',3.5,.1),heatPumpCop:num('heatPumpCop',3.2,1),keroseneKwhL:num('keroseneKwhL',10,1),keroseneEff:num('keroseneEff',85,1,100),keroseneLph:num('keroseneLph',.25,.01),electricPrice:num('electricPrice',0,0),kerosenePrice:num('kerosenePrice',0,0),electricHours:$('electricHours')?.textContent||'',heatPumpHours:$('heatPumpHours')?.textContent||'',heatPumpElectricity:$('heatPumpElectricity')?.textContent||'',keroseneHours:$('keroseneHours')?.textContent||'',keroseneLiters:$('keroseneLiters')?.textContent||'',electricCost:$('electricCost')?.textContent||'',heatPumpCost:$('heatPumpCost')?.textContent||'',keroseneCost:$('keroseneCost')?.textContent||''},
+    improvements:{referenceTotal:ref.total,applied:state.improvementApplied||null,rows:improvements},
+    scope:{transmission:'U·A·ΔT para elementos expuestos; piso-terreno mediante Ls·P·ΔT cuando corresponde.',air:'0,33·ACH·V·ΔT como estimación estacionaria de calor sensible.',annual:'No es demanda anual CEV ni dimensionamiento definitivo de calefacción.'}
+  };
+}
+window.HIDROLAB_HEATLOSS_REPORT=heatlossDetailedReportData;

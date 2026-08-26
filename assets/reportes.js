@@ -575,62 +575,86 @@
     if(current!=='perdidas-termicas.html' || typeof window.HIDROLAB_HEATLOSS_REPORT!=='function') return false;
     let x;try{x=window.HIDROLAB_HEATLOSS_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
+    const yes=v=>v?'Sí':'No';
+    const addKv=(section,rows)=>{const t=el(doc,'table','kv'),b=el(doc,'tbody');rows.forEach(v=>addRow(doc,b,v[0],v[1]));t.append(b);section.append(t);return t};
+    const addData=(section,headers,rows)=>{const t=el(doc,'table','data-table'),h=el(doc,'tr');headers.forEach(v=>h.append(el(doc,'th','',v)));t.append(h);rows.forEach(row=>{const tr=el(doc,'tr');row.forEach(v=>tr.append(el(doc,'td','',String(v))));t.append(tr)});section.append(t);section.style.breakInside='auto';return t};
 
     const s1=addSection(doc,root,'1. Condiciones y geometría');
-    const t1=el(doc,'table','kv'),b1=el(doc,'tbody');
-    [
-      ['Temperatura interior',`${fmtNum(x.conditions.Ti,1)} °C`],
-      ['Temperatura exterior',`${fmtNum(x.conditions.Te,1)} °C`],
-      ['Diferencia térmica',`${fmtNum(x.conditions.dT,1)} °C`],
-      ['Volumen interior',`${fmtNum(x.conditions.volume,1)} m³`],
-      ['Superficie útil',`${fmtNum(x.conditions.floorArea,1)} m²`],
-      ['Huella de la vivienda',`${fmtNum(x.conditions.footprint,1)} m²`],
-      ['Muros brutos',`${fmtNum(x.conditions.grossWalls,1)} m²`]
-    ].forEach(r=>addRow(doc,b1,r[0],r[1]));t1.append(b1);s1.append(t1);
+    addKv(s1,[
+      ['Temperatura interior',`${fmtNum(x.conditions.Ti,1)} °C`],['Temperatura exterior',`${fmtNum(x.conditions.Te,1)} °C`],['Diferencia térmica',`${fmtNum(x.conditions.dT,1)} K`],
+      ['Largo interior útil',`${fmtNum(x.conditions.length,2)} m`],['Ancho interior útil',`${fmtNum(x.conditions.width,2)} m`],['Altura libre por nivel',`${fmtNum(x.conditions.height,2)} m`],['Cantidad de niveles',`${x.conditions.levels}`],
+      ['Superficie útil de pisos',`${fmtNum(x.conditions.usefulArea,1)} m²`],['Huella del primer nivel',`${fmtNum(x.conditions.footprint,1)} m²`],['Volumen interior',`${fmtNum(x.conditions.volume,1)} m³`],
+      ['Muro bruto geométrico',`${fmtNum(x.conditions.grossWallsGeometry,1)} m²`],['Muro bruto considerado',`${fmtNum(x.conditions.grossWallsConsidered,1)} m²`],['Vanos descontados',`${fmtNum(x.conditions.openingsArea,1)} m²`],['Muro neto no adiabático',`${fmtNum(x.conditions.wallArea,1)} m²`]
+    ]);
+    s1.append(el(doc,'p','section-note',x.wall.manualGross?'El área bruta de muros fue editada manualmente por el usuario.':'El área bruta de muros se estimó geométricamente a partir del perímetro interior, altura y niveles.'));
 
-    const s2=addSection(doc,root,'2. Propiedades térmicas ingresadas');
-    const t2=el(doc,'table','kv'),b2=el(doc,'tbody');
-    [
-      ['U muro',`${fmtNum(x.wall.U,2)} W/m²K`],
-      ['Área neta de muro',`${fmtNum(x.wall.area,1)} m²`],
-      ['Ventanas',`${x.inputs.windowType||'Tipo no indicado'} · U ${fmtNum(x.inputs.windowU,2)} W/m²K · ${fmtNum(x.inputs.windowArea,1)} m²`],
-      ['Puertas',`${x.inputs.doorType||'Tipo no indicado'} · U ${fmtNum(x.inputs.doorU,2)} W/m²K · ${fmtNum(x.inputs.doorArea,1)} m²`],
-      ['U techumbre',`${fmtNum(x.inputs.roofU,2)} W/m²K · ${fmtNum(x.inputs.roofArea,1)} m²`],
-      ['Piso',`${x.inputs.floorType==='adiabatic'?'Adiabático':x.inputs.floorType==='ground'?`Piso-terreno · Ls ${fmtNum(x.inputs.floorLs,2)} W/mK · P ${fmtNum(x.inputs.groundPerimeter,1)} m`:`Piso ventilado · U ${fmtNum(x.inputs.floorU,2)} W/m²K · ${fmtNum(x.inputs.floorArea,1)} m²`}`],
-      ['ACH considerado',`${fmtNum(x.ach,2)} 1/h`],
-      ['Puentes térmicos ΣψL',`${fmtNum(x.inputs.bridgeH,2)} W/K`]
-    ].forEach(r=>addRow(doc,b2,r[0],r[1]));t2.append(b2);s2.append(t2);
+    const s2=addSection(doc,root,'2. Envolvente - resumen');
+    addData(s2,['Elemento','Área / condición','Propiedad térmica','Resultado'],[
+      ['Muros',`${fmtNum(x.wall.area,1)} m²`,`U ${fmtNum(x.wall.U,3)} W/m²K`,`${fmtNum(x.wall.loss,0)} W`],
+      ['Ventanas',`${fmtNum(x.windows.area,2)} m²`,`U ponderado ${fmtNum(x.windows.U,3)} W/m²K`,`${fmtNum(x.windows.loss,0)} W`],
+      ['Puertas',`${fmtNum(x.doors.area,2)} m²`,`U ponderado ${fmtNum(x.doors.U,3)} W/m²K`,`${fmtNum(x.doors.loss,0)} W`],
+      ['Techumbre',`${fmtNum(x.roof.area,2)} m²`,`U ${fmtNum(x.roof.U,3)} W/m²K`,`${fmtNum(x.roof.loss,0)} W`],
+      ['Piso',x.floor.type==='ground'?`P=${fmtNum(x.floor.perimeter,2)} m`:`${fmtNum(x.floor.area,2)} m²`,x.floor.type==='ground'?`Ls ${fmtNum(x.floor.Ls,3)} W/mK`:x.floor.type==='adiabatic'?'Adiabático':`U ${fmtNum(x.floor.U,3)} W/m²K`,`${fmtNum(x.floor.loss,0)} W`],
+      ['Renovación de aire',x.air.totalFlow!=null?`${fmtNum(x.air.totalFlow,1)} m³/h`:`${fmtNum(x.air.ach,2)} ACH`,`ACH ${fmtNum(x.air.ach,2)}`,`${fmtNum(x.air.loss,0)} W`],
+      ['Puentes térmicos',x.bridges.enabled?`ΣψL ${fmtNum(x.bridges.H,3)} W/K`:'No considerados','Opcional',`${fmtNum(x.bridges.loss,0)} W`]
+    ]);
 
-    const s3=addSection(doc,root,'3. Radiografía de pérdidas');
-    const sum=x.elements.reduce((a,b)=>a+b.loss,0)||1;
-    const tbl=el(doc,'table','data-table'),hh=el(doc,'tr');
-    ['Componente','Pérdida','Participación'].forEach(v=>hh.append(el(doc,'th','',v)));tbl.append(hh);
-    x.elements.forEach(p=>{const tr=el(doc,'tr');[p.name,`${fmtNum(p.loss,0)} W`,`${fmtNum(p.loss/sum*100,0)} %`].forEach(v=>tr.append(el(doc,'td','',v)));tbl.append(tr)});s3.append(tbl);
+    const s3=addSection(doc,root,'3. Ventanas - detalle');
+    s3.append(el(doc,'p','section-note',x.windows.source||''));
+    if(x.windows.rows.length)addData(s3,['ID','Ancho','Alto','Cant.','Marco','Vidrio','U','Área'],x.windows.rows.map(v=>[v.name,`${fmtNum(v.width,2)} ${v.unit}`,`${fmtNum(v.height,2)} ${v.unit}`,v.quantity,v.frame,v.glass,`${fmtNum(v.U,2)}`,`${fmtNum(v.area,2)} m²`]));
+    addKv(s3,[['Superficie total',`${fmtNum(x.windows.area,2)} m²`],['U ponderado aplicado',`${fmtNum(x.windows.U,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.windows.loss,0)} W`]]);
 
-    const s4=addSection(doc,root,'4. Resultado instantáneo');
-    const t4=el(doc,'table','kv'),b4=el(doc,'tbody');
-    [
-      ['Transmisión envolvente',`${fmtNum(x.transmission,0)} W`],
-      ['Ventilación / infiltración',`${fmtNum(x.airLoss,0)} W`],
-      ['Puentes térmicos',`${fmtNum(x.bridgeLoss||0,0)} W`],
-      ['Pérdida total',`${fmtNum(x.total,0)} W = ${fmtNum(x.total/1000,2)} kW`],
-      ['Carga específica',`${fmtNum(x.total/Math.max(x.conditions.floorArea,1),1)} W/m²`]
-    ].forEach(r=>addRow(doc,b4,r[0],r[1]));t4.append(b4);s4.append(t4);
+    const s4=addSection(doc,root,'4. Puertas - detalle');
+    s4.append(el(doc,'p','section-note',x.doors.source||''));
+    if(x.doors.rows.length)addData(s4,['ID','Ancho','Alto','Cant.','Tipo / material','U','Área'],x.doors.rows.map(v=>[v.name,`${fmtNum(v.width,2)} ${v.unit}`,`${fmtNum(v.height,2)} ${v.unit}`,v.quantity,v.type,`${fmtNum(v.U,2)}`,`${fmtNum(v.area,2)} m²`]));
+    addKv(s4,[['Superficie total',`${fmtNum(x.doors.area,2)} m²`],['U ponderado aplicado',`${fmtNum(x.doors.U,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.doors.loss,0)} W`]]);
 
-    s4.append(el(doc,'p','section-note',x.conditions.Ti>=x.conditions.Te?'El resultado representa una pérdida térmica instantánea hacia el exterior bajo condiciones constantes. No equivale a demanda anual CEV ni a dimensionamiento definitivo de calefacción.':'El exterior está más cálido que el interior: el resultado representa una ganancia térmica hacia el interior, no una pérdida de calefacción.'));
-    s4.append(el(doc,'p','section-note','Los valores U ingresados deben representar los elementos completos y contar con respaldo apropiado cuando se utilicen técnicamente. Para piso sobre terreno HIDROLAB utiliza el U equivalente ingresado por el usuario y no aplica un factor oculto.'));
-    if(x.energySchedule){
-      const s5=addSection(doc,root,'5. Simulación horaria orientativa');
-      const t5=el(doc,'table','kv'),b5=el(doc,'tbody');
-      [
-        ['Horas simuladas',`${fmtNum(x.energySchedule.totalHours,1)} h`],
-        ['Energía térmica perdida',`${fmtNum(x.energySchedule.totalKwh,2)} kWh térmicos`],
-        ['Electricidad equivalente bomba de calor',`${fmtNum(x.energySchedule.hpElec,2)} kWh eléctricos`],
-        ['Parafina equivalente',`${fmtNum(x.energySchedule.liters,2)} L`]
-      ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);s5.append(t5);
-      s5.append(el(doc,'p','section-note','Equivalencias energéticas orientativas; no representan ciclos reales del equipo ni comportamiento dinámico horario de la vivienda.'));
-    }
-    return true
+    const s5=addSection(doc,root,'5. Techumbre - capas y cálculo');
+    addKv(s5,[['Área aplicada',`${fmtNum(x.roof.area,2)} m²`],['Área manual',yes(x.roof.manualArea)],['U aplicado al módulo madre',`${fmtNum(x.roof.U,3)} W/m²K`],['R capas del constructor',`${fmtNum(x.roof.layersR,3)} m²K/W`],['Rt del constructor',`${fmtNum(x.roof.Rt,3)} m²K/W`],['U calculado por capas',`${fmtNum(x.roof.Ucalc,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.roof.loss,0)} W`]]);
+    if(x.roof.layers.length)addData(s5,['Material','e [mm]','λ [W/mK]','R [m²K/W]','Fuente / trazabilidad'],x.roof.layers.map(v=>[v.material,fmtNum(v.thicknessMm,1),fmtNum(v.lambda,3),fmtNum(v.R,3),v.source]));
+
+    const s6=addSection(doc,root,'6. Piso / radier - capas y cálculo');
+    addKv(s6,[['Tipo',x.floor.type],['Área aplicada',`${fmtNum(x.floor.area,2)} m²`],['Área manual',yes(x.floor.manualArea)],['Modo constructor',x.floor.builderMode],['U piso ventilado aplicado',`${fmtNum(x.floor.U,3)} W/m²K`],['Ls piso-terreno',`${fmtNum(x.floor.Ls,3)} W/mK`],['Perímetro en contacto',`${fmtNum(x.floor.perimeter,2)} m`],['R capas 1D',`${fmtNum(x.floor.layersR,3)} m²K/W`],['Rt 1D',`${fmtNum(x.floor.Rt,3)} m²K/W`],['U 1D constructor',`${fmtNum(x.floor.Ucalc,3)} W/m²K`],['Pérdida instantánea',`${fmtNum(x.floor.loss,0)} W`]]);
+    if(x.floor.layers.length)addData(s6,['Material','e [mm]','λ [W/mK]','R [m²K/W]','Fuente / trazabilidad'],x.floor.layers.map(v=>[v.material,fmtNum(v.thicknessMm,1),fmtNum(v.lambda,3),fmtNum(v.R,3),v.source]));
+    s6.append(el(doc,'p','section-note',x.floor.type==='ground'?'Para piso en contacto con terreno, el resultado madre usa Ls·P·ΔT. El U 1D de las capas se mantiene como lectura didáctica y no sustituye NCh3117.':'Para piso ventilado, el constructor por capas representa una aproximación homogénea según las propiedades ingresadas.'));
+
+    const s7=addSection(doc,root,'7. Renovación de aire');
+    addKv(s7,[['Método',x.air.mode==='cevMin'?'Ventilación mínima CEV + infiltración':'ACH total conocido'],['ACH total usado',`${fmtNum(x.air.ach,2)} 1/h`],['Dormitorios',`${x.air.bedrooms}`],['Personas consideradas',`${x.air.persons}`],['Ventilación higiénica',x.air.ventilationAch==null?'Incluida en ACH total':`${fmtNum(x.air.ventilationAch,2)} ACH · ${fmtNum(x.air.ventilationFlow,1)} m³/h`],['Infiltración adicional',x.air.infiltrationAch==null?'Incluida en ACH total':`${fmtNum(x.air.infiltrationAch,2)} ACH · ${fmtNum(x.air.infiltrationFlow,1)} m³/h`],['Caudal total usado',x.air.totalFlow==null?'—':`${fmtNum(x.air.totalFlow,1)} m³/h`],['Pérdida / ganancia sensible',`${fmtNum(x.air.loss,0)} W`]]);
+    s7.append(el(doc,'p','section-note','HIDROLAB separa ventilación higiénica e infiltración. Cuando se usa el modo CEV, ambos caudales se suman sólo para esta estimación térmica estacionaria; no sustituye el procedimiento completo de infiltraciones y ventilación de la CEV.'));
+
+    const s8=addSection(doc,root,'8. Puentes térmicos adicionales');
+    addKv(s8,[['Activados',yes(x.bridges.enabled)],['Método',x.bridges.mode||'—'],['Longitud total',`${fmtNum(x.bridges.length,2)} m`],['ψ medio',`${fmtNum(x.bridges.psi,3)} W/mK`],['ΣψL',`${fmtNum(x.bridges.H,3)} W/K`],['Pérdida adicional',`${fmtNum(x.bridges.loss,0)} W`]]);
+    s8.append(el(doc,'p','section-note','Este ingreso lineal es complementario. No deben duplicarse puentes térmicos ya incorporados en el U de una solución ni el perímetro de un piso-terreno calculado mediante Ls.'));
+
+    const s9=addSection(doc,root,'9. Resultado instantáneo y ranking');
+    addKv(s9,[['Transmisión envolvente',`${fmtNum(x.result.transmission,0)} W`],['Renovación de aire',`${fmtNum(x.result.airLoss,0)} W`],['Puentes térmicos',`${fmtNum(x.result.bridgeLoss,0)} W`],['Resultado total',`${fmtNum(x.result.total,0)} W = ${fmtNum(x.result.total/1000,2)} kW`],['Carga específica',`${fmtNum(x.result.specific,1)} W/m²`]]);
+    const sum=x.result.parts.reduce((a,b)=>a+b.loss,0)||1;
+    addData(s9,['Componente','W','Participación'],x.result.parts.map(v=>[v.name,fmtNum(v.loss,0),`${fmtNum(v.loss/sum*100,1)} %`]));
+    s9.append(el(doc,'p','section-note',x.conditions.direction==='in'?'El exterior está más cálido que el interior: la magnitud representa ganancia térmica hacia el recinto, no pérdida de calefacción.':'El interior está más cálido que el exterior: la magnitud representa pérdida térmica hacia el exterior.'));
+
+    const s10=addSection(doc,root,'10. Simulación horaria, energía y costo');
+    if(x.energy.periods.length)addData(s10,['Desde','Hasta','Ti','Te','Horas','Dirección','Energía'],x.energy.periods.map(v=>[v.start,v.end,`${fmtNum(v.Ti,1)} °C`,`${fmtNum(v.Te,1)} °C`,fmtNum(v.hours,1),v.direction,`${fmtNum(v.energyKwh,2)} kWh`]));
+    if(x.energy.summary)addKv(s10,[['Horas simuladas',`${fmtNum(x.energy.summary.totalHours,1)} h`],['Pérdida acumulada calefacción',`${fmtNum(x.energy.summary.totalKwh,2)} kWh térmicos`],['Ganancia hacia interior',`${fmtNum(x.energy.summary.coolingKwh,2)} kWh térmicos`],['Coeficiente global H',`${fmtNum(x.energy.summary.H,2)} W/K`]]);
+    addData(s10,['Equipo / costo','Parámetro configurado','Equivalencia / resultado'],[
+      ['Estufa eléctrica',`${fmtNum(x.energy.electricHeaterKw,2)} kW`,x.energy.electricHours],
+      ['Bomba de calor',`${fmtNum(x.energy.heatPumpKw,2)} kW térmicos · COP ${fmtNum(x.energy.heatPumpCop,2)}`,`${x.energy.heatPumpHours} · ${x.energy.heatPumpElectricity}`],
+      ['Estufa a parafina',`${fmtNum(x.energy.keroseneKwhL,2)} kWh/L · η ${fmtNum(x.energy.keroseneEff,0)}% · ${fmtNum(x.energy.keroseneLph,2)} L/h`,`${x.energy.keroseneHours} · ${x.energy.keroseneLiters}`],
+      ['Tarifa eléctrica',`$${fmtNum(x.energy.electricPrice,0)}/kWh`,`Estufa ${x.energy.electricCost} · Bomba de calor ${x.energy.heatPumpCost}`],
+      ['Precio parafina',`$${fmtNum(x.energy.kerosenePrice,0)}/L`,x.energy.keroseneCost]
+    ]);
+    s10.append(el(doc,'p','section-note','Las equivalencias son energéticas y estacionarias. No representan ciclos reales de termostato, ganancias internas/solares, masa térmica ni rendimiento estacional de los equipos.'));
+
+    const s11=addSection(doc,root,'11. Simulación de mejoras');
+    addKv(s11,[['Escenario aplicado actualmente',x.improvements.applied||'Ninguno'],['Total de referencia',`${fmtNum(x.improvements.referenceTotal/1000,2)} kW`]]);
+    addData(s11,['Mejora','Valor base','Objetivo','Ahorro estimado','Nuevo total'],x.improvements.rows.map(v=>[v.name,fmtNum(v.from,2),fmtNum(v.to,2),`${fmtNum(v.save,0)} W`,`${fmtNum(v.newTotal/1000,2)} kW`]));
+    s11.append(el(doc,'p','section-note','Cada escenario modifica un parámetro a la vez y se compara contra la misma condición base. Los valores objetivo son comparativos/orientativos hasta que se definan mediante una solución constructiva o producto respaldado.'));
+
+    const s12=addSection(doc,root,'12. Alcance técnico y trazabilidad');
+    s12.append(el(doc,'p','section-note',x.scope.transmission));
+    s12.append(el(doc,'p','section-note',x.scope.air));
+    s12.append(el(doc,'p','section-note',x.scope.annual));
+    s12.append(el(doc,'p','section-note','Los valores U, λ, ψ, Ls y características de productos deben contar con respaldo técnico apropiado cuando el informe se utilice fuera del contexto didáctico de HIDROLAB.'));
+    return true;
   }
 
   function buildReport(){
@@ -641,7 +665,7 @@
     const meta=d.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; d.head.append(meta);
     const style=d.createElement('style');
     style.textContent=`
-      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.chart-title{font-weight:800;color:#294b59;font-size:9pt;margin-bottom:5px}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;color:#53656e;font-size:8pt}.sign{font-weight:800;color:#244b5c}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.wall-profile-svg svg{display:block;width:100%;height:auto;max-height:390px;background:#fbfcfc}.wall-profile-pdf{margin-top:10px}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}.vapor-pdf-highlight{margin:9px 0;padding:11px;border-radius:8px;background:#eaf7fa;border:1px solid #b9dfe7;color:#0c6078;font-size:14pt;font-weight:900;text-align:center}
+      @page{size:A4;margin:18mm 14mm 20mm}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#15242c;background:#fff;font-size:10.5pt;line-height:1.42}header{border-bottom:3px solid #0f536b;padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between;gap:16px}.brand{font-size:22pt;font-weight:900;letter-spacing:.03em;color:#0a3445}.brand .lab{color:#6fa83b}.subtitle{font-size:8.5pt;color:#61747d;margin-top:2px}.meta{text-align:right;font-size:8.5pt;color:#596b73}.report-title{font-size:18pt;margin:0 0 5px;color:#123c4e}.intro{color:#53656e;margin:0 0 14px}.watermark{position:fixed;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-28deg);font-size:70pt;font-weight:900;letter-spacing:.08em;color:rgba(12,70,90,.055);z-index:-1;white-space:nowrap}.watermark .lab{color:rgba(111,168,59,.065)}.project-box{border:1px solid #d6e0e4;background:#f7fafb;border-radius:9px;padding:10px 12px;margin:12px 0 18px;display:grid;grid-template-columns:1fr 1fr;gap:5px 18px}.project-box div{font-size:9pt}.project-box b{color:#294b59}.report-section{break-inside:avoid;margin:0 0 17px}.report-section h2{font-size:12pt;color:#0d4e65;border-bottom:1px solid #cfdde2;padding-bottom:5px;margin:0 0 8px}.kv{width:100%;border-collapse:collapse}.kv td{padding:5px 7px;border-bottom:1px solid #e4eaed;vertical-align:top}.kv td:first-child{width:58%;color:#52656e}.kv td:last-child{font-weight:700;text-align:right}.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.result{border:1px solid #dce5e8;border-radius:7px;padding:7px 9px;break-inside:avoid}.result .rlabel{color:#5c6d75;font-size:8.5pt}.result .rvalue{font-weight:800;font-size:11pt;margin-top:2px}.chart{border:1px solid #dce5e8;border-radius:8px;padding:8px;margin:8px 0;break-inside:avoid}.chart-title{font-weight:800;color:#294b59;font-size:9pt;margin-bottom:5px}.data-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6px}.data-table th,.data-table td{border:1px solid #dbe3e7;padding:4px 5px;text-align:left}.data-table tr{break-inside:avoid}.data-table th{background:#edf4f6;color:#294b59}.obs{white-space:pre-wrap;border-left:3px solid #6fa83b;background:#f6f9f3;padding:9px 11px}.disclaimer{margin-top:18px;padding:9px 11px;background:#f6f7f8;border:1px solid #dfe5e8;font-size:8.3pt;color:#5f6d74}.page-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;border-top:1px solid #ccd9de;padding-top:4px;display:flex;justify-content:space-between;gap:10px;color:#53656e;font-size:7.2pt}.sign{font-weight:800;color:#244b5c;max-width:72%}.print-note{margin:0 0 12px;padding:8px;background:#fff4d8;border:1px solid #ead69c;font-size:9pt}.section-note{font-size:8.7pt;color:#66777f;margin:0 0 8px}.report-figures{display:grid;grid-template-columns:1fr;gap:10px}.report-figure{margin:0;border:1px solid #dce5e8;border-radius:8px;padding:7px;break-inside:avoid}.report-figure figcaption{font-size:8.5pt;font-weight:800;color:#34525f;margin-bottom:5px}.report-figure img{display:block;width:100%;max-height:430px;object-fit:contain;background:#f2f5f6}.wall-profile-svg svg{display:block;width:100%;height:auto;max-height:390px;background:#fbfcfc}.wall-profile-pdf{margin-top:10px}.solar-detail-table{font-size:7.8pt}.solar-pdf-timelines{margin-top:12px;border:1px solid #dfe6e9;border-radius:8px;padding:9px}.solar-pdf-row{display:grid;grid-template-columns:120px 1fr;gap:7px;align-items:center;margin:5px 0}.solar-pdf-label{font-size:7.6pt;color:#425963}.solar-pdf-track{height:9px;background:#e7edef;border-radius:99px;position:relative;overflow:hidden}.solar-pdf-seg{position:absolute;top:0;bottom:0;background:#efb326;border-radius:99px}.solar-pdf-scale{margin-left:127px;display:flex;justify-content:space-between;font-size:6.8pt;color:#87949a}.method-list{margin:4px 0 0 18px;padding:0;color:#566871;font-size:8.8pt}.method-list li{margin:4px 0}.vapor-pdf-highlight{margin:9px 0;padding:11px;border-radius:8px;background:#eaf7fa;border:1px solid #b9dfe7;color:#0c6078;font-size:14pt;font-weight:900;text-align:center}
       .risk-wall-visual{display:flex;align-items:stretch;gap:5px;min-height:120px;margin:8px 0 12px;padding:7px;border:1px solid #d8e4e7;border-radius:8px;background:#f8fbfc}
       .risk-wall-side{width:78px;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:7px;text-align:center}.risk-wall-side small{font-size:7pt;font-weight:800}.risk-wall-side b{font-size:13pt;margin-top:3px}.risk-wall-side.warm{background:#f6ebdb;color:#75522e}.risk-wall-side.cold{background:#e1f0f6;color:#315f74}
       .risk-wall-stack{display:flex;flex:1;gap:2px;min-width:0}.risk-wall-layer{min-width:34px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:5px 3px;background:#e8eff0;border:1px solid #bacbcf;border-radius:3px}.risk-wall-layer:nth-child(2n){background:#e8f1be}.risk-wall-layer b{font-size:7pt}.risk-wall-layer span,.risk-wall-layer small{font-size:6pt;color:#526970}
@@ -653,13 +677,13 @@
 
     const body=d.body;
     const watermark=el(d,'div','watermark'); watermark.append(d.createTextNode('HIDRO'),el(d,'span','lab','LAB')); body.append(watermark);
-    const footer=el(d,'div','page-footer'); footer.append(el(d,'span','sign','Calificador CEV Gonzalo C.'),el(d,'span','','HIDROLAB · Informe de simulación')); body.append(footer);
+    const footer=el(d,'div','page-footer'); footer.append(el(d,'span','sign','Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025'),el(d,'span','','HIDROLAB · Informe de simulación')); body.append(footer);
     body.append(el(d,'div','print-note','Para obtener el archivo: en el diálogo de impresión selecciona “Guardar como PDF”.'));
 
     const header=el(d,'header');
     const brandWrap=el(d,'div'); const brand=el(d,'div','brand'); brand.append(d.createTextNode('HIDRO'),el(d,'span','lab','LAB'));
     brandWrap.append(brand,el(d,'div','subtitle','Higrotécnica · confort · salud'));
-    const metaWrap=el(d,'div','meta'); metaWrap.append(el(d,'div','',`Informe ${reportId()}`),el(d,'div','',new Date().toLocaleString('es-CL')));
+    const metaWrap=el(d,'div','meta'); metaWrap.append(el(d,'div','',`Informe ${reportId()}`),el(d,'div','',new Date().toLocaleString('es-CL')),el(d,'div','','Evaluador CEV · Res. Ex. Acreditación 1336/2025'));
     header.append(brandWrap,metaWrap); body.append(header);
 
     const pageTitle=txt(document.querySelector('.hero h1')) || document.title.replace(/^HIDROLAB\s*[·-]\s*/,'');
