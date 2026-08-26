@@ -284,7 +284,7 @@
 
   function reportId(){
     const d=new Date(), p=n=>String(n).padStart(2,'0');
-    return `HL-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+    return `HG-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
   }
 
   function addRow(doc,tbody,a,b){
@@ -673,12 +673,12 @@
     d.head.append(style);
 
     const body=d.body;
-    const watermark=el(d,'div','watermark'); watermark.append(d.createTextNode('HIDRO'),el(d,'span','lab','LAB')); body.append(watermark);
+    const watermark=el(d,'div','watermark'); watermark.append(d.createTextNode('HIGRO'),el(d,'span','lab','LAB')); body.append(watermark);
     const footer=el(d,'div','page-footer'); footer.append(el(d,'span','sign','Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025'),el(d,'span','','HIGROLAB · Informe de simulación')); body.append(footer);
     body.append(el(d,'div','print-note','Para obtener el archivo: en el diálogo de impresión selecciona “Guardar como PDF”.'));
 
     const header=el(d,'header');
-    const brandWrap=el(d,'div'); const brand=el(d,'div','brand'); brand.append(d.createTextNode('HIDRO'),el(d,'span','lab','LAB'));
+    const brandWrap=el(d,'div'); const brand=el(d,'div','brand'); brand.append(d.createTextNode('HIGRO'),el(d,'span','lab','LAB'));
     brandWrap.append(brand,el(d,'div','subtitle','Higrotécnica · confort · salud'));
     const metaWrap=el(d,'div','meta'); metaWrap.append(
       el(d,'div','',`Informe ${reportId()}`),
