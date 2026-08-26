@@ -535,7 +535,7 @@ function updateSolar(){
   if(SEL.type==='facade')renderSelectionInspector()
 }
 function setTool(t){S.tool=t;qsa('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));$('cad-hint').textContent={select:'Selecciona y arrastra vértices para corregir la planta.',wall:'Haz clic en las esquinas. Clic cerca del primer punto para cerrar.',measure:'Marca dos puntos cuya distancia real conozcas.',north:'Marca dos puntos formando una flecha hacia el Norte.'}[t]||''}
-function initCommunes(){const data=window.HIDROLAB_COMMUNES||window.HIDROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
+function initCommunes(){const data=window.HIGROLAB_COMMUNES||window.HIGROLAB_COMUNAS||window.COMUNAS_CHILE||[];const reg=$('region-select'),com=$('commune-select');if(Array.isArray(data)&&data.length){const regs=[...new Set(data.map(x=>x.region||x.region_name).filter(Boolean))];reg.innerHTML=regs.map(x=>`<option>${x}</option>`).join('');const fill=()=>{const items=data.filter(x=>(x.region||x.region_name)===reg.value);com.innerHTML=items.map((x,i)=>`<option value="${i}">${x.comuna||x.name}</option>`).join('');com.onchange=()=>{const x=items[+com.value];if(x){$('lat').value=x.lat||x.latitude||$('lat').value;$('lon').value=x.lon||x.lng||x.longitude||$('lon').value;updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};com.onchange()};reg.onchange=fill;fill()}else{reg.innerHTML='<option>Región Metropolitana</option>';com.innerHTML='<option>Coordenadas manuales</option>'}}
 
 
 function applyLocationFromQuery(){
@@ -631,9 +631,9 @@ function loadStaticMapPlanReference(){
   }).toString();
 
   if($('remember-static-key')?.checked){
-    try{localStorage.setItem('hidrolab-google-static-key',key)}catch(_){}
+    try{localStorage.setItem('higrolab-google-static-key',key)}catch(_){}
   }else{
-    try{localStorage.removeItem('hidrolab-google-static-key')}catch(_){}
+    try{localStorage.removeItem('higrolab-google-static-key')}catch(_){}
   }
 
   const img=$('google-plan-reference');
@@ -662,7 +662,7 @@ function loadStaticMapPlanReference(){
 
 function initStaticMapPlanReference(){
   try{
-    const saved=localStorage.getItem('hidrolab-google-static-key');
+    const saved=localStorage.getItem('higrolab-google-static-key');
     if(saved&&$('static-map-key')){
       $('static-map-key').value=saved;
       if($('remember-static-key'))$('remember-static-key').checked=true;
@@ -1075,6 +1075,6 @@ function solarReportPayload(){
     }
   }
 }
-window.HIDROLAB_SOLAR_REPORT=solarReportPayload;
+window.HIGROLAB_SOLAR_REPORT=solarReportPayload;
 
-try{init()}catch(err){console.error('HIDROLAB Solar Studio init error',err);const pill=document.getElementById('status-pill');if(pill)pill.textContent='Error de inicio';const panel=document.getElementById('selection-panel');if(panel)panel.innerHTML='<h3>ERROR DE INICIO</h3><div class="empty">El módulo no pudo iniciar. Recarga la página; si persiste, revisa la consola del navegador.</div>'}
+try{init()}catch(err){console.error('HIGROLAB Solar Studio init error',err);const pill=document.getElementById('status-pill');if(pill)pill.textContent='Error de inicio';const panel=document.getElementById('selection-panel');if(panel)panel.innerHTML='<h3>ERROR DE INICIO</h3><div class="empty">El módulo no pudo iniciar. Recarga la página; si persiste, revisa la consola del navegador.</div>'}

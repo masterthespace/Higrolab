@@ -1,23 +1,23 @@
 'use strict';
 const A=17.62,B=243.12,RSE=.04,RSI=.13;
 const materialLibrary={
-  "Estuco cementicio":{lambda:.87,source:"Orientativo HIDROLAB · verificar mortero/producto",class:"estimate"},
+  "Estuco cementicio":{lambda:.87,source:"Orientativo HIGROLAB · verificar mortero/producto",class:"estimate"},
   "Hormigón armado":{lambda:1.63,source:"NCh853:2021 · hormigón armado normal · ρ≈2400 kg/m³",class:"normative"},
-  "Ladrillo cerámico":{lambda:.72,source:"Orientativo HIDROLAB · depende de pieza y configuración",class:"estimate"},
-  "Bloque AAC":{lambda:.16,source:"Orientativo HIDROLAB · usar ficha del fabricante",class:"estimate"},
-  "Yeso-cartón":{lambda:.25,source:"Orientativo HIDROLAB · verificar densidad/producto",class:"estimate"},
-  "OSB":{lambda:.13,source:"Orientativo HIDROLAB · verificar densidad/producto",class:"estimate"},
-  "Madera":{lambda:.13,source:"Orientativo HIDROLAB · depende de especie y humedad",class:"estimate"},
-  "Lana mineral (genérica)":{lambda:.040,source:"Familia presente en LOSCAT DITEC–MINVU · λ depende de densidad/producto; 0,040 W/mK es valor orientativo HIDROLAB y debe reemplazarse por valor acreditado para memoria",class:"estimate"},
+  "Ladrillo cerámico":{lambda:.72,source:"Orientativo HIGROLAB · depende de pieza y configuración",class:"estimate"},
+  "Bloque AAC":{lambda:.16,source:"Orientativo HIGROLAB · usar ficha del fabricante",class:"estimate"},
+  "Yeso-cartón":{lambda:.25,source:"Orientativo HIGROLAB · verificar densidad/producto",class:"estimate"},
+  "OSB":{lambda:.13,source:"Orientativo HIGROLAB · verificar densidad/producto",class:"estimate"},
+  "Madera":{lambda:.13,source:"Orientativo HIGROLAB · depende de especie y humedad",class:"estimate"},
+  "Lana mineral (genérica)":{lambda:.040,source:"Familia presente en LOSCAT DITEC–MINVU · λ depende de densidad/producto; 0,040 W/mK es valor orientativo HIGROLAB y debe reemplazarse por valor acreditado para memoria",class:"estimate"},
   "Lana mineral LOSCAT 40 kg/m³":{lambda:.042,source:"DITEC–MINVU LOSCAT · lana mineral; usar ficha/solución vigente para confirmar densidad y λ aplicables",class:"normative"},
   "Lana de vidrio LOSCAT ≥11 kg/m³":{lambda:.042,source:"DITEC–MINVU LOSCAT · lana de fibra de vidrio ≥11 kg/m³ · λ=0,042 W/mK",class:"normative"},
   "Lana de vidrio (genérica)":{lambda:.040,source:"Familia presente en LOSCAT DITEC–MINVU · valor 0,040 W/mK orientativo; para acreditación usar λ de solución, NCh853 o ensayo",class:"estimate"},
   "EPS LOSCAT 20 kg/m³":{lambda:.0384,source:"DITEC–MINVU LOSCAT · poliestireno expandido 20 kg/m³ · λ=0,0384 W/mK",class:"normative"},
   "EPS (genérico)":{lambda:.038,source:"Familia presente en LOSCAT DITEC–MINVU · valor 0,038 W/mK orientativo; seleccionar densidad/producto acreditado para memoria",class:"estimate"},
-  "XPS":{lambda:.032,source:"Aislante de uso técnico · λ=0,032 W/mK orientativa HIDROLAB; no se etiqueta como NCh853/LOSCAT sin ficha o ensayo específico",class:"estimate"},
-  "Poliuretano expandido":{lambda:.025,source:"Familia incluida en LOSCAT DITEC–MINVU · λ=0,025 W/mK orientativa HIDROLAB; para memoria usar valor de la solución/producto acreditado",class:"estimate"},
+  "XPS":{lambda:.032,source:"Aislante de uso técnico · λ=0,032 W/mK orientativa HIGROLAB; no se etiqueta como NCh853/LOSCAT sin ficha o ensayo específico",class:"estimate"},
+  "Poliuretano expandido":{lambda:.025,source:"Familia incluida en LOSCAT DITEC–MINVU · λ=0,025 W/mK orientativa HIGROLAB; para memoria usar valor de la solución/producto acreditado",class:"estimate"},
   "Poliuretano rígido (PDA/LOSCAT)":{lambda:.028,source:"Poliuretano rígido aparece en soluciones oficiales MINVU/PDA; λ=0,028 W/mK es valor orientativo hasta asociar ficha/ensayo específico",class:"estimate"},
-  "Fibra de madera":{lambda:.045,source:"Valor orientativo HIDROLAB · no etiquetado como oficial; usar ficha/ensayo acreditado",class:"estimate"},
+  "Fibra de madera":{lambda:.045,source:"Valor orientativo HIGROLAB · no etiquetado como oficial; usar ficha/ensayo acreditado",class:"estimate"},
   "Celulosa insuflada":{lambda:.040,source:"Familia Lana de Celulosa incluida en LOSCAT DITEC–MINVU · λ=0,040 W/mK orientativa; usar valor acreditado de la solución/producto",class:"estimate"},
   "Lana de roca":{lambda:.040,source:"Familia Lana de Roca incluida en LOSCAT DITEC–MINVU · λ=0,040 W/mK orientativa; usar valor acreditado de la solución/producto",class:"estimate"},
   "Lana de oveja":{lambda:.040,source:"Aislante presente en fichas constructivas PDA publicadas por DITEC–MINVU · λ=0,040 W/mK orientativa; verificar ficha/ensayo de la solución",class:"estimate"},
@@ -29,12 +29,12 @@ const materialLibrary={
   "Volcanboard Fachada 10 mm":{lambda:.23,thickness:10,source:"Volcán · Volcanboard Fachada 10 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
   "Volcanboard Alto Impacto 12 mm":{lambda:.23,thickness:12,source:"Volcán · Volcanboard Alto Impacto 12 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
   "Volcanboard Alto Impacto XR 15 mm":{lambda:.23,thickness:15,source:"Volcán · Volcanboard Alto Impacto XR 15 mm · 1,20×2,40 m · λ orientativa: verificar ficha/ensayo para memoria",class:"estimate"},
-  "Poligyp Regular 20 mm (Yeso 10 + EPS 10)":{lambda:.0833,thickness:20,declaredR:.24,source:"Poligyp · panel compuesto · R declarado 0,24 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
-  "Poligyp Regular 30 mm (Yeso 10 + EPS 20)":{lambda:.0625,thickness:30,declaredR:.48,source:"Poligyp · panel compuesto · R declarado 0,48 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
-  "Poligyp Regular 40 mm (Yeso 10 + EPS 30)":{lambda:.0548,thickness:40,declaredR:.73,source:"Poligyp · panel compuesto · R declarado 0,73 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
-  "Poligyp Plusgrafito 20 mm (Yeso 10 + EPS 10)":{lambda:.0690,thickness:20,declaredR:.29,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,29 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
-  "Poligyp Plusgrafito 30 mm (Yeso 10 + EPS 20)":{lambda:.0508,thickness:30,declaredR:.59,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,59 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"},
-  "Poligyp Plusgrafito 40 mm (Yeso 10 + EPS 30)":{lambda:.0455,thickness:40,declaredR:.88,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,88 m²K/W (biblioteca HIDROLAB/ficha incorporada)",class:"product"}
+  "Poligyp Regular 20 mm (Yeso 10 + EPS 10)":{lambda:.0833,thickness:20,declaredR:.24,source:"Poligyp · panel compuesto · R declarado 0,24 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Regular 30 mm (Yeso 10 + EPS 20)":{lambda:.0625,thickness:30,declaredR:.48,source:"Poligyp · panel compuesto · R declarado 0,48 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Regular 40 mm (Yeso 10 + EPS 30)":{lambda:.0548,thickness:40,declaredR:.73,source:"Poligyp · panel compuesto · R declarado 0,73 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 20 mm (Yeso 10 + EPS 10)":{lambda:.0690,thickness:20,declaredR:.29,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,29 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 30 mm (Yeso 10 + EPS 20)":{lambda:.0508,thickness:30,declaredR:.59,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,59 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"},
+  "Poligyp Plusgrafito 40 mm (Yeso 10 + EPS 30)":{lambda:.0455,thickness:40,declaredR:.88,source:"Poligyp Plusgrafito · panel compuesto · R declarado 0,88 m²K/W (biblioteca HIGROLAB/ficha incorporada)",class:"product"}
 };
 const materials=Object.fromEntries(Object.entries(materialLibrary).map(([k,v])=>[k,v.lambda]));
 let layers=[
@@ -92,7 +92,7 @@ function calc(extraR=0){
 }
 function materialOptions(selected){return Object.keys(materials).map(m=>`<option ${m===selected?'selected':''}>${m}</option>`).join('')+`<option ${selected==='Personalizado'?'selected':''}>Personalizado</option>`}
 function renderRows(){normalizeLayerSources();const tb=$('layers');tb.innerHTML='';layers.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><select class="mat" data-i="${i}">${materialOptions(x.m)}</select></td><td><input class="thick" data-i="${i}" type="number" min="1" step="1" value="${x.e}"></td><td><input class="lambda" data-i="${i}" type="number" min="0.001" step="0.001" value="${x.l}"></td><td class="rval">${fmt(effectiveLayerR(x,i),3)}</td><td><span class="material-source ${x.sourceClass||'estimate'}">${x.source||'Valor personalizado por usuario'}</span></td><td><div class="row-actions"><button class="up" data-i="${i}" title="Subir">↑</button><button class="down" data-i="${i}" title="Bajar">↓</button><button class="del" data-i="${i}" title="Eliminar">×</button></div></td>`;tb.appendChild(tr)});bindRows()}
-function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value]){const meta=materialLibrary[el.value]||{};layers[i].l=materials[el.value];if(meta.thickness)layers[i].e=meta.thickness;layers[i].declaredR=meta.declaredR||null;layers[i].source=meta.source||'Biblioteca HIDROLAB';layers[i].sourceClass=meta.class||'estimate'}renderRows();renderFrameLayerOptions();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);layers[+el.dataset.i].declaredR=null;render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].declaredR=null;layers[+el.dataset.i].m='Personalizado';layers[+el.dataset.i].source='Valor personalizado por usuario';layers[+el.dataset.i].sourceClass='custom';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
+function bindRows(){document.querySelectorAll('.mat').forEach(el=>el.addEventListener('change',()=>{const i=+el.dataset.i;layers[i].m=el.value;if(materials[el.value]){const meta=materialLibrary[el.value]||{};layers[i].l=materials[el.value];if(meta.thickness)layers[i].e=meta.thickness;layers[i].declaredR=meta.declaredR||null;layers[i].source=meta.source||'Biblioteca HIGROLAB';layers[i].sourceClass=meta.class||'estimate'}renderRows();renderFrameLayerOptions();render()}));document.querySelectorAll('.thick').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].e=Math.max(1,+el.value||1);layers[+el.dataset.i].declaredR=null;render()}));document.querySelectorAll('.lambda').forEach(el=>el.addEventListener('input',()=>{layers[+el.dataset.i].l=Math.max(.001,+el.value||.001);layers[+el.dataset.i].declaredR=null;layers[+el.dataset.i].m='Personalizado';layers[+el.dataset.i].source='Valor personalizado por usuario';layers[+el.dataset.i].sourceClass='custom';render()}));document.querySelectorAll('.del').forEach(el=>el.addEventListener('click',()=>{if(layers.length>1){layers.splice(+el.dataset.i,1);renderRows();render()}}));document.querySelectorAll('.up').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i>0){[layers[i-1],layers[i]]=[layers[i],layers[i-1]];renderRows();render()}}));document.querySelectorAll('.down').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(i<layers.length-1){[layers[i+1],layers[i]]=[layers[i],layers[i+1]];renderRows();render()}}))}
 
 function normalizeLayerSources(){
   layers.forEach(l=>{
@@ -124,7 +124,7 @@ const COMMUNE_ZONES=[['Arica','A','<1.100 msnm; sectores altos cambian de zona']
 function renderNormative(c){
  const enabled=!!$('normEnabled')?.checked;$('normControls')?.classList.toggle('hidden',!enabled);const box=$('normResult');if(!box)return;
  if(!enabled){box.className='norm-result disabled';box.innerHTML='<small>COMPARACIÓN DESACTIVADA</small><strong>Actívala para evaluar el muro</strong>';return}
- const z=$('thermalZone').value;if(!z||!WALL_LIMITS_RESIDENTIAL[z]){box.className='norm-result disabled';box.innerHTML='<small>ZONA TÉRMICA PENDIENTE</small><strong>Selecciona Región → Comuna, o elige una zona en el mapa</strong><span>HIDROLAB realizará la comparación cuando exista una zona definida.</span>';return}const lim=WALL_LIMITS_RESIDENTIAL[z],ratio=c.U/lim.u,pass=c.U<=lim.u+1e-9;let state,cls,detail;
+ const z=$('thermalZone').value;if(!z||!WALL_LIMITS_RESIDENTIAL[z]){box.className='norm-result disabled';box.innerHTML='<small>ZONA TÉRMICA PENDIENTE</small><strong>Selecciona Región → Comuna, o elige una zona en el mapa</strong><span>HIGROLAB realizará la comparación cuando exista una zona definida.</span>';return}const lim=WALL_LIMITS_RESIDENTIAL[z],ratio=c.U/lim.u,pass=c.U<=lim.u+1e-9;let state,cls,detail;
  if(!pass){state='NO CUMPLE EL PARÁMETRO U/RT DE LA ZONA';cls='fail';detail=`La U excede el máximo en ${fmt(c.U-lim.u,2)} W/m²K.`}
  else if(ratio>=.90){state='CUMPLE, PERO ESTÁ CERCA DEL LÍMITE';cls='near';detail=`Margen U: ${fmt(lim.u-c.U,2)} W/m²K. Revisa propiedades reales y puentes térmicos.`}
  else{state='CUMPLE CON MARGEN';cls='pass';detail=`La U está ${fmt((1-ratio)*100,0)}% por debajo del máximo de la zona.`}
@@ -165,7 +165,7 @@ function renderChileThermalMap(){
   l.querySelectorAll('button').forEach(btn=>btn.onclick=()=>selectThermalZone(btn.dataset.zone));
 }
 function initThermalLocationSelectors(){
-  const data=window.HIDROLAB_THERMAL_ZONES||[];
+  const data=window.HIGROLAB_THERMAL_ZONES||[];
   const reg=$('thermalRegion'),com=$('thermalCommune');
   if(!reg||!com||!data.length)return;
   const regions=[...new Set(data.map(x=>x.region).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
@@ -283,7 +283,7 @@ function renderMinimumGoalInfo(){
   if(!$('zoneGoalText'))return;
   const z=$('thermalZone')?.value,lim=WALL_LIMITS_RESIDENTIAL[z];
   if(z&&lim){$('zoneGoalText').textContent=`Zona ${z}: U objetivo ≤ ${fmt(lim.u,2)} W/m²K`;$('zoneGoalHint').textContent=`Rt mínimo de referencia: ${fmt(lim.rt,2)} m²K/W.`}
-  else{$('zoneGoalText').textContent='Selecciona una zona térmica en la sección 04.';$('zoneGoalHint').textContent='HIDROLAB utilizará el U máximo de esa zona como objetivo.'}
+  else{$('zoneGoalText').textContent='Selecciona una zona térmica en la sección 04.';$('zoneGoalHint').textContent='HIGROLAB utilizará el U máximo de esa zona como objetivo.'}
 }
 function renderDewGauge(c,n,dew,rhOld,rhNew){const lo=Math.min(dew-4,c.Tsi-2,n.Tsi-2);const hi=Math.max(c.Ti+1,dew+5,c.Tsi+2,n.Tsi+2);const pos=t=>clamp((t-lo)/(hi-lo)*100,0,100);const dewPos=pos(dew),warnPos=pos(dew+2);$('dewDangerZone').style.width=dewPos+'%';$('dewWarningZone').style.left=dewPos+'%';$('dewWarningZone').style.width=Math.max(0,warnPos-dewPos)+'%';[['dewMarker',dew],['oldMarker',c.Tsi],['newMarker',n.Tsi]].forEach(([id,t])=>{const el=$(id);el.style.left=pos(t)+'%';el.classList.remove('marker-left','marker-right','marker-combined')});
   const oldPos=pos(c.Tsi),newPos=pos(n.Tsi);
@@ -327,7 +327,7 @@ function selectedInsulationData(){
   return {
     lambda:+sel.value,
     name:sel.selectedOptions[0]?.textContent.split('·')[0].trim()||'Aislante',
-    source:sel.selectedOptions[0]?.textContent||'Biblioteca HIDROLAB',
+    source:sel.selectedOptions[0]?.textContent||'Biblioteca HIGROLAB',
     custom:false
   };
 }
@@ -385,7 +385,7 @@ $('modeInsulate')?.addEventListener('click',()=>setImprovementMode('insulate'));
 $('goalDew')?.addEventListener('click',()=>setMinimumGoal('dew'));
 $('goalZone')?.addEventListener('click',()=>setMinimumGoal('zone'));
 
-window.HIDROLAB_WALL_REPORT=()=>{
+window.HIGROLAB_WALL_REPORT=()=>{
   const c=calc(),RH=+$('rh').value,dew=dewPoint(c.Ti,RH),zone=$('thermalZone')?.value||'',lim=WALL_LIMITS_RESIDENTIAL[zone]||{u:null,rt:null};
   const insE=+$('insThickness').value||0,insL=+$('insulation').value||.038,n=calc(insE>0?(insE/1000)/insL:0);
   return{

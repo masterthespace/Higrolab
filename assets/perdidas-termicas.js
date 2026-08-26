@@ -66,7 +66,7 @@ const MATERIALS={
   tyvek:{group:'Membranas',name:'Membrana hidrófuga Tyvek Homewrap',lambda:.011,defaultMm:.2,source:'Listado térmico MINVU · ensayo IDIEM'},
   vapor:{group:'Membranas',name:'Barrera de vapor / polietileno',fixedR:0,defaultMm:.2,source:'Sin crédito térmico automático'},
   membrane:{group:'Membranas',name:'Membrana hidrófuga genérica',fixedR:0,defaultMm:.5,source:'Sin crédito térmico automático'},
-  zinc:{group:'Cubiertas',name:'Cubierta de zinc',fixedR:0,defaultMm:.5,source:'Sin crédito térmico automático en HIDROLAB'},
+  zinc:{group:'Cubiertas',name:'Cubierta de zinc',fixedR:0,defaultMm:.5,source:'Sin crédito térmico automático en HIGROLAB'},
   shingle:{group:'Cubiertas',name:'Teja asfáltica',fixedR:0,defaultMm:6,source:'Usar dato declarado si se desea considerar térmicamente'},
   ceramicTile:{group:'Cubiertas',name:'Teja cerámica',fixedR:0,defaultMm:15,source:'Usar dato declarado si se desea considerar térmicamente'},
   gravel:{group:'Pisos / radier',name:'Gravilla / base granular',lambdaCustom:1.50,defaultMm:100,source:'Valor editable por usuario; verificar material real'},
@@ -117,7 +117,7 @@ function cevMinimumVentilationAch(g){
   return g.volume>0?((.3*g.useful+2.5*np)*3.6/g.volume):0;
 }
 
-/* HIDROLAB V8.9.7 · helpers geométricos requeridos por cálculo principal */
+/* HIGROLAB V8.9.7 · helpers geométricos requeridos por cálculo principal */
 function wallGrossArea(g){
   const manual=$('wallGrossManual')?.checked;
   $('wallGrossManualWrap')?.classList.toggle('hl2-hidden',!manual);
@@ -616,7 +616,7 @@ function calculate(){
   $('bridgeStatus').textContent=bridgeH>0?`Añaden ${fmt(bridgeLoss,0)} W con |ΔT| ${fmt(dT,1)} K`:'No considerados';
 
   $('airFormula').textContent=air.mode==='cevMin'
-    ? `HIDROLAB: ${fmt(air.ventFlow,1)} m³/h ventilación CEV + ${fmt(air.infiltrationFlow,1)} m³/h infiltración = ${fmt(air.totalFlow,1)} m³/h`
+    ? `HIGROLAB: ${fmt(air.ventFlow,1)} m³/h ventilación CEV + ${fmt(air.infiltrationFlow,1)} m³/h infiltración = ${fmt(air.totalFlow,1)} m³/h`
     : `Pérdida aire = 0,33 × ${fmt(ach,2)} ACH × ${fmt(g.volume,0)} m³ × ${fmt(dT,1)} K`;
   if($('airLossExplain')){
     $('airLossExplain').textContent=direction==='out'
@@ -710,7 +710,7 @@ function renderImprovements(c){
   if($('improveAirTargetLabel'))$('improveAirTargetLabel').textContent=cevAir?'Infiltración objetivo':'No evaluable automáticamente';
   if($('improveAirNote'))$('improveAirNote').textContent=cevAir
     ?'Se modifica sólo la infiltración; el Fmin higiénico del Manual CEV se mantiene.'
-    :'Con ACH total conocido no es posible separar cuánto corresponde a ventilación higiénica y cuánto a infiltración. Para no falsear el ahorro, HIDROLAB no aplica una mejora automática.';
+    :'Con ACH total conocido no es posible separar cuánto corresponde a ventilación higiénica y cuánto a infiltración. Para no falsear el ahorro, HIGROLAB no aplica una mejora automática.';
   $('improveAchPreset').disabled=!cevAir;$('improveAch').disabled=!cevAir;
 
   const currentInfil=Number.isFinite(c.infiltrationAch)?c.infiltrationAch:0;
@@ -840,4 +840,4 @@ function heatlossDetailedReportData(){
     scope:{transmission:'U·A·ΔT para elementos expuestos; piso-terreno mediante Ls·P·ΔT cuando corresponde.',air:'0,33·ACH·V·ΔT como estimación estacionaria de calor sensible.',annual:'No es demanda anual CEV ni acreditación de cumplimiento OGUC. No compara U con el Umax de la zona térmica y no sustituye NCh3308/NCh3309, NCh3295, NCh3117 ni NCh853 cuando correspondan.'}
   };
 }
-window.HIDROLAB_HEATLOSS_REPORT=heatlossDetailedReportData;
+window.HIGROLAB_HEATLOSS_REPORT=heatlossDetailedReportData;

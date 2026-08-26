@@ -298,7 +298,7 @@ function renderCevReference(){
   const n=cevReference();$('cevNp').textContent=n.NP;$('cevFmin').textContent=fmt(n.Fmin,2);$('cevQmin').textContent=fmt(n.Qmin,0);$('cevQscenario').textContent=fmt(n.Qscenario,0);
   let label='BAJO Fmin',cls='bad',txt='';
   if(n.dehum){label='NO ES VENTILACIÓN';cls='mild';txt=`El deshumidificador reduce vapor, pero no renueva aire. El escenario aporta 0 m³/h frente a ${fmt(n.Qmin,0)} m³/h equivalentes de Fmin (${fmt(n.Fmin,2)} ren/h).`}
-  else if(n.ratio>=1){label='SUPERA Fmin';cls='great';txt=`El escenario (${fmt(n.Qscenario,0)} m³/h) iguala o supera el equivalente de Fmin (${fmt(n.Qmin,0)} m³/h). Si este caudal proviene de ventanas sigue siendo una estimación HIDROLAB y no acredita por sí solo cumplimiento normativo.`}
+  else if(n.ratio>=1){label='SUPERA Fmin';cls='great';txt=`El escenario (${fmt(n.Qscenario,0)} m³/h) iguala o supera el equivalente de Fmin (${fmt(n.Qmin,0)} m³/h). Si este caudal proviene de ventanas sigue siendo una estimación HIGROLAB y no acredita por sí solo cumplimiento normativo.`}
   else{txt=`El escenario (${fmt(n.Qscenario,0)} m³/h) queda bajo el equivalente de Fmin (${fmt(n.Qmin,0)} m³/h). Faltan aproximadamente ${fmt(n.Qmin-n.Qscenario,0)} m³/h para alcanzar esta referencia.`}
   $('cevStatusBadge').textContent=label;$('cevStatusBadge').className=`drying-badge ${cls}`;$('cevStatusText').className='callout '+(cls==='great'?'safe':cls==='mild'?'warn':'danger');$('cevStatusText').innerHTML=`<b>${txt}</b>`
 }
@@ -332,7 +332,7 @@ function reportData(){
     requiredFlow:req,requiredAch:Number.isFinite(req)?req/volume():Infinity,drying:dry,advice,dew
   }
 }
-window.HIDROLAB_VENT_REPORT=reportData;
+window.HIGROLAB_VENT_REPORT=reportData;
 
 document.querySelectorAll('[data-volume-mode]').forEach(b=>b.onclick=()=>setVolumeMode(b.dataset.volumeMode));
 document.querySelectorAll('[data-moist-mode]').forEach(b=>b.onclick=()=>setMoistMode(b.dataset.moistMode));

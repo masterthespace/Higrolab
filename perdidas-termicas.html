@@ -3,25 +3,26 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>HIDROLAB · Pérdidas térmicas de vivienda</title>
+<title>HIGROLAB · Pérdidas térmicas de vivienda</title>
 <link href="styles.css" rel="stylesheet"/>
 <meta content="strict-origin-when-cross-origin" name="referrer"/>
-<link rel="stylesheet" href="assets/hidrolab-light-ui.css">
-<link rel="stylesheet" href="assets/hidrolab-compact.css">
-<link rel="stylesheet" href="assets/hidrolab-v882.css">
-<link rel="stylesheet" href="assets/hidrolab-japandi.css">
-<link rel="stylesheet" href="assets/hidrolab-petroleum-white.css">
-<!-- HIDROLAB V8.9.0 · PÉRDIDAS TÉRMICAS 2.0 -->
-<!-- HIDROLAB V8.9.7 · RUNTIME CORREGIDO -->
-<!-- HIDROLAB V8.9.11 · FINAL PÉRDIDAS TÉRMICAS -->
-<!-- HIDROLAB V8.9.12 PUBLICA -->
+<link rel="stylesheet" href="assets/higrolab-light-ui.css">
+<link rel="stylesheet" href="assets/higrolab-compact.css">
+<link rel="stylesheet" href="assets/higrolab-v882.css">
+<link rel="stylesheet" href="assets/higrolab-japandi.css">
+<link rel="stylesheet" href="assets/higrolab-petroleum-white.css">
+<!-- HIGROLAB V8.9.0 · PÉRDIDAS TÉRMICAS 2.0 -->
+<!-- HIGROLAB V8.9.7 · RUNTIME CORREGIDO -->
+<!-- HIGROLAB V8.9.11 · FINAL PÉRDIDAS TÉRMICAS -->
+<!-- HIGROLAB V8.9.12 PUBLICA -->
+<!-- HIGROLAB V8.9.13 · PUBLICA FINAL -->
 </head>
 <body class="hl-ui hl-envelope hl-compact-v881 hl-v882 hl-japandi hl-petroleum-white heatloss-v2">
 <header class="top">
   <div class="wrap nav">
     <a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a>
     <div class="nav-actions">
-      <button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button>
+      <button class="nav-back-btn" type="button" data-higrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button>
       <nav class="navlinks">
         <a href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a>
         <a class="active" href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a>
@@ -34,7 +35,7 @@
   <div class="wrap hero mini-hero">
     <div class="eyebrow">Envolvente completa · diagnóstico rápido</div>
     <h1>Pérdidas térmicas de la vivienda</h1>
-    <p>Define condiciones, geometría y valores U. HIDROLAB calcula cuántos kW se pierden en ese instante y muestra dónde conviene intervenir primero.</p>
+    <p>Define condiciones, geometría y valores U. HIGROLAB calcula cuántos kW se pierden en ese instante y muestra dónde conviene intervenir primero.</p>
   </div>
 </header>
 
@@ -56,7 +57,7 @@
 
     <div class="hl2-geometry-explain">
       <b>Dimensiones interiores de referencia</b>
-      <span>Ingresa dimensiones medidas por la cara interior de la envolvente. En modo geométrico HIDROLAB supone plantas rectangulares iguales; puedes corregir manualmente las superficies cuando la vivienda sea irregular o tenga elementos adiabáticos.</span>
+      <span>Ingresa dimensiones medidas por la cara interior de la envolvente. En modo geométrico HIGROLAB supone plantas rectangulares iguales; puedes corregir manualmente las superficies cuando la vivienda sea irregular o tenga elementos adiabáticos.</span>
     </div>
     <div class="hl2-geometry-fields">
       <div class="field"><label>Largo interior útil de planta [m]</label><input id="length" type="number" min="1" step=".1" value="8"><small>Dimensión interior de referencia de la planta.</small></div>
@@ -149,7 +150,7 @@
   <summary><span><b>Calculador de ventanas</b><small>Cada ventana puede tener marco, vidrio y dimensiones diferentes</small></span><i>+</i></summary>
   <div class="hl2-builder-body">
     <div class="hl2-source-chip">FUENTE OFICIAL · Manual CEV 2025 · valores por defecto de ventanas</div>
-    <p class="method-note">Agrega cada tipo de ventana de la vivienda. HIDROLAB calcula su superficie y U individual, luego obtiene un <b>U ponderado por área</b> para el módulo madre.</p>
+    <p class="method-note">Agrega cada tipo de ventana de la vivienda. HIGROLAB calcula su superficie y U individual, luego obtiene un <b>U ponderado por área</b> para el módulo madre.</p>
 
     <div class="hl2-dim-toolbar">
       <b>Ventanas de la vivienda</b>
@@ -348,7 +349,7 @@
         </div>
         <div class="hl2-air-reference-note">
           <b>Trazabilidad</b>
-          <span>La CEV permite caracterizar infiltraciones mediante sus procedimientos por defecto o mediante ensayos respaldados. HIDROLAB no convierte automáticamente un resultado n50 a ACH natural.</span>
+          <span>La CEV permite caracterizar infiltraciones mediante sus procedimientos por defecto o mediante ensayos respaldados. HIGROLAB no convierte automáticamente un resultado n50 a ACH natural.</span>
         </div>
       </div>
 
@@ -378,7 +379,7 @@
             <span id="cevInfiltrationFlowOut">— m³/h</span>
           </div>
           <div class="hl2-air-total">
-            <small>Total simplificado usado por HIDROLAB</small>
+            <small>Total simplificado usado por HIGROLAB</small>
             <strong id="cevTotalAchOut">— ACH</strong>
             <span id="cevTotalFlowOut">— m³/h</span>
           </div>
@@ -386,7 +387,7 @@
 
         <div class="hl2-air-method-note">
           <b>Importante</b>
-          <span>Fmin proviene del Manual CEV 2025 y se usa aquí como referencia energética. <b>No verifica por sí solo el cumplimiento de ventilación de la OGUC vigente</b>, cuya acreditación remite a NCh3308/NCh3309 según corresponda. La suma Fmin + infiltración es una aproximación estacionaria HIDROLAB.</span>
+          <span>Fmin proviene del Manual CEV 2025 y se usa aquí como referencia energética. <b>No verifica por sí solo el cumplimiento de ventilación de la OGUC vigente</b>, cuya acreditación remite a NCh3308/NCh3309 según corresponda. La suma Fmin + infiltración es una aproximación estacionaria HIGROLAB.</span>
         </div>
         <small id="cevVentHelp">Fmin se calcula con superficie útil, volumen y número de personas.</small>
       </div>
@@ -465,7 +466,7 @@
     <div class="hl2-energy-body">
       <div class="hl2-energy-intro">
         <b>Del kW instantáneo a energía acumulada</b>
-        <span>HIDROLAB conserva las características térmicas de la vivienda y recalcula la potencia para cada período según su ΔT.</span>
+        <span>HIGROLAB conserva las características térmicas de la vivienda y recalcula la potencia para cada período según su ΔT.</span>
       </div>
 
       <div class="hl2-period-toolbar">
@@ -533,7 +534,7 @@
     <summary><span><b>04 · Simular mejoras</b><small>Compara rápidamente qué cambio reduce más W.</small></span><i>+</i></summary>
     <div class="hl2-improve-intro">
       <b>¿Qué pasaría si mejoro un elemento?</b>
-      <span>Selecciona un escenario. HIDROLAB cambia solo ese parámetro y compara cuántos watts podrías reducir en estas mismas condiciones.</span>
+      <span>Selecciona un escenario. HIGROLAB cambia solo ese parámetro y compara cuántos watts podrías reducir en estas mismas condiciones.</span>
     </div>
     <div class="improvement-options">
       <label>
@@ -604,9 +605,9 @@
 </div>
 </main>
 
-<footer class="wrap footer">HIDROLAB · Diagnóstico de pérdidas térmicas instantáneas
+<footer class="wrap footer">HIGROLAB · Diagnóstico de pérdidas térmicas instantáneas
 <div style="margin-top:8px;line-height:1.55">© 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025<br><a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a></div>
-<div class="public-scope-note">HIDROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
+<div class="public-scope-note">HIGROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
 
 <script defer src="assets/perdidas-termicas.js"></script>
 <script defer src="assets/reportes.js"></script>

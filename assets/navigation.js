@@ -13,7 +13,7 @@
     window.location.assign('index.html');
   }
 
-  document.querySelectorAll('[data-hidrolab-back]').forEach(btn => {
+  document.querySelectorAll('[data-higrolab-back]').forEach(btn => {
     btn.addEventListener('click', goBack);
   });
 })();

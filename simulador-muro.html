@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Simulador de muro y U</title><link href="styles.css" rel="stylesheet"/>
-<meta content="strict-origin-when-cross-origin" name="referrer"/><link rel="stylesheet" href="assets/hidrolab-light-ui.css">
-<link rel="stylesheet" href="assets/hidrolab-compact.css">
-<link rel="stylesheet" href="assets/hidrolab-v882.css">
-<link rel="stylesheet" href="assets/hidrolab-japandi.css">
-<link rel="stylesheet" href="assets/hidrolab-petroleum-white.css">
-<!-- HIDROLAB V8.8.5 FINAL VIVID -->
-<!-- HIDROLAB V8.9.10 -->
-<!-- HIDROLAB V8.9.12 PUBLICA -->
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIGROLAB · Simulador de muro y U</title><link href="styles.css" rel="stylesheet"/>
+<meta content="strict-origin-when-cross-origin" name="referrer"/><link rel="stylesheet" href="assets/higrolab-light-ui.css">
+<link rel="stylesheet" href="assets/higrolab-compact.css">
+<link rel="stylesheet" href="assets/higrolab-v882.css">
+<link rel="stylesheet" href="assets/higrolab-japandi.css">
+<link rel="stylesheet" href="assets/higrolab-petroleum-white.css">
+<!-- HIGROLAB V8.8.5 FINAL VIVID -->
+<!-- HIGROLAB V8.9.10 -->
+<!-- HIGROLAB V8.9.12 PUBLICA -->
+<!-- HIGROLAB V8.9.13 · PUBLICA FINAL -->
 </head><body class="hl-ui hl-envelope hl-compact-v881 hl-v882 hl-japandi hl-petroleum-white">
 <header class="top">
-<div class="wrap nav"><a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a><a class="active" href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a><a href="zona-interactiva.html"><span class="hl-nav-dot hl-dot-zone"></span>Zona interactiva</a></nav><a class="hl-nav-solar" href="simulador-solar.html"><span class="hl-nav-sun">☀</span><span class="hl-nav-solar-label">Solar Studio</span></a></div></div><div class="wrap hero mini-hero"><div class="eyebrow">Envolvente térmica · simulador interactivo</div><h1>Construye el muro, calcula U y simula una mejora de aislación</h1><p>Agrega capas, modifica espesores y conductividades, observa el perfil térmico y compara el muro actual con una solución mejorada.</p><div class="subnav"><a href="#capas">Capas</a><a href="#resultados">Resultados</a><a href="#mejora">Simular aislación</a><a href="#perfil">Perfil térmico</a></div></div></header>
+<div class="wrap nav"><a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-higrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a><a class="active" href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a><a href="zona-interactiva.html"><span class="hl-nav-dot hl-dot-zone"></span>Zona interactiva</a></nav><a class="hl-nav-solar" href="simulador-solar.html"><span class="hl-nav-sun">☀</span><span class="hl-nav-solar-label">Solar Studio</span></a></div></div><div class="wrap hero mini-hero"><div class="eyebrow">Envolvente térmica · simulador interactivo</div><h1>Construye el muro, calcula U y simula una mejora de aislación</h1><p>Agrega capas, modifica espesores y conductividades, observa el perfil térmico y compara el muro actual con una solución mejorada.</p><div class="subnav"><a href="#capas">Capas</a><a href="#resultados">Resultados</a><a href="#mejora">Simular aislación</a><a href="#perfil">Perfil térmico</a></div></div></header>
 <main class="wrap main"><div class="calc-grid">
 <section class="card" id="capas"><div class="section-head"><div><p class="kicker">01 · Composición</p><h2>Capas del elemento</h2></div><span class="tool-tag new">Interactiva</span></div>
 <div class="form-grid"><div class="field"><label>Temperatura interior</label><input id="ti" step="0.1" type="number" value="20"/></div><div class="field"><label>Temperatura exterior</label><input id="te" step="0.1" type="number" value="5"/></div><div class="field"><label>HR interior</label><input id="rh" max="100" min="1" step="1" type="number" value="65"/></div><div class="field"><label for="area">Área del muro (opcional) <b>[m²]</b></label><input id="area" min="0" step="0.1" type="number" value="20" inputmode="decimal"/><small>Solo se usa para calcular la pérdida térmica total en W. No modifica U, temperatura superficial ni riesgo de condensación.</small></div></div>
@@ -28,7 +29,7 @@
       <div class="field"><label>Fracción de montantes [%]</label><input id="studFraction" type="number" min="1" max="50" step="1" value="15"></div>
       <div class="field"><label>λ montante [W/m·K]</label><input id="studLambda" type="number" min=".03" max="5" step=".01" value=".13"></div>
     </div>
-    <div class="method-warning"><b>¿Qué cambia?</b> En una capa continua el calor atraviesa el mismo material en toda la superficie. En un entramado existen dos caminos paralelos: aislante y montantes. HIDROLAB calcula los límites inferior y superior de Rt, obtiene su promedio y comprueba el error relativo. Si el error supera 20%, avisa que para acreditación corresponde aplicar el método detallado NCh853 u otra alternativa admitida. La lectura sigue siendo gráfica y simple.<div id="frameDiagram" class="frame-diagram"></div></div>
+    <div class="method-warning"><b>¿Qué cambia?</b> En una capa continua el calor atraviesa el mismo material en toda la superficie. En un entramado existen dos caminos paralelos: aislante y montantes. HIGROLAB calcula los límites inferior y superior de Rt, obtiene su promedio y comprueba el error relativo. Si el error supera 20%, avisa que para acreditación corresponde aplicar el método detallado NCh853 u otra alternativa admitida. La lectura sigue siendo gráfica y simple.<div id="frameDiagram" class="frame-diagram"></div></div>
   </div>
 </div>
 </section>
@@ -83,7 +84,7 @@
       </div>
       <div class="custom-insulation-note">
         <b>Dato personalizado</b>
-        <span>HIDROLAB calculará con el λ ingresado, pero no lo clasificará automáticamente como normativo.</span>
+        <span>HIGROLAB calculará con el λ ingresado, pero no lo clasificará automáticamente como normativo.</span>
       </div>
     </div>
     <div class="field"><label>Espesor de aislación: <b id="insLabel">50 mm</b></label><input class="range" id="insThickness" max="300" min="0" step="5" type="range" value="50"/><div class="split-labels"><span>0 mm</span><span>300 mm</span></div></div>
@@ -100,7 +101,7 @@
 
   <div class="condensation-lab" id="condensationLab">
     <div class="section-head compact-head"><div><p class="kicker">Condensación superficial</p><h3>Distancia al punto de rocío</h3></div><span class="tool-tag new">Tiempo real</span></div>
-    <p class="note">La escala compara la temperatura de la superficie interior con el punto de rocío. Cuando los indicadores quedan muy próximos, HIDROLAB los separa visualmente para que ambos sigan siendo legibles.</p>
+    <p class="note">La escala compara la temperatura de la superficie interior con el punto de rocío. Cuando los indicadores quedan muy próximos, HIGROLAB los separa visualmente para que ambos sigan siendo legibles.</p>
     <div class="dew-summary-grid">
       <div class="dew-card current"><small>Muro actual</small><strong id="marginOld">—</strong><span id="surfaceRhOld">—</span></div>
       <div class="dew-card improved" id="dewImprovedCard"><small>Con aislación propuesta</small><strong id="marginNew">—</strong><span id="surfaceRhNew">—</span></div>
@@ -123,7 +124,7 @@
   </div>
 
   <div class="minimum-insulation">
-    <div class="minimum-head"><div><p class="kicker">Asistente de espesor</p><h3>¿Cuánta aislación necesito aproximadamente?</h3><p class="note">Elige qué quieres lograr y HIDROLAB estima el espesor mínimo del aislante seleccionado.</p></div></div>
+    <div class="minimum-head"><div><p class="kicker">Asistente de espesor</p><h3>¿Cuánta aislación necesito aproximadamente?</h3><p class="note">Elige qué quieres lograr y HIGROLAB estima el espesor mínimo del aislante seleccionado.</p></div></div>
 
     <div class="minimum-goal-tabs">
       <button id="goalDew" type="button" class="goal-btn active"><b>Alejarme del punto de rocío</b><span>Busca una T° superficial con margen de seguridad.</span></button>
@@ -135,7 +136,7 @@
       <div class="field target-margin-number"><label for="targetMarginN">Margen exacto</label><div class="unit-input"><input id="targetMarginN" type="number" min="0.5" max="10" step="0.5" value="2" inputmode="decimal"/><span>°C</span></div></div>
     </div>
 
-    <div id="zoneGoalControls" class="zone-goal-controls hidden"><div class="zone-goal-summary"><small>OBJETIVO REGLAMENTARIO SELECCIONADO</small><strong id="zoneGoalText">Selecciona una zona térmica en la sección 04.</strong><span id="zoneGoalHint">HIDROLAB utilizará el U máximo de esa zona como objetivo.</span></div></div>
+    <div id="zoneGoalControls" class="zone-goal-controls hidden"><div class="zone-goal-summary"><small>OBJETIVO REGLAMENTARIO SELECCIONADO</small><strong id="zoneGoalText">Selecciona una zona térmica en la sección 04.</strong><span id="zoneGoalHint">HIGROLAB utilizará el U máximo de esa zona como objetivo.</span></div></div>
 
     <button class="btn btn-dark minimum-action" id="findMinimum" type="button">Calcular espesor mínimo estimado</button>
     <div class="minimum-result" id="minimumResult"><strong>—</strong><span>Elige un objetivo y presiona “Calcular espesor mínimo estimado”.</span></div>
@@ -153,7 +154,7 @@
   <div class="field"><label>Región</label><select id="thermalRegion"><option value="">Selecciona región</option></select></div>
   <div class="field"><label>Comuna</label><select id="thermalCommune" disabled><option value="">Selecciona comuna</option></select></div>
 </div>
-<div id="communeSelection" class="commune-selection"><small>Selecciona primero la región y luego la comuna. HIDROLAB consultará la tabla térmica oficial incorporada.</small></div>
+<div id="communeSelection" class="commune-selection"><small>Selecciona primero la región y luego la comuna. HIGROLAB consultará la tabla térmica oficial incorporada.</small></div>
 <div class="field"><label>Zona térmica seleccionada</label><select id="thermalZone"><option value="">Selecciona zona</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option></select></div>
 <div id="zoneConditionBox" class="zone-condition-box hidden"></div></div>
 <div id="normResult" class="norm-result disabled"></div><div class="norm-scale"><span class="good">CUMPLE CON MARGEN</span><span class="near">CERCA DEL LÍMITE</span><span class="bad">NO CUMPLE U/RT</span></div>
@@ -162,16 +163,16 @@
 <section class="card full wall-traceability">
   <div class="section-head"><div><p class="kicker">06 · Trazabilidad técnica</p><h2>Qué representa cada resultado</h2></div></div>
   <div class="trace-grid">
-    <div class="trace-item normative"><span class="trace-pill">MÉTODO TÉRMICO</span><b>R, Rt y U</b><p>Para capas continuas se usa R=e/λ y U=1/Rt con resistencias superficiales. En entramados se calculan límites inferior y superior de Rt, su promedio y el error relativo; si supera 20%, HIDROLAB advierte que se requiere el método detallado.</p></div>
+    <div class="trace-item normative"><span class="trace-pill">MÉTODO TÉRMICO</span><b>R, Rt y U</b><p>Para capas continuas se usa R=e/λ y U=1/Rt con resistencias superficiales. En entramados se calculan límites inferior y superior de Rt, su promedio y el error relativo; si supera 20%, HIGROLAB advierte que se requiere el método detallado.</p></div>
     <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>Pérdida térmica</b><p>Q̇ = U · A · |Ti − Te|. Es una potencia instantánea en régimen estacionario; no equivale a consumo mensual.</p></div>
     <div class="trace-item estimate"><span class="trace-pill">DATOS DE MATERIALES</span><b>λ de biblioteca</b><p>Los valores con etiqueta “orientativo” sirven para simulación. Para memoria técnica debe utilizarse el valor respaldado por producto, ensayo, listado oficial o fuente normativa aplicable.</p></div>
     <div class="trace-item normative"><span class="trace-pill">COMPARACIÓN OGUC</span><b>U máxima / Rt mínima</b><p>La comparación opcional evalúa solo el parámetro térmico del muro para la zona seleccionada. No sustituye la acreditación reglamentaria completa.</p></div>
   </div>
 </section>
-</div></main><footer class="wrap footer">HIDROLAB · Simulador educativo de transmitancia y temperatura superficial<div style="margin-top:8px;line-height:1.55">
+</div></main><footer class="wrap footer">HIGROLAB · Simulador educativo de transmitancia y temperatura superficial<div style="margin-top:8px;line-height:1.55">
 © 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025<br>
 <a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
-</div><div class="public-scope-note">HIDROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
+</div><div class="public-scope-note">HIGROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
 <script src="assets/comunas-chile.js"></script><script src="assets/thermal-zones-chile.js"></script><script defer="" src="assets/simulador-muro.js"></script><script defer src="assets/reportes.js"></script>
 <script src="assets/navigation.js"></script>
 <script src="assets/header-motion.js"></script>

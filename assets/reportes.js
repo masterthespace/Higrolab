@@ -42,7 +42,7 @@
     const panel=el(document,'section','hl-report-panel'); panel.id='hl-report-panel';
     const head=el(document,'div','hl-report-head');
     const hwrap=el(document,'div');
-    hwrap.append(el(document,'p','hl-report-kicker','Informe PDF'),el(document,'h2','', 'Exportar simulación HIDROLAB'));
+    hwrap.append(el(document,'p','hl-report-kicker','Informe PDF'),el(document,'h2','', 'Exportar simulación HIGROLAB'));
     head.append(hwrap);
     const grid=el(document,'div','hl-report-grid');
     const fields=[
@@ -180,9 +180,9 @@
     root.append(wrap);
   }
   function addSolarDetailedReport(doc,root){
-    if(current!=='simulador-solar.html' || typeof window.HIDROLAB_SOLAR_REPORT!=='function') return false;
+    if(current!=='simulador-solar.html' || typeof window.HIGROLAB_SOLAR_REPORT!=='function') return false;
     let data;
-    try{ data=window.HIDROLAB_SOLAR_REPORT(); }catch(e){ console.error(e); return false; }
+    try{ data=window.HIGROLAB_SOLAR_REPORT(); }catch(e){ console.error(e); return false; }
     if(!data) return false;
 
     const overview=addSection(doc,root,'Resumen del análisis solar');
@@ -298,8 +298,8 @@
 
 
   function addVentilationDetailedReport(doc,root){
-    if(current!=='ventilacion-humedad.html' || typeof window.HIDROLAB_VENT_REPORT!=='function') return false;
-    let x; try{x=window.HIDROLAB_VENT_REPORT()}catch(e){console.error(e);return false}
+    if(current!=='ventilacion-humedad.html' || typeof window.HIGROLAB_VENT_REPORT!=='function') return false;
+    let x; try{x=window.HIGROLAB_VENT_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
 
     const sec1=addSection(doc,root,'1. Vivienda y condiciones ambientales');
@@ -360,7 +360,7 @@
     }
     t3.append(b3);sec3.append(t3);
     sec3.append(el(doc,'p','section-note','ACH = renovaciones de aire por hora. 1 ACH significa mover en una hora un volumen de aire equivalente al volumen completo del recinto.'));const secN=addSection(doc,root,'3B. Referencia normativa / CEV 2025');const tn=el(doc,'table','kv'),bn=el(doc,'tbody'),n=x.cev||{};[
-['Superficie de piso AV',`${fmtNum(n.AV,1)} m²`],['Dormitorios',n.bedrooms],['Personas CEV NP',n.NP],['Volumen VV',`${fmtNum(n.VV,1)} m³`],['Fmin · Ecuación 16 Anexo D',`${fmtNum(n.Fmin,2)} ren/h`],['Caudal equivalente mínimo',`${fmtNum(n.Qmin,0)} m³/h`],['Caudal del escenario',`${fmtNum(n.Qscenario,0)} m³/h`],['Comparación',n.dehum?'Deshumidificador: no aporta ventilación':n.ratio>=1?'Escenario ≥ Fmin':'Escenario < Fmin']].forEach(r=>addRow(doc,bn,r[0],r[1]));tn.append(bn);secN.append(tn);secN.append(el(doc,'p','section-note','Fuente: Manual CEV 2025, Anexo D, Ecuación 16. La comparación no sustituye la acreditación completa exigida por OGUC/NCh3308/NCh3309. El caudal de aberturas es una estimación HIDROLAB.'));
+['Superficie de piso AV',`${fmtNum(n.AV,1)} m²`],['Dormitorios',n.bedrooms],['Personas CEV NP',n.NP],['Volumen VV',`${fmtNum(n.VV,1)} m³`],['Fmin · Ecuación 16 Anexo D',`${fmtNum(n.Fmin,2)} ren/h`],['Caudal equivalente mínimo',`${fmtNum(n.Qmin,0)} m³/h`],['Caudal del escenario',`${fmtNum(n.Qscenario,0)} m³/h`],['Comparación',n.dehum?'Deshumidificador: no aporta ventilación':n.ratio>=1?'Escenario ≥ Fmin':'Escenario < Fmin']].forEach(r=>addRow(doc,bn,r[0],r[1]));tn.append(bn);secN.append(tn);secN.append(el(doc,'p','section-note','Fuente: Manual CEV 2025, Anexo D, Ecuación 16. La comparación no sustituye la acreditación completa exigida por OGUC/NCh3308/NCh3309. El caudal de aberturas es una estimación HIGROLAB.'));
 
     const sec4=addSection(doc,root,'4. Efecto estimado de la estrategia');
     const t4=el(doc,'table','kv'),b4=el(doc,'tbody');
@@ -387,7 +387,7 @@
       ['Humedad absoluta interior inicial',`${fmtNum(x.drying.inside,2)} g/m³`],
       ['Diferencia',`${fmtNum(x.drying.delta,2)} g/m³`],
       ['Agua potencialmente transportable por 100 m³',`${fmtNum(x.drying.per100,3)} L eq.`]
-    ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);sec5.append(t5);sec5.append(el(doc,'p','section-note','La clasificación usa la diferencia de humedad absoluta entre interior y exterior: >5 g/m³ = muy favorable; >2 = favorable; >0,5 = poco efectivo; ≤0,5 = no conviene. Estos umbrales son una guía HIDROLAB, no límites normativos.'));
+    ].forEach(r=>addRow(doc,b5,r[0],r[1]));t5.append(b5);sec5.append(t5);sec5.append(el(doc,'p','section-note','La clasificación usa la diferencia de humedad absoluta entre interior y exterior: >5 g/m³ = muy favorable; >2 = favorable; >0,5 = poco efectivo; ≤0,5 = no conviene. Estos umbrales son una guía HIGROLAB, no límites normativos.'));
 
     const sec6=addSection(doc,root,'6. Punto de rocío y riesgo superficial');
     const t6=el(doc,'table','kv'),b6=el(doc,'tbody'),d=x.dew;
@@ -403,8 +403,8 @@
   }
 
   function addRiskMoistureDetailedReport(doc,root){
-    if(current!=='riesgo-moho.html' || typeof window.HIDROLAB_RISK_REPORT!=='function') return false;
-    let x; try{x=window.HIDROLAB_RISK_REPORT()}catch(e){console.error(e);return false}
+    if(current!=='riesgo-moho.html' || typeof window.HIGROLAB_RISK_REPORT!=='function') return false;
+    let x; try{x=window.HIGROLAB_RISK_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
 
     const summary=addSection(doc,root,'1. Estado superficial calculado');
@@ -419,7 +419,7 @@
       ['HR superficial estimada',`${fmtNum(x.rhs,0)} %`],
       ['Margen superficie - punto de rocío',`${fmtNum(x.margin,1)} °C`],
       ['T° crítica para 80 % HR superficial',`${fmtNum(x.t80,1)} °C`],
-      ['Índice preventivo HIDROLAB',`${fmtNum(x.score,0)} / 100 · ${x.scoreLevel}`],
+      ['Índice preventivo HIGROLAB',`${fmtNum(x.score,0)} / 100 · ${x.scoreLevel}`],
       ['Persistencia considerada',x.persistence.label]
     ].forEach(r=>addRow(doc,tb,r[0],r[1]));t.append(tb);summary.append(t);
 
@@ -498,15 +498,15 @@
     relation.append(el(doc,'p','obs',`${text} El aire pasa de ${fmtNum(x.rh,0)}% HR a aproximadamente ${fmtNum(x.rhs,0)}% HR al enfriarse desde ${fmtNum(x.ta,1)} °C hasta ${fmtNum(x.ts,1)} °C junto al muro.`));
 
     const methodology=addSection(doc,root,'5. Alcance y trazabilidad');
-    methodology.append(el(doc,'p','section-note','El cálculo de humedad absoluta, punto de rocío y HR superficial corresponde a relaciones físicas/psicrométricas. El cálculo térmico del muro usa Rsi/Rse y resistencias de capas. Cuando la solución contiene caminos térmicos paralelos, montantes u otras heterogeneidades, el resultado simplificado debe interpretarse como estimación HIDROLAB y no como acreditación completa del elemento.'));
-    methodology.append(el(doc,'p','section-note','El Índice preventivo HIDROLAB 0-100 y su escala de colores son una herramienta didáctica y no corresponden a un índice definido por NCh1973 u OGUC.'));
+    methodology.append(el(doc,'p','section-note','El cálculo de humedad absoluta, punto de rocío y HR superficial corresponde a relaciones físicas/psicrométricas. El cálculo térmico del muro usa Rsi/Rse y resistencias de capas. Cuando la solución contiene caminos térmicos paralelos, montantes u otras heterogeneidades, el resultado simplificado debe interpretarse como estimación HIGROLAB y no como acreditación completa del elemento.'));
+    methodology.append(el(doc,'p','section-note','El Índice preventivo HIGROLAB 0-100 y su escala de colores son una herramienta didáctica y no corresponden a un índice definido por NCh1973 u OGUC.'));
     return true
   }
 
 
   function addWallUDetailedReport(doc,root){
-    if(current!=='simulador-muro.html' || typeof window.HIDROLAB_WALL_REPORT!=='function') return false;
-    let x;try{x=window.HIDROLAB_WALL_REPORT()}catch(e){console.error(e);return false}
+    if(current!=='simulador-muro.html' || typeof window.HIGROLAB_WALL_REPORT!=='function') return false;
+    let x;try{x=window.HIGROLAB_WALL_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
 
     const s1=addSection(doc,root,'1. Resultado térmico del muro');
@@ -560,17 +560,17 @@
     }else s4.append(el(doc,'p','section-note','La comparación por zona térmica no fue activada por el usuario.'));
 
     const s5=addSection(doc,root,'5. Alcance técnico');
-    s5.append(el(doc,'p','section-note','Base de cálculo térmico: para capas homogéneas HIDROLAB aplica R=e/λ, Rt=Rsi+ΣR+Rse y U=1/Rt, con Rsi=0,13 y Rse=0,04 m²K/W para muro vertical. La pérdida instantánea se estima como U·A·|Ti−Te| en régimen estacionario.'));
-    s5.append(el(doc,'p','section-note','Criterio CEV/MINVU: el valor U debe representar la solución constructiva completa. Cuando existen montantes u otros caminos térmicos paralelos, éstos deben incorporarse al U de la solución conforme a NCh853 oficializada por MINVU; para el entramado repetitivo configurado, HIDROLAB aplica límites inferior y superior de Rt, promedio y control de error relativo. Si el error supera 20%, el propio informe lo marca como no válido para esta vía y remite al método detallado NCh853 u otra alternativa admitida.'));
+    s5.append(el(doc,'p','section-note','Base de cálculo térmico: para capas homogéneas HIGROLAB aplica R=e/λ, Rt=Rsi+ΣR+Rse y U=1/Rt, con Rsi=0,13 y Rse=0,04 m²K/W para muro vertical. La pérdida instantánea se estima como U·A·|Ti−Te| en régimen estacionario.'));
+    s5.append(el(doc,'p','section-note','Criterio CEV/MINVU: el valor U debe representar la solución constructiva completa. Cuando existen montantes u otros caminos térmicos paralelos, éstos deben incorporarse al U de la solución conforme a NCh853 oficializada por MINVU; para el entramado repetitivo configurado, HIGROLAB aplica límites inferior y superior de Rt, promedio y control de error relativo. Si el error supera 20%, el propio informe lo marca como no válido para esta vía y remite al método detallado NCh853 u otra alternativa admitida.'));
     s5.append(el(doc,'p','section-note','Comparación OGUC art. 4.1.10 vigente: el módulo contrasta U/Rt del muro con los límites de las zonas térmicas A–I. El cumplimiento integral requiere además las demás verificaciones reglamentarias aplicables, incluida condensación superficial/intersticial.'));
-    s5.append(el(doc,'p','section-note','Trazabilidad de materiales: los λ marcados como orientativos deben sustituirse por valores respaldados por NCh853, ensayo válido, ficha acreditable o Listado Oficial MINVU antes de usar el resultado como memoria técnica. En paneles compuestos con R declarado, HIDROLAB utiliza ese R mientras el usuario no altere su configuración.'));
+    s5.append(el(doc,'p','section-note','Trazabilidad de materiales: los λ marcados como orientativos deben sustituirse por valores respaldados por NCh853, ensayo válido, ficha acreditable o Listado Oficial MINVU antes de usar el resultado como memoria técnica. En paneles compuestos con R declarado, HIGROLAB utiliza ese R mientras el usuario no altere su configuración.'));
     return true
   }
 
 
   function addHeatLossDetailedReport(doc,root){
-    if(current!=='perdidas-termicas.html' || typeof window.HIDROLAB_HEATLOSS_REPORT!=='function') return false;
-    let x;try{x=window.HIDROLAB_HEATLOSS_REPORT()}catch(e){console.error(e);return false}
+    if(current!=='perdidas-termicas.html' || typeof window.HIGROLAB_HEATLOSS_REPORT!=='function') return false;
+    let x;try{x=window.HIGROLAB_HEATLOSS_REPORT()}catch(e){console.error(e);return false}
     if(!x)return false;
     const yes=v=>v?'Sí':'No';
     const addKv=(section,rows)=>{const t=el(doc,'table','kv'),b=el(doc,'tbody');rows.forEach(v=>addRow(doc,b,v[0],v[1]));t.append(b);section.append(t);return t};
@@ -617,7 +617,7 @@
 
     const s7=addSection(doc,root,'7. Renovación de aire');
     addKv(s7,[['Método',x.air.mode==='cevMin'?'Ventilación mínima CEV + infiltración':'ACH total conocido'],['ACH total usado',`${fmtNum(x.air.ach,2)} 1/h`],['Dormitorios',`${x.air.bedrooms}`],['Personas consideradas',`${x.air.persons}`],['Ventilación higiénica',x.air.ventilationAch==null?'Incluida en ACH total':`${fmtNum(x.air.ventilationAch,2)} ACH · ${fmtNum(x.air.ventilationFlow,1)} m³/h`],['Infiltración adicional',x.air.infiltrationAch==null?'Incluida en ACH total':`${fmtNum(x.air.infiltrationAch,2)} ACH · ${fmtNum(x.air.infiltrationFlow,1)} m³/h`],['Caudal total usado',x.air.totalFlow==null?'—':`${fmtNum(x.air.totalFlow,1)} m³/h`],['Pérdida / ganancia sensible',`${fmtNum(x.air.loss,0)} W`]]);
-    s7.append(el(doc,'p','section-note','HIDROLAB separa ventilación higiénica e infiltración. Fmin corresponde al Manual CEV 2025 y se usa como referencia energética; no verifica por sí solo la ventilación exigida por la OGUC vigente, que remite a NCh3308/NCh3309. Un n50/ACH50 de ensayo a 50 Pa no debe ingresarse directamente como ACH natural.'));
+    s7.append(el(doc,'p','section-note','HIGROLAB separa ventilación higiénica e infiltración. Fmin corresponde al Manual CEV 2025 y se usa como referencia energética; no verifica por sí solo la ventilación exigida por la OGUC vigente, que remite a NCh3308/NCh3309. Un n50/ACH50 de ensayo a 50 Pa no debe ingresarse directamente como ACH natural.'));
 
     const s8=addSection(doc,root,'8. Puentes térmicos adicionales');
     addKv(s8,[['Activados',yes(x.bridges.enabled)],['Método',x.bridges.mode||'—'],['Longitud total',`${fmtNum(x.bridges.length,2)} m`],['ψ medio',`${fmtNum(x.bridges.psi,3)} W/mK`],['ΣψL',`${fmtNum(x.bridges.H,3)} W/K`],['Pérdida adicional',`${fmtNum(x.bridges.loss,0)} W`]]);
@@ -650,15 +650,15 @@
     s12.append(el(doc,'p','section-note',x.scope.transmission));
     s12.append(el(doc,'p','section-note',x.scope.air));
     s12.append(el(doc,'p','section-note',x.scope.annual));
-    s12.append(el(doc,'p','section-note','Los valores U, λ, ψ, Ls y características de productos deben contar con respaldo técnico apropiado cuando el informe se utilice fuera del contexto didáctico de HIDROLAB. La OGUC vigente incorpora exigencias de transmitancia, condensación, infiltración y ventilación; este informe no constituye acreditación de cumplimiento del artículo 4.1.10.'));
+    s12.append(el(doc,'p','section-note','Los valores U, λ, ψ, Ls y características de productos deben contar con respaldo técnico apropiado cuando el informe se utilice fuera del contexto didáctico de HIGROLAB. La OGUC vigente incorpora exigencias de transmitancia, condensación, infiltración y ventilación; este informe no constituye acreditación de cumplimiento del artículo 4.1.10.'));
     return true;
   }
 
   function buildReport(){
     const w=window.open('','_blank');
-    if(!w){ alert('El navegador bloqueó la ventana del informe. Habilita ventanas emergentes para HIDROLAB y vuelve a intentarlo.'); return; }
+    if(!w){ alert('El navegador bloqueó la ventana del informe. Habilita ventanas emergentes para HIGROLAB y vuelve a intentarlo.'); return; }
     const d=w.document;
-    d.title='Informe HIDROLAB'; d.documentElement.lang='es';
+    d.title='Informe HIGROLAB'; d.documentElement.lang='es';
     const meta=d.createElement('meta'); meta.name='viewport'; meta.content='width=device-width,initial-scale=1'; d.head.append(meta);
     const style=d.createElement('style');
     style.textContent=`
@@ -674,7 +674,7 @@
 
     const body=d.body;
     const watermark=el(d,'div','watermark'); watermark.append(d.createTextNode('HIDRO'),el(d,'span','lab','LAB')); body.append(watermark);
-    const footer=el(d,'div','page-footer'); footer.append(el(d,'span','sign','Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025'),el(d,'span','','HIDROLAB · Informe de simulación')); body.append(footer);
+    const footer=el(d,'div','page-footer'); footer.append(el(d,'span','sign','Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025'),el(d,'span','','HIGROLAB · Informe de simulación')); body.append(footer);
     body.append(el(d,'div','print-note','Para obtener el archivo: en el diálogo de impresión selecciona “Guardar como PDF”.'));
 
     const header=el(d,'header');
@@ -689,11 +689,11 @@
     );
     header.append(brandWrap,metaWrap); body.append(header);
 
-    const pageTitle=txt(document.querySelector('.hero h1')) || document.title.replace(/^HIDROLAB\s*[·-]\s*/,'');
+    const pageTitle=txt(document.querySelector('.hero h1')) || document.title.replace(/^HIGROLAB\s*[·-]\s*/,'');
     body.append(el(d,'h1','report-title',current==='simulador-solar.html'?'Informe de asoleamiento solar de vivienda':pageTitle));
     body.append(el(d,'p','intro',current==='simulador-solar.html'
-      ?'Informe detallado del análisis de orientación y exposición solar directa de la vivienda para la fecha, emplazamiento y geometría definidos en HIDROLAB.'
-      :'Informe generado a partir de la simulación activa en HIDROLAB. Los resultados reflejan los datos ingresados al momento de la exportación.'));
+      ?'Informe detallado del análisis de orientación y exposición solar directa de la vivienda para la fecha, emplazamiento y geometría definidos en HIGROLAB.'
+      :'Informe generado a partir de la simulación activa en HIGROLAB. Los resultados reflejan los datos ingresados al momento de la exportación.'));
     const authorBox=el(d,'div','author-box');
     authorBox.append(
       el(d,'b','','Gonzalo Campos V.'),
@@ -738,7 +738,7 @@
     });
 
     if(obs){ const sec=addSection(d,body,'Observaciones'); sec.append(el(d,'div','obs',obs)); }
-    const disclaimer=el(d,'div','disclaimer','Este documento corresponde a un informe de simulación generado por HIDROLAB. No constituye por sí mismo una Calificación Energética de Vivienda (CEV), certificación oficial, diagnóstico de patología constructiva ni reemplaza una inspección profesional en terreno. La validez de los resultados depende de la calidad y representatividad de los datos ingresados.'); body.append(disclaimer);
+    const disclaimer=el(d,'div','disclaimer','Este documento corresponde a un informe de simulación generado por HIGROLAB. No constituye por sí mismo una Calificación Energética de Vivienda (CEV), certificación oficial, diagnóstico de patología constructiva ni reemplaza una inspección profesional en terreno. La validez de los resultados depende de la calidad y representatividad de los datos ingresados.'); body.append(disclaimer);
 
     d.close();
     setTimeout(()=>{ try{w.focus();w.print();}catch(e){ /* el usuario puede imprimir manualmente */ } },350);

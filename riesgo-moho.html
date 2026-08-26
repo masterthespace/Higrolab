@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIDROLAB · Riesgo de humedad superficial y moho</title><link href="styles.css" rel="stylesheet"/>
-<meta content="strict-origin-when-cross-origin" name="referrer"/><link rel="stylesheet" href="assets/hidrolab-light-ui.css">
-<link rel="stylesheet" href="assets/hidrolab-compact.css">
-<link rel="stylesheet" href="assets/hidrolab-v882.css">
-<link rel="stylesheet" href="assets/hidrolab-japandi.css">
-<link rel="stylesheet" href="assets/hidrolab-petroleum-white.css">
-<!-- HIDROLAB V8.8.5 FINAL VIVID -->
-<!-- HIDROLAB V8.9.10 -->
-<!-- HIDROLAB V8.9.12 PUBLICA -->
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>HIGROLAB · Riesgo de humedad superficial y moho</title><link href="styles.css" rel="stylesheet"/>
+<meta content="strict-origin-when-cross-origin" name="referrer"/><link rel="stylesheet" href="assets/higrolab-light-ui.css">
+<link rel="stylesheet" href="assets/higrolab-compact.css">
+<link rel="stylesheet" href="assets/higrolab-v882.css">
+<link rel="stylesheet" href="assets/higrolab-japandi.css">
+<link rel="stylesheet" href="assets/higrolab-petroleum-white.css">
+<!-- HIGROLAB V8.8.5 FINAL VIVID -->
+<!-- HIGROLAB V8.9.10 -->
+<!-- HIGROLAB V8.9.12 PUBLICA -->
+<!-- HIGROLAB V8.9.13 · PUBLICA FINAL -->
 </head><body class="hl-ui hl-humidity hl-compact-v881 hl-v882 hl-japandi hl-petroleum-white">
 <header class="top">
-<div class="wrap nav"><a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-hidrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a><a class="active" href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a><a href="zona-interactiva.html"><span class="hl-nav-dot hl-dot-zone"></span>Zona interactiva</a></nav><a class="hl-nav-solar" href="simulador-solar.html"><span class="hl-nav-sun">☀</span><span class="hl-nav-solar-label">Solar Studio</span></a></div></div><div class="wrap hero mini-hero"><div class="eyebrow">Humedad superficial · diagnóstico preventivo</div><h1>Evaluador de riesgo de humedad superficial persistente</h1><p>Calcula la humedad relativa junto a una superficie fría y muestra cuánto se acerca a zonas favorables para problemas de humedad y desarrollo biológico.</p></div></header>
+<div class="wrap nav"><a class="brand hl-brand" href="index.html"><span class="brand-icon"></span><span class="hl-brand-copy"><span>HIDRO<em>LAB</em></span><small>BUILDING SCIENCE</small></span></a><div class="nav-actions"><button class="nav-back-btn" type="button" data-higrolab-back aria-label="Volver a la página anterior"><span aria-hidden="true">←</span> Atrás</button><nav class="navlinks"><a href="index.html"><span class="hl-nav-dot hl-dot-home"></span>Inicio</a><a class="active" href="calculadoras.html"><span class="hl-nav-dot hl-dot-tools"></span>Herramientas</a><a href="zona-interactiva.html"><span class="hl-nav-dot hl-dot-zone"></span>Zona interactiva</a></nav><a class="hl-nav-solar" href="simulador-solar.html"><span class="hl-nav-sun">☀</span><span class="hl-nav-solar-label">Solar Studio</span></a></div></div><div class="wrap hero mini-hero"><div class="eyebrow">Humedad superficial · diagnóstico preventivo</div><h1>Evaluador de riesgo de humedad superficial persistente</h1><p>Calcula la humedad relativa junto a una superficie fría y muestra cuánto se acerca a zonas favorables para problemas de humedad y desarrollo biológico.</p></div></header>
 <main class="wrap main"><div class="calc-grid">
 <section class="card full risk-trace-card">
-  <div class="section-head"><div><p class="kicker">Trazabilidad del cálculo</p><h2>¿Qué es normativo y qué es estimación HIDROLAB?</h2></div></div>
+  <div class="section-head"><div><p class="kicker">Trazabilidad del cálculo</p><h2>¿Qué es normativo y qué es estimación HIGROLAB?</h2></div></div>
   <div class="trace-grid">
     <div class="trace-item normative"><span class="trace-pill">NORMATIVO / CHILE</span><b>Condensación superficial</b><p id="traceCondText">La OGUC exige acreditar ausencia de riesgo conforme a NCh1973 y condiciones MINVU.</p></div>
     <div class="trace-item physical"><span class="trace-pill">FÍSICO</span><b>HR superficial, presión de vapor y punto de rocío</b><p>Se calculan con relaciones psicrométricas. Son magnitudes físicas; no son por sí mismas una certificación normativa.</p></div>
     <div class="trace-item estimate"><span class="trace-pill" id="traceUClass">—</span><b>Transmitancia del muro construido en pantalla</b><p id="traceUText">—</p></div>
-    <div class="trace-item estimate"><span class="trace-pill">ESTIMACIÓN HIDROLAB</span><b>Índice preventivo 0–100 y persistencia</b><p>La escala de colores, los puntos añadidos por horas de persistencia y el indicador 0–100 son criterios didácticos HIDROLAB; no corresponden a un índice definido por NCh1973 ni por la OGUC.</p></div>
+    <div class="trace-item estimate"><span class="trace-pill">ESTIMACIÓN HIGROLAB</span><b>Índice preventivo 0–100 y persistencia</b><p>La escala de colores, los puntos añadidos por horas de persistencia y el indicador 0–100 son criterios didácticos HIGROLAB; no corresponden a un índice definido por NCh1973 ni por la OGUC.</p></div>
   </div>
   <div class="normative-note"><b>Referencia reglamentaria:</b> la Res. Ex. 1802/2025 fija para el análisis reglamentario interior 19 °C y HR hasta 75%; el exterior depende del emplazamiento. También exige analizar al menos la sección de mayor resistencia y la de menor resistencia (puente térmico constructivo).</div>
 </section>
@@ -69,7 +70,7 @@
 
 <div id="estimatedPanel" class="risk-mode-panel hidden">
   <div class="estimate-intro">
-    <div><b>Estimación simplificada de la temperatura superficial interior</b><span>HIDROLAB calcula primero la transmitancia U del muro desde sus capas y luego estima Tsi con Ti, Te, U y Rsi.</span></div>
+    <div><b>Estimación simplificada de la temperatura superficial interior</b><span>HIGROLAB calcula primero la transmitancia U del muro desde sus capas y luego estima Tsi con Ti, Te, U y Rsi.</span></div>
     <code>Tsi = Ti − U · Rsi · (Ti − Te)</code>
   </div>
   <div class="form-grid">
@@ -132,7 +133,7 @@
 </div>
 </section>
 
-<section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIDROLAB</small>
+<section class="card"><div class="section-head"><div><p class="kicker">02 · Resultado</p><h2>Estado superficial</h2></div></div><div class="summary-grid"><div class="stat"><small>HR superficial estimada</small><strong id="rhs">—</strong><em>%</em></div><div class="stat"><small>Punto de rocío</small><strong id="dew">—</strong><em>°C</em></div><div class="stat"><small>T° crítica para 80% HR sup.</small><strong id="t80">—</strong><em>°C</em></div><div class="stat"><small>Margen a condensación</small><strong id="margin">—</strong><em>°C</em></div></div><div class="callout" id="status" style="margin-top:14px">—</div><div class="interactive-panel" style="margin-top:14px"><small class="note">Índice preventivo HIGROLAB</small>
 <div class="metric-big score-metric"><strong id="score">—</strong><span id="scoreLevel">0 = bajo · 100 = muy alto</span></div>
 <div class="risk-scale"><span>BAJO</span><span>ATENCIÓN</span><span>ELEVADO</span><span>MUY ALTO</span></div>
 <div class="bar risk-bar"><span id="scoreBar"></span></div></div>
@@ -147,7 +148,7 @@
   </div>
 
   <div class="moisture-wall-intro">
-    <b>Lectura directa:</b> HIDROLAB usa la temperatura interior, HR interior, temperatura exterior y la composición configurada en “Arma tu muro”. Calcula cuánta humedad contiene el aire, cómo cambia la HR al enfriarse junto a la superficie interior y qué margen existe respecto del punto de rocío.
+    <b>Lectura directa:</b> HIGROLAB usa la temperatura interior, HR interior, temperatura exterior y la composición configurada en “Arma tu muro”. Calcula cuánta humedad contiene el aire, cómo cambia la HR al enfriarse junto a la superficie interior y qué margen existe respecto del punto de rocío.
   </div>
 
   <div class="moisture-wall-grid">
@@ -269,7 +270,7 @@
         <strong id="awT80">— °C</strong>
       </div>
       <div>
-        <small>Índice preventivo HIDROLAB</small>
+        <small>Índice preventivo HIGROLAB</small>
         <strong id="awScore">— / 100</strong>
       </div>
     </div>
@@ -277,10 +278,10 @@
     <div id="airToWallMessage" class="air-to-wall-message">—</div>
   </div>
 </section>
-<section class="card full"><div class="section-head"><div><p class="kicker">04 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIDROLAB · Evaluación preventiva de humedad superficial<div style="margin-top:8px;line-height:1.55">
+<section class="card full"><div class="section-head"><div><p class="kicker">04 · Curva</p><h2>HR superficial según temperatura superficial interior del muro</h2></div><span class="note">Misma humedad absoluta del aire interior</span></div><div class="chart-wrap"><svg class="chart-svg" id="chart" viewbox="0 0 900 410"></svg></div><div class="callout warn" style="margin-top:14px"><b>Alcance:</b> en modo estimado, la temperatura superficial interior se obtiene con un modelo estacionario simplificado (Ti, Te, U y Rsi = 0,13 m²K/W). Para diagnóstico en terreno, una medición superficial directa tiene mayor valor. Este módulo es un indicador preventivo de humedad superficial, no un modelo de crecimiento biológico ni un diagnóstico médico. El desarrollo de moho depende además del material, nutrientes, tiempo, limpieza, ventilación y otras condiciones.</div></section></div></main><footer class="wrap footer">HIGROLAB · Evaluación preventiva de humedad superficial<div style="margin-top:8px;line-height:1.55">
 © 2026 · Derechos reservados a Gonzalo Campos V. · Constructor Civil · Evaluador CEV · Res. Ex. Acreditación 1336/2025<br>
 <a href="mailto:gonzaloacv@gmail.com">gonzaloacv@gmail.com</a>
-</div><div class="public-scope-note">HIDROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
+</div><div class="public-scope-note">HIGROLAB es una herramienta independiente de apoyo técnico. No corresponde a una plataforma oficial MINVU ni constituye por sí sola una certificación CEV.</div></footer>
 <script defer="" src="assets/riesgo-moho.js"></script><script defer src="assets/reportes.js"></script>
 <script src="assets/navigation.js"></script>
 <script src="assets/header-motion.js"></script>
