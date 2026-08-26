@@ -81,7 +81,15 @@ function drawDimensions(block=activeBlock()){
   if(!S.scale||!block?.pts?.length)return;ctx.font=`${12/S.zoom}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';
   for(let i=0;i<block.pts.length-(block.closed?0:1);i++){const a=block.pts[i],b=block.pts[(i+1)%block.pts.length],m={x:(a.x+b.x)/2,y:(a.y+b.y)/2},len=Math.hypot(b.x-a.x,b.y-a.y)*S.scale;ctx.fillStyle='#10262d';ctx.fillRect(m.x-31/S.zoom,m.y-10/S.zoom,62/S.zoom,20/S.zoom);ctx.fillStyle='#fff';ctx.fillText(len.toFixed(2)+' m',m.x,m.y)}
 }
-function drawNorth(){const r=canvas.getBoundingClientRect(),x=55,y=70,ang=(S.northAngle-90)*Math.PI/180;ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.strokeStyle='#d93232';ctx.fillStyle='#d93232';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-24,0);ctx.lineTo(24,0);ctx.stroke();ctx.beginPath();ctx.moveTo(24,0);ctx.lineTo(13,-7);ctx.lineTo(13,7);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#d93232';ctx.font='bold 13px system-ui';ctx.fillText('N',48,104)}
+function updateNorthHUD(){
+  const angle=((Number(S.northAngle)||0)%360+360)%360;
+  qsa('[data-north-needle]').forEach(el=>el.style.transform=`rotate(${angle}deg)`);
+  qsa('[data-north-angle]').forEach(el=>el.textContent=`${angle.toFixed(0)}°`);
+}
+function drawNorth(){
+  // El Norte se representa como HUD flotante y no se dibuja dentro del plano.
+  updateNorthHUD()
+}
 function nearestVertex(p,allBlocks=false){
   let hit=null,dist=14/S.zoom;const list=allBlocks?S.blocks.map((b,i)=>[b,i]):[[activeBlock(),S.activeBlock]];list.forEach(([b,bi])=>b.pts.forEach((v,i)=>{const d=Math.hypot(v.x-p.x,v.y-p.y);if(d<dist){dist=d;hit={blockIndex:bi,index:i}}}));return hit
 }
@@ -94,7 +102,7 @@ canvas.addEventListener('pointerdown',e=>{
     p=snapPoint(p);if(b.pts.length>2&&Math.hypot(p.x-b.pts[0].x,p.y-b.pts[0].y)<14/S.zoom){b.closed=true;S.drag=null}else{b.pts.push(p);S.drag={vertex:b.pts.length-1,blockIndex:S.activeBlock,created:true};canvas.setPointerCapture(e.pointerId)}autoFit3D=true;updateMetrics();drawCAD();rebuild3D();return
   }
   if(S.tool==='measure'){S.calPts.push(p);if(S.calPts.length>2)S.calPts=[p];if(S.calPts.length===2)applyCalibration();drawCAD();return}
-  if(S.tool==='north'){S.northPts.push(p);if(S.northPts.length>2)S.northPts=[p];if(S.northPts.length===2){const a=S.northPts[0],b=S.northPts[1];S.northAngle=(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;rebuild3D()}drawCAD();return}
+  if(S.tool==='north'){S.northPts.push(p);if(S.northPts.length>2)S.northPts=[p];if(S.northPts.length===2){const a=S.northPts[0],b=S.northPts[1];S.northAngle=(Math.atan2(b.x-a.x,-(b.y-a.y))*180/Math.PI+360)%360;updateNorthHUD();rebuild3D()}drawCAD();return}
   const hit=nearestVertex(p,true);if(hit){setActiveBlock(hit.blockIndex,false);S.drag={vertex:hit.index,blockIndex:hit.blockIndex};canvas.setPointerCapture(e.pointerId);selectVertex(hit.index,hit.blockIndex)}
 });
 canvas.addEventListener('dblclick',()=>{const b=activeBlock();if(S.tool==='wall'&&b.pts.length>=3&&!b.closed){b.closed=true;S.drag=null;autoFit3D=true;updateMetrics();drawCAD();rebuild3D()}});
@@ -106,7 +114,15 @@ function polygonData(block=activeBlock()){if(!block?.closed||block.pts.length<3)
 function areaPerim(block=activeBlock()){const p=polygonData(block);if(!p)return{a:0,l:0};let a=0,l=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i].x*q.z-q.x*p[i].z;l+=Math.hypot(q.x-p[i].x,q.z-p[i].z)}return{a:Math.abs(a)/2,l}}
 function renderBlockList(){const root=$('block-list');if(!root)return;root.innerHTML=S.blocks.map((b,i)=>{const m=areaPerim(b),code=blockCode(i),color=BLOCK_COLORS[i%BLOCK_COLORS.length];return `<button class="solar-block-item ${i===S.activeBlock?'active':''} ${b.closed?'closed':''}" data-block-index="${i}" type="button" style="--block-color:${color}"><span class="solar-block-code">${code}</span><span><b>${b.name||`Bloque ${code}`}</b><small>${Number(b.height||2.4).toFixed(1).replace('.',',')} m · ${m.a?m.a.toFixed(1).replace('.',',')+' m²':'sin cerrar'}</small></span><span class="block-state">${b.closed?'CERRADO':`${b.pts.length} PTOS`}</span></button>`}).join('');root.querySelectorAll('[data-block-index]').forEach(btn=>btn.addEventListener('click',()=>setActiveBlock(+btn.dataset.blockIndex)))}
 function syncBlockEditor(){const b=activeBlock(),code=blockCode(S.activeBlock);if($('active-block-code')){$('active-block-code').textContent=code;$('active-block-code').style.background=BLOCK_COLORS[S.activeBlock%BLOCK_COLORS.length]}if($('block-name'))$('block-name').value=b.name||`Bloque ${code}`;if($('wall-height'))$('wall-height').value=Number(b.height||2.4);if($('building-az'))$('building-az').value=Number(b.az||0);if($('delete-block'))$('delete-block').disabled=S.blocks.length<=1}
-function setActiveBlock(index,rebuild=true){if(index<0||index>=S.blocks.length)return;S.activeBlock=index;SEL.type=null;SEL.index=null;SEL.blockIndex=index;syncBlockEditor();renderBlockList();updateMetrics();drawCAD();if(rebuild)rebuild3D()}
+function setActiveBlock(index,rebuild=true,preserveSelection=false){
+  if(index<0||index>=S.blocks.length)return;
+  S.activeBlock=index;
+  if(!preserveSelection){
+    SEL.type=null;SEL.index=null;SEL.blockIndex=index
+  }
+  syncBlockEditor();renderBlockList();updateMetrics();drawCAD();
+  if(rebuild)rebuild3D()
+}
 function addBlock(){const i=S.blocks.length,code=blockCode(i),h=Number(activeBlock()?.height||2.4);S.blocks.push({id:code,name:`Bloque ${code}`,pts:[],closed:false,height:h,az:0});setActiveBlock(i,false);setTool('wall');updateMetrics();drawCAD();rebuild3D();$('cad-hint').textContent=`Dibuja ${S.blocks[i].name}. Puede estar unido o separado del resto.`}
 function deleteActiveBlock(){if(S.blocks.length<=1){const b=activeBlock();b.pts=[];b.closed=false;updateMetrics();drawCAD();rebuild3D();return}S.blocks.splice(S.activeBlock,1);S.activeBlock=Math.max(0,Math.min(S.activeBlock,S.blocks.length-1));S.blocks.forEach((b,i)=>b.id=blockCode(i));setActiveBlock(S.activeBlock,false);rebuild3D()}
 function updateMetrics(){const closed=S.blocks.filter(b=>b.closed&&b.pts.length>=3),t=closed.reduce((a,b)=>{const m=areaPerim(b);a.a+=m.a;a.l+=m.l;a.f+=b.pts.length;return a},{a:0,l:0,f:0});$('area-out').textContent=t.a?t.a.toFixed(1)+' m²':'—';$('perim-out').textContent=t.l?t.l.toFixed(1)+' m':'—';$('faces-out').textContent=t.f?String(t.f):'—';const b=activeBlock();$('status-pill').textContent=closed.length?`${closed.length} bloque${closed.length===1?'':'s'} · ${t.f} fachadas`:`${S.blocks.length} bloque${S.blocks.length===1?'':'s'} · ${b.pts.length} vértices en ${b.name}`;renderBlockList()}
@@ -183,34 +199,100 @@ function niceGridSize(maxPlan){
   const need=Math.max(12,maxPlan*1.8);
   return Math.ceil(need/10)*10;
 }
+
+function makeGroundNorthMarker(gridSize){
+  const g=new THREE.Group();
+  const radius=Math.max(1.05,Math.min(2.8,gridSize*.075));
+  const red=0xcf3434,dark=0x7b2a2a;
+
+  // Ring on the grid.
+  const ringPts=[];
+  for(let i=0;i<=64;i++){
+    const a=i/64*Math.PI*2;
+    ringPts.push(new THREE.Vector3(Math.cos(a)*radius,.018,Math.sin(a)*radius))
+  }
+  const ring=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(ringPts),
+    new THREE.LineBasicMaterial({color:dark,transparent:true,opacity:.65})
+  );
+  g.add(ring);
+
+  // Large arrow permanently pointing to geographic North (-Z).
+  const arrow=new THREE.ArrowHelper(
+    new THREE.Vector3(0,0,-1),
+    new THREE.Vector3(0,.025,radius*.55),
+    radius*1.65,
+    red,
+    radius*.43,
+    radius*.22
+  );
+  g.add(arrow);
+
+  // Crosshair makes the symbol easy to locate on a large grid.
+  const cross=new THREE.LineSegments(
+    new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-radius*.72,.019,0),new THREE.Vector3(radius*.72,.019,0),
+      new THREE.Vector3(0,.019,-radius*.72),new THREE.Vector3(0,.019,radius*.72)
+    ]),
+    new THREE.LineBasicMaterial({color:0x8b9ba0,transparent:true,opacity:.52})
+  );
+  g.add(cross);
+
+  // Small 3D "N" plaque made from two bars + diagonal so it remains visible
+  // without external fonts or textures.
+  const nMat=new THREE.MeshBasicMaterial({color:red,side:THREE.DoubleSide});
+  const barGeo=new THREE.BoxGeometry(radius*.09,.035,radius*.50);
+  const left=new THREE.Mesh(barGeo,nMat),right=new THREE.Mesh(barGeo,nMat);
+  left.position.set(-radius*.22,.04,-radius*1.06);
+  right.position.set(radius*.22,.04,-radius*1.06);
+  g.add(left,right);
+  const diag=new THREE.Mesh(new THREE.BoxGeometry(radius*.09,.035,radius*.62),nMat);
+  diag.position.set(0,.041,-radius*1.06);
+  diag.rotation.y=-Math.atan2(radius*.44,radius*.50);
+  g.add(diag);
+
+  return g
+}
+
 function rebuildMetricGrid(sc,group){
-  const b=modelBounds(group); if(!b)return;
+  const b=modelBounds(group);if(!b)return;
   const gridSize=niceGridSize(b.maxPlan);
+
   if(sc.userData.metricGrid)sc.remove(sc.userData.metricGrid);
   if(sc.userData.ground)sc.remove(sc.userData.ground);
-  if(sc.userData.northArrow)sc.remove(sc.userData.northArrow);
+  if(sc.userData.northArrow){sc.remove(sc.userData.northArrow);sc.userData.northArrow=null}
 
-  // 1 division = 1 metre
+  // 1 división = 1 metro.
   const divisions=Math.max(10,Math.round(gridSize));
   const grid=new THREE.GridHelper(gridSize,divisions,0x83979e,0xcbd6d9);
-  grid.position.y=.002;grid.material.transparent=true;grid.material.opacity=.72;
-  sc.add(grid);sc.userData.metricGrid=grid;
+  grid.position.y=.002;
+  grid.material.transparent=true;
+  grid.material.opacity=.72;
+  sc.add(grid);
+  sc.userData.metricGrid=grid;
 
   const groundSize=gridSize*1.35;
   const ground=new THREE.Mesh(
     new THREE.PlaneGeometry(groundSize,groundSize),
     new THREE.MeshStandardMaterial({color:0xdde4e5,roughness:1})
   );
-  ground.rotation.x=-Math.PI/2;ground.position.y=-.006;ground.receiveShadow=true;
-  sc.add(ground);sc.userData.ground=ground;
+  ground.rotation.x=-Math.PI/2;
+  ground.position.y=-.006;
+  ground.receiveShadow=true;
+  sc.add(ground);
+  sc.userData.ground=ground;
 
-  const arrowLen=Math.max(3,Math.min(8,gridSize*.16));
-  const arrow=new THREE.ArrowHelper(
-    new THREE.Vector3(0,0,-1),new THREE.Vector3(0,.02,0),
-    arrowLen,0xc52d2d,Math.max(.5,arrowLen*.18),Math.max(.25,arrowLen*.09)
-  );
-  sc.add(arrow);sc.userData.northArrow=arrow;
+  // Segundo Norte: grande, físico y unido a la cuadrícula.
+  // Se coloca fuera de la envolvente del conjunto para reducir la posibilidad
+  // de que un bloque lo tape, pero sigue desplazándose/rotando con la vista 3D.
+  const marker=makeGroundNorthMarker(gridSize);
+  const corner=gridSize*.39;
+  marker.position.set(-corner,.01,corner);
+  sc.add(marker);
+  sc.userData.northArrow=marker;
+
   sc.userData.gridSize=gridSize;
+  updateNorthHUD()
 }
 function fitCameraToModel(cam,ctl,group,view='iso'){
   const b=modelBounds(group); if(!b)return;
@@ -270,20 +352,189 @@ function planeFacadeGeometry(a,b,h,n){
   const v=new Float32Array([ax,0,az,bx,0,bz,bx,h,bz, ax,0,az,bx,h,bz,ax,h,az]);
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(v,3));g.computeVertexNormals();return g
 }
-function makeBuildingBlock(block,bi){const pts=worldPolygon(block);if(!pts)return null;const h=Number(block.height||2.4),shape=new THREE.Shape();shape.moveTo(pts[0].x,-pts[0].z);for(let i=1;i<pts.length;i++)shape.lineTo(pts[i].x,-pts[i].z);shape.closePath();const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});geo.rotateX(-Math.PI/2);const palette=[0xe7ecec,0xf7edf2,0xf0f7e8,0xf7f2df,0xeeeafd,0xf7eee6],mat=new THREE.MeshStandardMaterial({color:palette[bi%palette.length],roughness:.78,metalness:0}),body=new THREE.Mesh(geo,mat);body.castShadow=true;body.receiveShadow=true;body.userData={role:'body',blockIndex:bi};const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x344b55})),g=new THREE.Group();g.add(body,edges);g.userData={body,pickables:[],facades:[],vertices:[],covers:[],blockIndex:bi};const rg=roofGeometry(block,bi);if(rg){const roof=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xf0b523,transparent:true,opacity:.04,side:THREE.DoubleSide,depthWrite:false}));roof.userData={type:'cover',index:0,blockIndex:bi};g.add(roof);g.userData.covers.push(roof);g.userData.pickables.push(roof)}facadeDescriptors(block,bi).forEach(f=>{const wall=new THREE.Mesh(planeFacadeGeometry(f.a,f.b,h,f.nWorld),new THREE.MeshBasicMaterial({color:0x86b817,transparent:true,opacity:.025,side:THREE.DoubleSide,depthWrite:false}));wall.userData={type:'facade',index:f.index,blockIndex:bi};g.add(wall);g.userData.facades.push(wall);g.userData.pickables.push(wall)});const bb=new THREE.Box3().setFromObject(body),size=new THREE.Vector3();bb.getSize(size);const vr=Math.max(.07,Math.min(.18,Math.max(size.x,size.z)/55));pts.forEach((pt,i)=>{const vm=new THREE.Mesh(new THREE.SphereGeometry(vr,14,10),new THREE.MeshBasicMaterial({color:0x334d58,transparent:true,opacity:.55}));vm.position.set(pt.x,.10,pt.z);vm.userData={type:'vertex',index:i,blockIndex:bi};g.add(vm);g.userData.vertices.push(vm);g.userData.pickables.push(vm)});return g}
+function makeBuildingBlock(block,bi){const pts=worldPolygon(block);if(!pts)return null;const h=Number(block.height||2.4),shape=new THREE.Shape();shape.moveTo(pts[0].x,-pts[0].z);for(let i=1;i<pts.length;i++)shape.lineTo(pts[i].x,-pts[i].z);shape.closePath();const geo=new THREE.ExtrudeGeometry(shape,{depth:h,bevelEnabled:false});geo.rotateX(-Math.PI/2);const palette=[0xe7ecec,0xf7edf2,0xf0f7e8,0xf7f2df,0xeeeafd,0xf7eee6],mat=new THREE.MeshStandardMaterial({color:palette[bi%palette.length],roughness:.78,metalness:0,side:THREE.DoubleSide}),body=new THREE.Mesh(geo,mat);body.castShadow=true;body.receiveShadow=true;body.userData={role:'body',blockIndex:bi};const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x344b55})),g=new THREE.Group();g.add(body,edges);g.userData={body,pickables:[],facades:[],vertices:[],covers:[],blockIndex:bi};const rg=roofGeometry(block,bi);if(rg){const roof=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xf0b523,transparent:true,opacity:.04,side:THREE.DoubleSide,depthWrite:false}));roof.userData={type:'cover',index:0,blockIndex:bi};g.add(roof);g.userData.covers.push(roof);g.userData.pickables.push(roof)}facadeDescriptors(block,bi).forEach(f=>{const wall=new THREE.Mesh(planeFacadeGeometry(f.a,f.b,h,f.nWorld),new THREE.MeshBasicMaterial({color:0x86b817,transparent:true,opacity:.025,side:THREE.DoubleSide,depthWrite:false}));wall.userData={type:'facade',index:f.index,blockIndex:bi};g.add(wall);g.userData.facades.push(wall);g.userData.pickables.push(wall)});const bb=new THREE.Box3().setFromObject(body),size=new THREE.Vector3();bb.getSize(size);const vr=Math.max(.07,Math.min(.18,Math.max(size.x,size.z)/55));pts.forEach((pt,i)=>{const vm=new THREE.Mesh(new THREE.SphereGeometry(vr,14,10),new THREE.MeshBasicMaterial({color:0x334d58,transparent:true,opacity:.55}));vm.position.set(pt.x,.10,pt.z);vm.userData={type:'vertex',index:i,blockIndex:bi};g.add(vm);g.userData.vertices.push(vm);g.userData.pickables.push(vm)});return g}
 function makeBuilding(){const root=new THREE.Group();root.userData={blocks:[],pickables:[],facades:[],vertices:[],covers:[],bodies:[]};S.blocks.forEach((b,bi)=>{if(!b.closed||b.pts.length<3)return;const g=makeBuildingBlock(b,bi);if(!g)return;root.add(g);root.userData.blocks.push(g);root.userData.pickables.push(...g.userData.pickables);root.userData.facades.push(...g.userData.facades);root.userData.vertices.push(...g.userData.vertices);root.userData.covers.push(...g.userData.covers);root.userData.bodies.push(g.userData.body)});return root.userData.blocks.length?root:null}
 function rebuild3D(){[[scene,'buildingGroup'],[solarScene,'solarBuilding']].forEach(([sc,key])=>{const old=key==='buildingGroup'?buildingGroup:solarBuilding;if(old)sc.remove(old);const n=makeBuilding();if(n)sc.add(n);if(key==='buildingGroup')buildingGroup=n;else solarBuilding=n;if(n){rebuildMetricGrid(sc,n);addHumanScaleReference(sc)}});if(buildingGroup&&autoFit3D){fitCameraToModel(camera,controls,buildingGroup,'iso');fitCameraToModel(solarCamera,solarControls,solarBuilding,'iso');autoFit3D=false}updateScaleHUD();refresh3DSelection();updateMetrics();updateSolar();updateSunPath();updateDailySunDashboard();updateAllFacadeLabels()}
-function ensureFacadeLabel(layerId,key,f){const layer=$(layerId);if(!layer)return null;let el=layer.querySelector(`[data-facelabel="${key}"]`);if(!el){el=document.createElement('div');el.className='facade-label-3d';el.dataset.facelabel=key;layer.appendChild(el)}el.innerHTML=`${f.id}<small>${f.orientation} · ${f.az.toFixed(0)}°</small>`;el.classList.toggle('active',SEL.type==='facade'&&SEL.index===f.index&&SEL.blockIndex===f.blockIndex);return el}
+function ensureFacadeLabel(layerId,key,f){
+  const layer=$(layerId);if(!layer)return null;
+  let el=layer.querySelector(`[data-facelabel="${key}"]`);
+  if(!el){
+    el=document.createElement('div');
+    el.className='facade-label-3d';
+    el.dataset.facelabel=key;
+    layer.appendChild(el)
+  }
+  el.dataset.blockIndex=String(f.blockIndex);
+  el.dataset.faceIndex=String(f.index);
+  el.innerHTML=`${f.id}<small>${f.orientation} · ${f.az.toFixed(0)}°</small>`;
+  el.classList.toggle('active',SEL.type==='facade'&&SEL.index===f.index&&SEL.blockIndex===f.blockIndex);
+  el.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    select3DObject('facade',f.index,f.blockIndex)
+  };
+  return el
+}
 function updateFacadeLabelsFor(renderer,camera,group,layerId){const layer=$(layerId);if(!layer)return;const fs=allFacadeDescriptors();if(!group||!fs.length){layer.innerHTML='';return}const rect=renderer.domElement.getBoundingClientRect();camera.updateMatrixWorld(true);const keys=new Set();fs.forEach(f=>{const key=`${f.blockIndex}-${f.index}`;keys.add(key);const el=ensureFacadeLabel(layerId,key,f),pr=f.center.clone().add(f.nWorld.clone().multiplyScalar(.06)).project(camera),x=(pr.x*.5+.5)*rect.width,y=(-pr.y*.5+.5)*rect.height;el.style.left=`${x}px`;el.style.top=`${y}px`;el.classList.toggle('hidden',pr.z<-1||pr.z>1||x<-20||y<-20||x>rect.width+20||y>rect.height+20);el.classList.toggle('active',SEL.type==='facade'&&SEL.index===f.index&&SEL.blockIndex===f.blockIndex)});[...layer.querySelectorAll('[data-facelabel]')].forEach(el=>{if(!keys.has(el.dataset.facelabel))el.remove()})}
-function updateCoverLabelFor(renderer,camera,group,layerId){const layer=$(layerId);if(!layer)return;const roofs=roofDescriptors(),rect=renderer.domElement.getBoundingClientRect(),keys=new Set();roofs.forEach(r=>{const key=String(r.blockIndex);keys.add(key);let el=layer.querySelector(`[data-coverlabel="${key}"]`);if(!el){el=document.createElement('div');el.className='facade-label-3d';el.dataset.coverlabel=key;layer.appendChild(el)}el.innerHTML=`${r.id}<small>Cubierta</small>`;el.classList.toggle('active',SEL.type==='cover'&&SEL.blockIndex===r.blockIndex);const pr=r.center.clone().project(camera),x=(pr.x*.5+.5)*rect.width,y=(-pr.y*.5+.5)*rect.height;el.style.left=`${x}px`;el.style.top=`${y}px`;el.classList.toggle('hidden',pr.z<-1||pr.z>1||x<-20||y<-20||x>rect.width+20||y>rect.height+20)});[...layer.querySelectorAll('[data-coverlabel]')].forEach(el=>{if(!keys.has(el.dataset.coverlabel))el.remove()})}
+function updateCoverLabelFor(renderer,camera,group,layerId){
+  const layer=$(layerId);if(!layer)return;
+  const roofs=roofDescriptors(),rect=renderer.domElement.getBoundingClientRect(),keys=new Set();
+  roofs.forEach(r=>{
+    const key=String(r.blockIndex);keys.add(key);
+    let el=layer.querySelector(`[data-coverlabel="${key}"]`);
+    if(!el){
+      el=document.createElement('div');
+      el.className='facade-label-3d';
+      el.dataset.coverlabel=key;
+      layer.appendChild(el)
+    }
+    el.innerHTML=`${r.id}<small>Cubierta</small>`;
+    el.classList.toggle('active',SEL.type==='cover'&&SEL.blockIndex===r.blockIndex);
+    el.onclick=e=>{
+      e.preventDefault();e.stopPropagation();
+      select3DObject('cover',0,r.blockIndex)
+    };
+    const pr=r.center.clone().project(camera),
+      x=(pr.x*.5+.5)*rect.width,y=(-pr.y*.5+.5)*rect.height;
+    el.style.left=`${x}px`;el.style.top=`${y}px`;
+    el.classList.toggle('hidden',pr.z<-1||pr.z>1||x<-20||y<-20||x>rect.width+20||y>rect.height+20)
+  });
+  [...layer.querySelectorAll('[data-coverlabel]')].forEach(el=>{
+    if(!keys.has(el.dataset.coverlabel))el.remove()
+  })
+}
 function updateAllFacadeLabels(){
   if(renderer&&camera){updateFacadeLabelsFor(renderer,camera,buildingGroup,'labels-3d');updateCoverLabelFor(renderer,camera,buildingGroup,'labels-3d')};
   if(solarRenderer&&solarCamera){updateFacadeLabelsFor(solarRenderer,solarCamera,solarBuilding,'labels-solar');updateCoverLabelFor(solarRenderer,solarCamera,solarBuilding,'labels-solar')};
 }
 
-function bindPicking(ren,cam,getGroup){const rc=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;ren.domElement.addEventListener('pointerdown',e=>{if(e.button===0)down={x:e.clientX,y:e.clientY}});ren.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5){down=null;return}down=null;const r=ren.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;rc.setFromCamera(mouse,cam);const g=getGroup();if(!g?.userData?.pickables)return;const hits=rc.intersectObjects(g.userData.pickables,false);if(!hits.length)return;const vh=hits.find(h=>h.object.userData.type==='vertex'),hit=vh||hits[0],u=hit.object.userData;select3DObject(u.type,u.index,u.blockIndex)})}
-function select3DObject(type,index,blockIndex=0){SEL.type=type;SEL.index=index;SEL.blockIndex=blockIndex;setActiveBlock(blockIndex,false);refresh3DSelection();renderSelectionInspector();updateSelectedSunPanel();updateAllFacadeLabels()}
-function refresh3DSelection(){[buildingGroup,solarBuilding].forEach(g=>{if(!g?.userData)return;(g.userData.facades||[]).forEach(m=>{const u=m.userData,on=SEL.type==='facade'&&SEL.index===u.index&&SEL.blockIndex===u.blockIndex;m.material.opacity=on?.34:.025});(g.userData.vertices||[]).forEach(m=>{const u=m.userData,on=SEL.type==='vertex'&&SEL.index===u.index&&SEL.blockIndex===u.blockIndex;m.material.opacity=on?1:.55;m.material.color.set(on?0xf0a500:0x334d58);m.scale.setScalar(on?1.45:1)});(g.userData.covers||[]).forEach(m=>{const u=m.userData,on=SEL.type==='cover'&&SEL.blockIndex===u.blockIndex;m.material.opacity=on?.32:.04})})}
+
+function pointSegmentDistanceXZ(p,a,b){
+  const vx=b.x-a.x,vz=b.z-a.z,wx=p.x-a.x,wz=p.z-a.z;
+  const vv=vx*vx+vz*vz;
+  const t=vv>0?Math.max(0,Math.min(1,(wx*vx+wz*vz)/vv)):0;
+  const x=a.x+t*vx,z=a.z+t*vz;
+  return Math.hypot(p.x-x,p.z-z)
+}
+function resolveBodySurfaceHit(hit){
+  const bi=Number(hit?.object?.userData?.blockIndex);
+  const block=S.blocks[bi];
+  if(!block||!hit?.point)return null;
+  const h=Number(block.height||2.4);
+
+  // La cara superior se interpreta como cubierta.
+  if(hit.point.y>=h-Math.max(.04,h*.025)){
+    return{type:'cover',index:0,blockIndex:bi}
+  }
+
+  // En muros, buscamos el segmento de fachada más cercano al punto real del raycast.
+  const faces=facadeDescriptors(block,bi);
+  if(!faces.length)return null;
+  let best=faces[0],bestD=Infinity;
+  faces.forEach(f=>{
+    const d=pointSegmentDistanceXZ(hit.point,f.a,f.b);
+    if(d<bestD){bestD=d;best=f}
+  });
+  return{type:'facade',index:best.index,blockIndex:bi}
+}
+
+function bindPicking(ren,cam,getGroup){
+  const rc=new THREE.Raycaster(),mouse=new THREE.Vector2();let down=null;
+  ren.domElement.addEventListener('pointerdown',e=>{
+    if(e.button===0)down={x:e.clientX,y:e.clientY}
+  });
+  ren.domElement.addEventListener('pointerup',e=>{
+    if(!down)return;
+    const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y);down=null;
+    // Un pequeño movimiento involuntario sigue siendo un clic; un giro real de cámara no.
+    if(moved>9)return;
+
+    const r=ren.domElement.getBoundingClientRect();
+    mouse.x=((e.clientX-r.left)/r.width)*2-1;
+    mouse.y=-((e.clientY-r.top)/r.height)*2+1;
+    rc.setFromCamera(mouse,cam);
+
+    const g=getGroup();
+    if(!g?.userData)return;
+    const targets=[
+      ...(g.userData.pickables||[]),
+      ...(g.userData.bodies||[])
+    ];
+    if(!targets.length)return;
+
+    const hits=rc.intersectObjects(targets,false);
+    if(!hits.length)return;
+
+    // Prioridad 1: vértice explícito.
+    const vh=hits.find(h=>h.object.userData.type==='vertex');
+    if(vh){
+      const u=vh.object.userData;
+      select3DObject('vertex',u.index,u.blockIndex);return
+    }
+
+    // Prioridad 2: planos explícitos de fachada/cubierta.
+    const explicit=hits.find(h=>h.object.userData.type==='facade'||h.object.userData.type==='cover');
+    if(explicit){
+      const u=explicit.object.userData;
+      select3DObject(u.type,u.index,u.blockIndex);return
+    }
+
+    // Prioridad 3: cuerpo sólido. Esto hace seleccionable toda la cara visible,
+    // aunque el plano transparente de picking no haya sido interceptado.
+    const bodyHit=hits.find(h=>h.object.userData.role==='body');
+    const resolved=resolveBodySurfaceHit(bodyHit);
+    if(resolved)select3DObject(resolved.type,resolved.index,resolved.blockIndex)
+  })
+}
+function select3DObject(type,index,blockIndex=0){
+  // Primero activamos el bloque SIN borrar la selección que estamos creando.
+  setActiveBlock(blockIndex,false,true);
+  SEL.type=type;
+  SEL.index=index;
+  SEL.blockIndex=blockIndex;
+
+  refresh3DSelection();
+  renderSelectionInspector();
+  updateSelectedSunPanel();
+  updateAllFacadeLabels();
+
+  // Mantiene la tarjeta inferior sincronizada incluso si el análisis diario
+  // todavía no se había renderizado después de modificar la geometría.
+  if((type==='facade'||type==='cover') && !lastSunResults){
+    updateDailySunDashboard()
+  }
+}
+function refresh3DSelection(){
+  [buildingGroup,solarBuilding].forEach(g=>{
+    if(!g?.userData)return;
+
+    (g.userData.facades||[]).forEach(m=>{
+      const u=m.userData;
+      const on=SEL.type==='facade'&&SEL.index===u.index&&SEL.blockIndex===u.blockIndex;
+      m.material.opacity=on?.58:.025;
+      m.material.color.set(on?0xff2f8a:0x86b817);
+      m.material.depthTest=!on;
+      m.renderOrder=on?30:2
+    });
+
+    (g.userData.vertices||[]).forEach(m=>{
+      const u=m.userData;
+      const on=SEL.type==='vertex'&&SEL.index===u.index&&SEL.blockIndex===u.blockIndex;
+      m.material.opacity=on?1:.55;
+      m.material.color.set(on?0xf0a500:0x334d58);
+      m.scale.setScalar(on?1.45:1);
+      m.renderOrder=on?31:3
+    });
+
+    (g.userData.covers||[]).forEach(m=>{
+      const u=m.userData;
+      const on=SEL.type==='cover'&&SEL.blockIndex===u.blockIndex;
+      m.material.opacity=on?.48:.04;
+      m.material.color.set(on?0xffd51f:0xf0b523);
+      m.material.depthTest=!on;
+      m.renderOrder=on?29:1
+    })
+  })
+}
 function renderSelectionInspector(){const bi=SEL.blockIndex??S.activeBlock,b=S.blocks[bi];if(!b)return;if(SEL.type==='cover'){const r=(lastRoofResults||[]).find(x=>x.blockIndex===bi)||computeRoofDaily(b,bi),mins=+$('time').value,sun=solarPosition(currentDateAtMinutes(mins),+$('lat').value,+$('lon').value,+$('tz').value);$('selection-panel').innerHTML=`<h3>${r.id} · ${b.name}</h3><div class="facade-inspector"><div class="facade-title">Cubierta horizontal · altura ${Number(b.height).toFixed(2)} m</div><div class="facade-grid"><div><span>Sol diario</span><strong>${formatHours(r.minutes)}</strong></div><div><span>Día solar</span><strong>${daylightMinutes()?Math.round(r.minutes/daylightMinutes()*100):0}%</strong></div><div><span>Captación geométrica</span><strong>${r.geomEquivalentHours.toFixed(1).replace('.',',')} h-eq</strong></div><div><span>Estado actual</span><strong>${isRoofSunlit(roofDescriptor(b,bi),sun)?'SOL DIRECTO':'SIN SOL'}</strong></div></div></div>`;return}if(SEL.type==='vertex'){const pt=worldPolygon(b)?.[SEL.index];if(!pt)return;$('selection-panel').innerHTML=`<h3>${blockCode(bi)} · VÉRTICE V${SEL.index+1}</h3><div class="vertex3d-info"><strong>${b.name}</strong><br>X: ${pt.x.toFixed(2)} m<br>Y: ${pt.z.toFixed(2)} m<br><br>En PLANTA mantén presionado el punto y arrástralo.</div>`;return}if(SEL.type==='facade'){const f=facadeDescriptors(b,bi)[SEL.index];if(!f)return;const rec=(lastSunResults||[]).find(x=>x.blockIndex===bi&&x.index===SEL.index),cur=currentFacadeSunState(f);$('selection-panel').innerHTML=`<h3>${f.id} · ${b.name}</h3><div class="facade-inspector"><div class="facade-title">${f.orientation} · ${f.az.toFixed(1)}° · altura ${f.height.toFixed(2)} m</div><div class="facade-grid"><div><span>Longitud</span><strong>${f.len.toFixed(2)} m</strong></div><div><span>Azimut</span><strong>${f.az.toFixed(1)}°</strong></div><div><span>Sol diario</span><strong>${rec?formatHours(rec.minutes):'—'}</strong></div><div><span>Bloque</span><strong>${blockCode(bi)}</strong></div></div><div class="facade-state ${cur?'on':'off'}">${cur?'SOL DIRECTO AHORA':'SIN SOL DIRECTO AHORA'}</div></div>`}}
 function resize3D(){[['three-stage',camera,renderer],['three-solar',solarCamera,solarRenderer]].forEach(([id,cam,ren])=>{if(!ren)return;const r=$(id).getBoundingClientRect();if(r.width&&r.height){ren.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}})}
 function animate(){updateAllFacadeLabels();requestAnimationFrame(animate);controls?.update();solarControls?.update();renderer?.render(scene,camera);solarRenderer?.render(solarScene,solarCamera)}
@@ -321,7 +572,63 @@ function trackHTML(segments){
   return segments.map(([a,b])=>`<span class="sun-segment selfshade" style="left:${(a/1440*100).toFixed(3)}%;width:${((b-a)/1440*100).toFixed(3)}%"></span>`).join('')
 }
 function updateDailySunDashboard(){const grid=$('sun-hours-grid');if(!grid)return;const closed=S.blocks.filter(b=>b.closed&&b.pts.length>=3);if(!closed.length){lastSunResults=null;lastRoofResults=[];lastRoofResult=null;grid.innerHTML='<div class="sun-empty">Dibuja y cierra al menos un bloque para obtener el análisis diario del conjunto.</div>';$('daylight-out').textContent='—';updateSelectedSunPanel();return}lastSunResults=computeDailySunHours();lastRoofResults=computeAllRoofDaily();lastRoofResult=lastRoofResults[0]||null;$('daylight-out').textContent=formatHours(daylightMinutes());let out='';S.blocks.forEach((b,bi)=>{if(!b.closed)return;const code=blockCode(bi),color=BLOCK_COLORS[bi%BLOCK_COLORS.length],faces=lastSunResults.filter(r=>r.blockIndex===bi),roof=lastRoofResults.find(r=>r.blockIndex===bi);out+=`<div class="sun-block-heading" style="--block-color:${color}"><b>${code} · ${b.name}</b><span>altura ${Number(b.height||2.4).toFixed(1).replace('.',',')} m · ${faces.length} fachadas</span></div>`;out+=faces.map(r=>`<article class="facade-sun-card ${SEL.type==='facade'&&SEL.blockIndex===bi&&SEL.index===r.index?'active':''}" data-face-block="${bi}" data-face-index="${r.index}"><div class="facade-sun-head"><div><strong>${r.id} · ${r.orientation}</strong><span>${r.az.toFixed(1)}° · ${r.len.toFixed(2)} m <span class="block-badge">${code}</span></span></div><span class="sun-hours">${formatHours(r.minutes)}</span></div><div class="sun-track">${trackHTML(r.segments)}</div><div class="sun-range"><span>${formatClock(r.first)}</span><span>${formatClock(r.last)}</span></div></article>`).join('');if(roof)out+=`<article class="facade-sun-card ${SEL.type==='cover'&&SEL.blockIndex===bi?'active':''}" data-cover-block="${bi}"><div class="facade-sun-head"><div><strong>${roof.id} · Cubierta</strong><span>Horizontal</span></div><span class="sun-hours">${formatHours(roof.minutes)}</span></div><div class="sun-track">${trackHTML(roof.segments)}</div><div class="sun-range"><span>${formatClock(roof.first)}</span><span>${formatClock(roof.last)}</span></div><div class="coverage-note">Sombras entre bloques incluidas</div></article>`});grid.innerHTML=out;qsa('[data-face-block]').forEach(el=>el.onclick=()=>select3DObject('facade',+el.dataset.faceIndex,+el.dataset.faceBlock));qsa('[data-cover-block]').forEach(el=>el.onclick=()=>select3DObject('cover',0,+el.dataset.coverBlock));renderSelectionInspector();updateSelectedSunPanel()}
-function updateSelectedSunPanel(){if(SEL.type==='cover'){const r=(lastRoofResults||[]).find(x=>x.blockIndex===SEL.blockIndex);if(r){$('selected-facade-name').textContent=`${r.id} · Cubierta`;$('selected-facade-detail').textContent=`${r.blockName} · sombras entre bloques incluidas.`;$('selected-az').textContent='Horizontal';$('selected-hours').textContent=formatHours(r.minutes);$('selected-first').textContent=formatClock(r.first);$('selected-last').textContent=formatClock(r.last);$('selected-track').innerHTML=trackHTML(r.segments);return}}if(SEL.type!=='facade'){$('selected-facade-name').textContent='Ninguna';$('selected-facade-detail').textContent='Haz clic sobre una fachada del modelo 3D o del análisis solar.';['selected-az','selected-hours','selected-first','selected-last'].forEach(id=>$(id).textContent='—');$('selected-track').innerHTML='';return}const r=(lastSunResults||[]).find(x=>x.blockIndex===SEL.blockIndex&&x.index===SEL.index);if(!r)return;$('selected-facade-name').textContent=`${r.id} · ${r.orientation}`;$('selected-facade-detail').textContent=`${r.blockName} · longitud ${r.len.toFixed(2)} m · altura ${r.height.toFixed(2)} m · sombras del conjunto incluidas.`;$('selected-az').textContent=`${r.az.toFixed(1)}°`;$('selected-hours').textContent=formatHours(r.minutes);$('selected-first').textContent=formatClock(r.first);$('selected-last').textContent=formatClock(r.last);$('selected-track').innerHTML=trackHTML(r.segments)}
+function updateSelectedSunPanel(){
+  if(SEL.type==='cover'){
+    const b=S.blocks[SEL.blockIndex];
+    let r=(lastRoofResults||[]).find(x=>x.blockIndex===SEL.blockIndex);
+    if(!r&&b?.closed)r=computeRoofDaily(b,SEL.blockIndex);
+    if(r){
+      $('selected-facade-name').textContent=`${r.id} · Cubierta`;
+      $('selected-facade-detail').textContent=`${r.blockName||b?.name||''} · superficie horizontal superior · sombras producidas por los demás bloques incluidas.`;
+      $('selected-az').textContent='Horizontal';
+      $('selected-hours').textContent=formatHours(r.minutes);
+      $('selected-first').textContent=formatClock(r.first);
+      $('selected-last').textContent=formatClock(r.last);
+      $('selected-track').innerHTML=trackHTML(r.segments);
+      qsa('.facade-sun-card').forEach(c=>c.classList.remove('active'));
+      document.querySelector(`[data-cover-block="${r.blockIndex}"]`)?.classList.add('active');
+      return
+    }
+  }
+
+  if(SEL.type!=='facade'){
+    $('selected-facade-name').textContent='Ninguna';
+    $('selected-facade-detail').textContent='Haz clic sobre una fachada del modelo 3D o del análisis solar.';
+    ['selected-az','selected-hours','selected-first','selected-last'].forEach(id=>$(id).textContent='—');
+    $('selected-track').innerHTML='';
+    return
+  }
+
+  const b=S.blocks[SEL.blockIndex];
+  const f=b?.closed?facadeDescriptors(b,SEL.blockIndex)[SEL.index]:null;
+  let r=(lastSunResults||[]).find(x=>x.blockIndex===SEL.blockIndex&&x.index===SEL.index);
+
+  // Si la geometría cambió, calcula sólo la fachada seleccionada para no dejar
+  // el panel inferior vacío.
+  if(!r&&f){
+    const step=5,lat=+$('lat').value,lon=+$('lon').value,tz=+$('tz').value,base=$('date').value;
+    let minutes=0,first=null,last=null,flags=[];
+    for(let m=0;m<1440;m+=step){
+      const d=new Date(base+'T00:00:00');d.setHours(Math.floor(m/60),m%60);
+      const sun=solarPosition(d,lat,lon,tz),on=isFacadeSunlit(f,sun,true);
+      flags.push(on);
+      if(on){minutes+=step;if(first==null)first=m;last=m+step}
+    }
+    r={...f,minutes,first,last,segments:contiguousSegments(flags,step)}
+  }
+  if(!r)return;
+
+  $('selected-facade-name').textContent=`${r.id} · ${r.orientation}`;
+  $('selected-facade-detail').textContent=`${r.blockName||b?.name||''} · longitud ${r.len.toFixed(2)} m · altura ${r.height.toFixed(2)} m · análisis con autosombra y sombras del conjunto.`;
+  $('selected-az').textContent=`${r.az.toFixed(1)}°`;
+  $('selected-hours').textContent=formatHours(r.minutes);
+  $('selected-first').textContent=formatClock(r.first);
+  $('selected-last').textContent=formatClock(r.last);
+  $('selected-track').innerHTML=trackHTML(r.segments);
+
+  qsa('.facade-sun-card').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`[data-face-block="${r.blockIndex}"][data-face-index="${r.index}"]`)?.classList.add('active')
+}
 function updateSunPath(){
   if(!solarScene||!sunOrb)return;if(sunPathLine)solarScene.remove(sunPathLine);
   const pts=[],base=$('date').value,lat=+$('lat').value,lon=+$('lon').value,tz=+$('tz').value,r=20;
@@ -713,7 +1020,7 @@ function clearReferenceImage(){
   $('cad-hint').textContent=S.blocks.some(b=>b.closed)?'Imagen eliminada. Los bloques, la calibración y la orientación se conservaron.':'Imagen eliminada. Puedes cargar otra referencia cuando quieras.';
 }
 
-function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();initStaticMapPlanReference();initMapCapture();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{const b=activeBlock();b.pts.pop();b.closed=false;updateMetrics();drawCAD();rebuild3D()};$('add-block').addEventListener('click',addBlock);$('delete-block').addEventListener('click',deleteActiveBlock);$('block-name').addEventListener('input',()=>{activeBlock().name=$('block-name').value.trim()||`Bloque ${blockCode(S.activeBlock)}`;renderBlockList();updateDailySunDashboard()});$('wall-height').addEventListener('input',()=>{activeBlock().height=Math.max(.2,+$('wall-height').value||2.4);autoFit3D=true;renderBlockList();rebuild3D()});$('building-az').addEventListener('input',()=>{activeBlock().az=+$('building-az').value||0;autoFit3D=true;renderBlockList();rebuild3D()});$('image-file').onchange=e=>{clearStaticMapPlanReference(false);clearCapturedMapReference(false);const f=e.target.files[0];if(!f)return;if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}const url=URL.createObjectURL(f),img=new Image();img.onload=()=>{S.img=img;S.imgURL=url;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.blocks=[{id:'A',name:'Bloque A',pts:[],closed:false,height:2.4,az:0}];S.activeBlock=0;S.scale=null;S.calPts=[];autoFit3D=true;syncBlockEditor();updateImageControls();fitImage();updateMetrics()};img.onerror=()=>{try{URL.revokeObjectURL(url)}catch(_){};S.imgURL=null;updateImageControls()};img.src=url};$('clear-image').onclick=clearReferenceImage;updateImageControls();$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));['lat','lon'].forEach(id=>$(id).addEventListener('change',updateGoogleMapReference));$('time').addEventListener('input',updateSolar);$('reset-project').onclick=()=>{autoFit3D=true;S.blocks=[{id:'A',name:'Bloque A',pts:[],closed:false,height:2.4,az:0}];S.activeBlock=0;S.scale=null;S.calPts=[];S.northPts=[];SEL.type=null;SEL.index=null;SEL.blockIndex=0;syncBlockEditor();updateMetrics();drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam||'iso';if(buildingGroup)fitCameraToModel(camera,controls,buildingGroup,v)});syncBlockEditor();renderBlockList();initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
+function init(){$('status-pill').textContent='Módulo activo';initCommunes();applyLocationFromQuery();initReferenceModes();initStaticMapPlanReference();initMapCapture();const now=new Date();$('date').value=now.toISOString().slice(0,10);qsa('.tab').forEach(b=>b.onclick=()=>{qsa('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');qsa('.viewport').forEach(x=>x.classList.remove('active'));$(b.dataset.view+'-view').classList.add('active');setTimeout(()=>{resizeCanvas();resize3D()},20)});qsa('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fit').onclick=fitImage;$('undo').onclick=()=>{const b=activeBlock();b.pts.pop();b.closed=false;updateMetrics();drawCAD();rebuild3D()};$('add-block').addEventListener('click',addBlock);$('delete-block').addEventListener('click',deleteActiveBlock);$('block-name').addEventListener('input',()=>{activeBlock().name=$('block-name').value.trim()||`Bloque ${blockCode(S.activeBlock)}`;renderBlockList();updateDailySunDashboard()});$('wall-height').addEventListener('input',()=>{activeBlock().height=Math.max(.2,+$('wall-height').value||2.4);autoFit3D=true;renderBlockList();rebuild3D()});$('building-az').addEventListener('input',()=>{activeBlock().az=+$('building-az').value||0;autoFit3D=true;renderBlockList();rebuild3D()});$('image-file').onchange=e=>{clearStaticMapPlanReference(false);clearCapturedMapReference(false);const f=e.target.files[0];if(!f)return;if(S.imgURL){try{URL.revokeObjectURL(S.imgURL)}catch(_){}}const url=URL.createObjectURL(f),img=new Image();img.onload=()=>{S.img=img;S.imgURL=url;S.imgW=img.naturalWidth;S.imgH=img.naturalHeight;S.blocks=[{id:'A',name:'Bloque A',pts:[],closed:false,height:2.4,az:0}];S.activeBlock=0;S.scale=null;S.calPts=[];autoFit3D=true;syncBlockEditor();updateImageControls();fitImage();updateMetrics()};img.onerror=()=>{try{URL.revokeObjectURL(url)}catch(_){};S.imgURL=null;updateImageControls()};img.src=url};$('clear-image').onclick=clearReferenceImage;updateImageControls();$('cal-distance').onchange=applyCalibration;$('coords').onchange=()=>{const p=parseCoords($('coords').value);if(p){$('lat').value=p[0].toFixed(6);$('lon').value=p[1].toFixed(6);updateSolar();updateSunPath();updateDailySunDashboard();updateGoogleMapReference()}};['lat','lon','date','tz'].forEach(id=>$(id).addEventListener('input',()=>{updateSolar();updateSunPath();updateDailySunDashboard()}));['lat','lon'].forEach(id=>$(id).addEventListener('change',updateGoogleMapReference));$('time').addEventListener('input',updateSolar);$('reset-project').onclick=()=>{autoFit3D=true;S.blocks=[{id:'A',name:'Bloque A',pts:[],closed:false,height:2.4,az:0}];S.activeBlock=0;S.scale=null;S.calPts=[];S.northPts=[];SEL.type=null;SEL.index=null;SEL.blockIndex=0;syncBlockEditor();updateMetrics();drawCAD();rebuild3D()};$('play').onclick=()=>{if(playTimer){clearInterval(playTimer);playTimer=null;$('play').textContent='▶'}else{playTimer=setInterval(()=>{let v=+$('time').value+10;if(v>1260)v=300;$('time').value=v;updateSolar()},120);$('play').textContent='❚❚'}};qsa('[data-cam]').forEach(b=>b.onclick=()=>{const v=b.dataset.cam||'iso';if(buildingGroup)fitCameraToModel(camera,controls,buildingGroup,v)});syncBlockEditor();renderBlockList();initScenes();resizeCanvas();fitImage();rebuild3D();updateSolar();updateSunPath();updateDailySunDashboard();updateNorthHUD();window.addEventListener('resize',()=>{resizeCanvas();resize3D()})}
 function communeLabel(){
   const reg=$('region-select'),com=$('commune-select');
   const r=reg?.options?.[reg.selectedIndex]?.textContent?.trim()||'';

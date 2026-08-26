@@ -334,3 +334,120 @@
 
 /* HIGROLAB V8.10.0 · SOLAR STUDIO MULTIBLOQUE */
 .solar-block-panel .block-panel-intro,.solar-block-panel .block-help{margin:0 0 10px;padding:9px 10px;border-radius:9px;background:#f3fbfa;border:1px solid #d5e9e6;color:#31474d;font-size:.68rem;line-height:1.45}.solar-block-panel .block-help{margin-top:10px;border-left:4px solid #00cbe8;background:#f2fcff}.solar-block-list{display:grid;gap:6px;margin:8px 0}.solar-block-item{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;padding:7px 8px;border:1px solid #dbe6e5;border-radius:9px;background:#fff;text-align:left;cursor:pointer}.solar-block-item:hover{border-color:#91d8d1;background:#f7fcfb}.solar-block-item.active{border-color:#00bda9;box-shadow:0 0 0 2px rgba(0,189,169,.11);background:#f0fcfa}.solar-block-code{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--block-color,#00cbe8);color:#102126;font-size:.73rem;font-weight:950}.solar-block-item b,.solar-block-item small{display:block}.solar-block-item b{color:#14282d;font-size:.72rem}.solar-block-item small{margin-top:2px;color:#496068;font-size:.59rem}.solar-block-item .block-state{padding:4px 6px;border-radius:999px;background:#eef3f3;color:#3b5158;font-size:.55rem;font-weight:850}.solar-block-item.closed .block-state{background:#eaffd8;color:#3b681d}.solar-block-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 10px}.solar-block-actions button{min-height:36px;border-radius:8px;border:1px solid #cbdcda;background:#fff;color:#173b3c;font-weight:850;cursor:pointer}.solar-block-actions #add-block{background:linear-gradient(135deg,#80e900,#34d6a0);border-color:#77d95d}.solar-block-actions #delete-block{background:#fff4f8;border-color:#f2c7d9;color:#8f2450}.active-block-editor{padding:10px;border:1px solid #dae5e4;border-radius:10px;background:#fbfdfd}.active-block-title{display:flex;align-items:center;gap:8px;margin-bottom:8px}.active-block-title span{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:#00cbe8;color:#102126;font-weight:950}.active-block-title strong{font-size:.78rem}.block-metrics{margin-top:10px}.block-metrics>div:nth-child(1){border-top:4px solid #ff2f8a}.block-metrics>div:nth-child(2){border-top:4px solid #00cbe8}.block-metrics>div:nth-child(3){border-top:4px solid #80e900}.facade-sun-card .block-badge{display:inline-flex;margin-left:5px;padding:2px 5px;border-radius:999px;background:#e8f5f3;color:#24514d;font-size:.52rem;font-weight:900}.sun-block-heading{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:8px;padding:7px 9px;border-left:5px solid var(--block-color,#00cbe8);border-radius:8px;background:#f7faf9}.sun-block-heading b{font-size:.72rem;color:#183137}.sun-block-heading span{font-size:.6rem;color:#546a70}@media(max-width:650px){.solar-block-actions{grid-template-columns:1fr}}
+
+
+/* =====================================================================
+   HIGROLAB V8.10.1 · SELECCIÓN DE FACHADAS + NORTE FLOTANTE
+   ===================================================================== */
+
+/* Norte siempre en coordenadas de pantalla: no pertenece al modelo 3D. */
+.north-compass{
+  position:absolute;
+  right:18px;
+  top:92px;
+  z-index:30;
+  width:54px;
+  padding:7px 6px 6px;
+  border:1px solid #c9d7d8;
+  border-radius:14px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 7px 22px rgba(15,48,55,.14);
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  backdrop-filter:blur(8px);
+}
+.north-compass-dial{
+  position:relative;
+  width:36px;
+  height:36px;
+  border:1px solid #c9d7d8;
+  border-radius:50%;
+  background:#f8fbfb;
+}
+.north-compass-dial b{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:2;
+  font-size:9px;
+  font-weight:950;
+  color:#17353b;
+}
+.north-needle{
+  position:absolute;
+  left:50%;
+  top:5px;
+  width:2px;
+  height:26px;
+  margin-left:-1px;
+  transform-origin:50% 13px;
+  transition:transform .12s ease;
+}
+.north-needle:before{
+  content:"";
+  position:absolute;
+  left:-4px;
+  top:-2px;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-bottom:10px solid #d13a32;
+}
+.north-needle:after{
+  content:"";
+  position:absolute;
+  left:0;
+  top:7px;
+  width:2px;
+  height:17px;
+  background:#d13a32;
+}
+.north-compass small{
+  margin-top:3px;
+  font-size:8px;
+  font-weight:850;
+  color:#516970;
+}
+
+/* Etiquetas también sirven como acceso directo a la selección. */
+.facade-label-layer{pointer-events:none}
+.facade-label-3d{
+  pointer-events:auto;
+  cursor:pointer;
+}
+.facade-label-3d:hover{
+  background:#00a99a;
+  color:#fff;
+  transform:translate(-50%,-50%) scale(1.07);
+}
+
+/* La malla de selección invisible no debe bloquear visualmente el modelo. */
+#three-stage canvas,#three-solar canvas{touch-action:none}
+
+@media(max-width:720px){
+  .north-compass{
+    right:10px;
+    top:76px;
+    width:46px;
+    padding:5px;
+  }
+  .north-compass-dial{width:32px;height:32px}
+}
+
+
+/* =====================================================================
+   HIGROLAB V8.10.2 · SELECCIÓN PERSISTENTE + NORTE DOBLE
+   ===================================================================== */
+.facade-label-3d.active{
+  background:#ff2f8a!important;
+  color:#fff!important;
+  border-color:#fff!important;
+  box-shadow:0 0 0 3px rgba(255,47,138,.18),0 5px 16px rgba(0,0,0,.18)!important;
+  transform:translate(-50%,-50%) scale(1.12)!important;
+}
+.facade-sun-card.active{
+  border-color:#ff2f8a!important;
+  box-shadow:0 0 0 2px rgba(255,47,138,.12)!important;
+  background:#fff7fb!important;
+}
